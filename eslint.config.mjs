@@ -8,7 +8,9 @@ import globals from 'globals';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 export default defineConfig(
-  { ignores: ['dist', 'coverage', 'cdk.out'] },
+  {
+    ignores: ['dist', 'coverage', 'cdk.out'],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.ts'],
@@ -28,6 +30,14 @@ export default defineConfig(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+    },
+  },
+  // Test override: allow require and any in test files
+  {
+    files: ['**/*.test.ts', '**/*.spec.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 );

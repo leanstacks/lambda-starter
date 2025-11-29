@@ -43,7 +43,7 @@ This project uses the following technologies:
   /models
     task.ts                     # Task data model
   /utils
-    aws-clients.ts              # AWS SDK clients
+    dynamodb-client.ts          # AWS SDK client for DynamoDB
     config.ts                   # App configuration helper
     response.ts                 # Helper for formatting Lambda responses
     response.test.ts
