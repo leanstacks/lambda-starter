@@ -1,0 +1,47 @@
+{
+  "name": "lambda-starter",
+  "version": "0.1.0",
+  "description": "A starter project for Lambda functions using Node.js and TypeScript.",
+  "keywords": [
+    "aws",
+    "lambda",
+    "typescript",
+    "node"
+  ],
+  "homepage": "https://github.com/leanstacks/lambda-starter#readme",
+  "bugs": {
+    "url": "https://github.com/leanstacks/lambda-starter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leanstacks/lambda-starter.git"
+  },
+  "license": "MIT",
+  "author": "Matthew Warman",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "clean": "rimraf cdk.out coverage dist",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@types/node": "24.10.1",
+    "@typescript-eslint/eslint-plugin": "8.48.0",
+    "@typescript-eslint/parser": "8.48.0",
+    "eslint": "9.39.1",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "16.5.0",
+    "prettier": "3.7.2",
+    "rimraf": "6.1.2",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.48.0"
+  }
+}
