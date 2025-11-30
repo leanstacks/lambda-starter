@@ -14,6 +14,7 @@
     "deploy:all": "cdk deploy --all",
     "diff": "cdk diff",
     "destroy": "cdk destroy",
+    "destroy:all": "cdk destroy --all",
     "test": "jest --coverage=false --silent --verbose",
     "test:coverage": "jest --coverage --silent --verbose",
     "test:watch": "jest --watch"
