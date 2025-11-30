@@ -20,6 +20,7 @@ const environmentConfig = getEnvironmentConfig(config);
 
 // Create Data Stack
 const dataStack = new DataStack(app, `${config.CDK_APP_NAME}-data-stack-${config.CDK_ENV}`, {
+  appName: config.CDK_APP_NAME,
   envName: config.CDK_ENV,
   stackName: `${config.CDK_APP_NAME}-data-${config.CDK_ENV}`,
   description: `Data resources for ${config.CDK_APP_NAME} (${config.CDK_ENV})`,
@@ -28,6 +29,7 @@ const dataStack = new DataStack(app, `${config.CDK_APP_NAME}-data-stack-${config
 
 // Create Lambda Stack
 new LambdaStack(app, `${config.CDK_APP_NAME}-lambda-stack-${config.CDK_ENV}`, {
+  appName: config.CDK_APP_NAME,
   envName: config.CDK_ENV,
   stackName: `${config.CDK_APP_NAME}-lambda-${config.CDK_ENV}`,
   description: `Lambda functions and API Gateway for ${config.CDK_APP_NAME} (${config.CDK_ENV})`,

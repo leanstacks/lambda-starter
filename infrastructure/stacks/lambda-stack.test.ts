@@ -37,6 +37,7 @@ describe('LambdaStack', () => {
       });
 
       const stack = new LambdaStack(testApp, 'TestLambdaStack', {
+        appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
         enableLogging: true,
@@ -47,7 +48,7 @@ describe('LambdaStack', () => {
 
     it('should create a list tasks Lambda function', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
-        FunctionName: 'list-tasks-dev',
+        FunctionName: 'lambda-starter-list-tasks-dev',
         Runtime: 'nodejs24.x',
         Handler: 'handler',
         Timeout: 10,
@@ -173,6 +174,7 @@ describe('LambdaStack', () => {
       });
 
       const stack = new LambdaStack(testApp, 'TestLambdaStack', {
+        appName: 'lambda-starter',
         envName: 'prd',
         taskTable: testMockTable,
         enableLogging: true,
@@ -183,7 +185,7 @@ describe('LambdaStack', () => {
 
     it('should create Lambda with prd naming', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
-        FunctionName: 'list-tasks-prd',
+        FunctionName: 'lambda-starter-list-tasks-prd',
       });
     });
 
@@ -226,6 +228,7 @@ describe('LambdaStack', () => {
       });
 
       const stack = new LambdaStack(testApp, 'TestLambdaStack', {
+        appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
         enableLogging: true,

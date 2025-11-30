@@ -9,6 +9,7 @@ describe('DataStack', () => {
     beforeAll(() => {
       const app = new cdk.App();
       const stack = new DataStack(app, 'TestDataStack', {
+        appName: 'lambda-starter',
         envName: 'dev',
       });
       template = Template.fromStack(stack);
@@ -16,7 +17,7 @@ describe('DataStack', () => {
 
     it('should create a Task table', () => {
       template.hasResourceProperties('AWS::DynamoDB::Table', {
-        TableName: 'task-dev',
+        TableName: 'lambda-starter-task-dev',
         BillingMode: 'PAY_PER_REQUEST',
         KeySchema: [
           {
@@ -78,6 +79,7 @@ describe('DataStack', () => {
     beforeAll(() => {
       const app = new cdk.App();
       const stack = new DataStack(app, 'TestDataStack', {
+        appName: 'lambda-starter',
         envName: 'prd',
       });
       template = Template.fromStack(stack);
@@ -85,7 +87,7 @@ describe('DataStack', () => {
 
     it('should create a Task table with prd naming', () => {
       template.hasResourceProperties('AWS::DynamoDB::Table', {
-        TableName: 'task-prd',
+        TableName: 'lambda-starter-task-prd',
       });
     });
 

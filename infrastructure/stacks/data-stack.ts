@@ -7,6 +7,11 @@ import { Construct } from 'constructs';
  */
 export interface DataStackProps extends cdk.StackProps {
   /**
+   * Application name.
+   */
+  appName: string;
+
+  /**
    * Environment name (dev, qat, prd).
    */
   envName: string;
@@ -26,7 +31,7 @@ export class DataStack extends cdk.Stack {
 
     // Create Task table
     this.taskTable = new dynamodb.Table(this, 'TaskTable', {
-      tableName: `task-${props.envName}`,
+      tableName: `${props.appName}-task-${props.envName}`,
       partitionKey: {
         name: 'id',
         type: dynamodb.AttributeType.STRING,

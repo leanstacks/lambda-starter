@@ -12,6 +12,11 @@ import { Construct } from 'constructs';
  */
 export interface LambdaStackProps extends cdk.StackProps {
   /**
+   * Application name.
+   */
+  appName: string;
+
+  /**
    * Environment name (dev, qat, prd).
    */
   envName: string;
@@ -51,7 +56,7 @@ export class LambdaStack extends cdk.Stack {
 
     // Create the list tasks Lambda function
     this.listTasksFunction = new NodejsFunction(this, 'ListTasksFunction', {
-      functionName: `list-tasks-${props.envName}`,
+      functionName: `${props.appName}-list-tasks-${props.envName}`,
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
       entry: path.join(__dirname, '../../src/handlers/list-tasks.ts'),
@@ -62,17 +67,15 @@ export class LambdaStack extends cdk.Stack {
       },
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
-      depsLockFilePath: path.join(__dirname, '../../package-lock.json'),
       bundling: {
         minify: true,
-        sourceMap: false,
-        externalModules: ['@aws-sdk/*'],
+        sourceMap: true,
       },
       loggingFormat: lambda.LoggingFormat.JSON,
       applicationLogLevelV2: lambda.ApplicationLogLevel.INFO,
       systemLogLevelV2: lambda.SystemLogLevel.INFO,
       logGroup: new logs.LogGroup(this, 'ListTasksFunctionLogGroup', {
-        logGroupName: `/aws/lambda/list-tasks-${props.envName}`,
+        logGroupName: `/aws/lambda/${props.appName}-list-tasks-${props.envName}`,
         retention: props.envName === 'prd' ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
         removalPolicy: props.envName === 'prd' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
       }),
@@ -83,7 +86,7 @@ export class LambdaStack extends cdk.Stack {
 
     // Create API Gateway REST API
     this.api = new apigateway.RestApi(this, 'LambdaStarterApi', {
-      restApiName: `lambda-starter-api-${props.envName}`,
+      restApiName: `${props.appName}-api-${props.envName}`,
       description: `Lambda Starter API for ${props.envName} environment`,
       deployOptions: {
         stageName: props.envName,
