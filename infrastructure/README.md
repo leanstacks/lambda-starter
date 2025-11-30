@@ -170,14 +170,16 @@ npm run deploy
 
 All CDK configuration is managed through environment variables prefixed with `CDK_` to avoid conflicts with application code.
 
-| Variable       | Required | Description                                | Valid Values        | Default                            |
-| -------------- | -------- | ------------------------------------------ | ------------------- | ---------------------------------- |
-| `CDK_APP_NAME` | No       | Application name for stack naming and tags | Any string          | `lambda-starter`                   |
-| `CDK_ENV`      | Yes      | Infrastructure environment                 | `dev`, `qat`, `prd` | -                                  |
-| `CDK_ACCOUNT`  | No       | Override AWS account ID                    | 12-digit account ID | `CDK_DEFAULT_ACCOUNT` from AWS CLI |
-| `CDK_REGION`   | No       | Override AWS region                        | Valid AWS region    | `CDK_DEFAULT_REGION` from AWS CLI  |
-| `CDK_OU`       | No       | Organizational unit                        | Any string          | `leanstacks`                       |
-| `CDK_OWNER`    | No       | Team or owner name                         | Any string          | `unknown`                          |
+| Variable                 | Required | Description                                | Valid Values                     | Default                            |
+| ------------------------ | -------- | ------------------------------------------ | -------------------------------- | ---------------------------------- |
+| `CDK_APP_NAME`           | No       | Application name for stack naming and tags | Any string                       | `lambda-starter`                   |
+| `CDK_ENV`                | Yes      | Infrastructure environment                 | `dev`, `qat`, `prd`              | -                                  |
+| `CDK_ACCOUNT`            | No       | Override AWS account ID                    | 12-digit account ID              | `CDK_DEFAULT_ACCOUNT` from AWS CLI |
+| `CDK_REGION`             | No       | Override AWS region                        | Valid AWS region                 | `CDK_DEFAULT_REGION` from AWS CLI  |
+| `CDK_OU`                 | No       | Organizational unit                        | Any string                       | `leanstacks`                       |
+| `CDK_OWNER`              | No       | Team or owner name                         | Any string                       | `unknown`                          |
+| `CDK_APP_ENABLE_LOGGING` | No       | Enable application logging                 | `true`, `false`                  | `true`                             |
+| `CDK_APP_LOGGING_LEVEL`  | No       | Application logging level                  | `debug`, `info`, `warn`, `error` | `info`                             |
 
 ### AWS Account and Region Resolution
 
@@ -257,6 +259,47 @@ npm run cdk destroy --all
 
 - `TaskTableName`: The DynamoDB table name (exported as `{env}-task-table-name`)
 - `TaskTableArn`: The DynamoDB table ARN (exported as `{env}-task-table-arn`)
+
+### Lambda Stack
+
+**Purpose:** Manages Lambda functions, API Gateway, and application runtime resources.
+
+**Stack Name:** `lambda-starter-lambda-{env}` (e.g., `lambda-starter-lambda-dev`)
+
+**Resources:**
+
+- **List Tasks Function** (`list-tasks-{env}`)
+  - Runtime: Node.js 24.x
+  - Memory: 256 MB
+  - Timeout: 10 seconds
+  - Log Format: JSON (structured logging)
+  - Log Retention:
+    - `prd`: 30 days
+    - Other environments: 7 days
+  - Log Removal Policy:
+    - `prd`: `RETAIN` (logs preserved on stack deletion)
+    - Other environments: `DESTROY` (logs deleted on stack deletion)
+
+- **Lambda Starter API** (`lambda-starter-api-{env}`)
+  - Type: REST API
+  - CORS: Enabled with preflight OPTIONS support
+  - Throttling: Rate and burst limits configured
+  - Stage: `{env}` (e.g., `dev`, `prd`)
+
+**Outputs:**
+
+- `ApiUrl`: The API Gateway endpoint URL
+- `ApiId`: The API Gateway ID
+- `ListTasksFunctionArn`: The Lambda function ARN
+
+**Logging Configuration:**
+
+The Lambda stack uses the `CDK_APP_ENABLE_LOGGING` and `CDK_APP_LOGGING_LEVEL` environment variables to configure application logging:
+
+- **CDK_APP_ENABLE_LOGGING**: Controls whether logging is enabled in the Lambda functions
+- **CDK_APP_LOGGING_LEVEL**: Sets the minimum log level (`debug`, `info`, `warn`, `error`)
+
+These values are passed to the Lambda functions as environment variables (`ENABLE_LOGGING` and `LOG_LEVEL`) and control both CloudWatch log output and application-level logging behavior.
 
 ## Resource Tagging
 

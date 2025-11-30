@@ -194,6 +194,7 @@ The lambda-starter infrastructure uses a modular, environment-aware design:
 │  │  • Environment Variables (.env)    │ │
 │  │  • Zod Validation                  │ │
 │  │  • AWS Account/Region Resolution   │ │
+│  │  • Logging Configuration           │ │
 │  └────────────────────────────────────┘ │
 │                                          │
 │  ┌────────────────────────────────────┐ │
@@ -204,10 +205,17 @@ The lambda-starter infrastructure uses a modular, environment-aware design:
 │  └────────────────────────────────────┘ │
 │                                          │
 │  ┌────────────────────────────────────┐ │
+│  │         Lambda Stack               │ │
+│  │  • Lambda Functions                │ │
+│  │  • API Gateway REST API            │ │
+│  │  • CloudWatch Logs (JSON format)   │ │
+│  │  • Environment-specific retention  │ │
+│  └────────────────────────────────────┘ │
+│                                          │
+│  ┌────────────────────────────────────┐ │
 │  │      Future Stacks (Planned)       │ │
-│  │  • Lambda Stack                    │ │
-│  │  • API Gateway Stack               │ │
 │  │  • Monitoring Stack                │ │
+│  │  • Networking Stack                │ │
 │  └────────────────────────────────────┘ │
 └─────────────────────────────────────────┘
 ```
@@ -306,14 +314,16 @@ The lambda-starter infrastructure uses a modular, environment-aware design:
 
 All configuration is managed through environment variables prefixed with `CDK_`:
 
-| Variable       | Required | Description             | Default          |
-| -------------- | -------- | ----------------------- | ---------------- |
-| `CDK_APP_NAME` | No       | Application name        | `lambda-starter` |
-| `CDK_ENV`      | Yes      | Environment             | -                |
-| `CDK_ACCOUNT`  | No       | AWS account ID override | From AWS CLI     |
-| `CDK_REGION`   | No       | AWS region override     | From AWS CLI     |
-| `CDK_OU`       | No       | Organizational unit     | `leanstacks`     |
-| `CDK_OWNER`    | No       | Resource owner          | `unknown`        |
+| Variable                 | Required | Description                | Default          |
+| ------------------------ | -------- | -------------------------- | ---------------- |
+| `CDK_APP_NAME`           | No       | Application name           | `lambda-starter` |
+| `CDK_ENV`                | Yes      | Environment                | -                |
+| `CDK_ACCOUNT`            | No       | AWS account ID override    | From AWS CLI     |
+| `CDK_REGION`             | No       | AWS region override        | From AWS CLI     |
+| `CDK_OU`                 | No       | Organizational unit        | `leanstacks`     |
+| `CDK_OWNER`              | No       | Resource owner             | `unknown`        |
+| `CDK_APP_ENABLE_LOGGING` | No       | Enable application logging | `true`           |
+| `CDK_APP_LOGGING_LEVEL`  | No       | Application logging level  | `info`           |
 
 ### Configuration Validation
 
@@ -327,6 +337,11 @@ const configSchema = z.object({
   CDK_REGION: z.string().optional(),
   CDK_OU: z.string().optional(),
   CDK_OWNER: z.string().optional(),
+  CDK_APP_ENABLE_LOGGING: z
+    .string()
+    .transform((val) => val === 'true')
+    .default('true'),
+  CDK_APP_LOGGING_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 });
 ```
 
@@ -393,6 +408,105 @@ Each environment can have different settings:
 // Reference in Lambda code
 const tableName = process.env.TASK_TABLE_NAME;
 ```
+
+### Lambda Stack
+
+**Purpose**: Manages Lambda functions, API Gateway, and application runtime resources.
+
+**Stack Naming**: `{app-name}-lambda-{env}` (e.g., `lambda-starter-lambda-dev`)
+
+#### List Tasks Function
+
+**Resource Type**: AWS Lambda Function
+
+**Configuration**:
+
+- **Function Name**: `list-tasks-{env}`
+- **Runtime**: Node.js 24.x
+- **Handler**: `handler` (bundled with esbuild)
+- **Memory**: 256 MB
+- **Timeout**: 10 seconds
+- **Log Format**: JSON (structured logging)
+- **Bundling**: Automatic TypeScript compilation with esbuild
+- **Environment Variables**:
+  - `TASKS_TABLE`: DynamoDB table name
+  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+
+**CloudWatch Logs**:
+
+- **Log Group**: `/aws/lambda/list-tasks-{env}`
+- **Log Retention**:
+  - `prd`: 30 days
+  - Other environments: 7 days
+- **Removal Policy**:
+  - `prd`: `RETAIN` (logs preserved on stack deletion)
+  - Other environments: `DESTROY` (logs deleted on stack deletion)
+
+#### Lambda Starter API
+
+**Resource Type**: API Gateway REST API
+
+**Configuration**:
+
+- **API Name**: `lambda-starter-api-{env}`
+- **Description**: "Lambda Starter API for {env} environment"
+- **Stage**: `{env}` (e.g., `dev`, `prd`)
+- **CORS**: Enabled with preflight OPTIONS support
+  - Allowed Headers: `Content-Type`, `Authorization`
+  - Allowed Methods: Configured per resource
+  - Allowed Origins: Configured per environment
+- **Throttling**:
+  - Rate limits configured per stage
+  - Burst limits configured per stage
+
+**API Resources**:
+
+- **GET /tasks**: List all tasks
+  - Integration: Lambda proxy integration
+  - Response: JSON array of tasks
+
+**Outputs**:
+
+- `ApiUrl`: The API Gateway endpoint URL (e.g., `https://abc123.execute-api.us-east-1.amazonaws.com/dev/`)
+- `ApiId`: The API Gateway ID
+- `ListTasksFunctionArn`: The Lambda function ARN
+
+**Logging Configuration**:
+
+The Lambda stack uses environment variables to configure application behavior:
+
+- **CDK_APP_ENABLE_LOGGING**: Controls whether logging is enabled in Lambda functions
+  - Set to `true` (default) or `false`
+  - Passed to Lambda as `ENABLE_LOGGING` environment variable
+  - When disabled, Lambda functions produce minimal log output
+
+- **CDK_APP_LOGGING_LEVEL**: Sets the minimum log level for application logs
+  - Valid values: `debug`, `info` (default), `warn`, `error`
+  - Passed to Lambda as `LOG_LEVEL` environment variable
+  - Controls verbosity of application logging
+
+**Example Usage**:
+
+```bash
+# Development with debug logging
+CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_LEVEL=debug
+
+# Production with info logging
+CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_LEVEL=info
+
+# Disable logging (not recommended)
+CDK_APP_ENABLE_LOGGING=false
+```
+
+**IAM Permissions**:
+
+The Lambda function is granted:
+
+- **DynamoDB**: Read access (Scan) to the Task table
+- **CloudWatch Logs**: Write access to its log group
 
 ### Resource Tagging
 
@@ -535,7 +649,11 @@ npm run cdk watch
 
 ```bash
 # 1. Configure for dev
-echo "CDK_ENV=dev" > .env
+cat > .env << EOF
+CDK_ENV=dev
+CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_LEVEL=debug
+EOF
 
 # 2. Review changes
 npm run diff
@@ -555,6 +673,8 @@ CDK_ACCOUNT=123456789012
 CDK_REGION=us-east-1
 CDK_OU=leanstacks
 CDK_OWNER=platform-team
+CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_LEVEL=info
 EOF
 
 # 2. Review changes carefully
@@ -571,6 +691,8 @@ npm run deploy
 export CDK_ENV=prd
 export CDK_ACCOUNT=123456789012
 export CDK_REGION=us-east-1
+export CDK_APP_ENABLE_LOGGING=true
+export CDK_APP_LOGGING_LEVEL=info
 
 # Deploy without prompts
 npm run deploy -- --require-approval never

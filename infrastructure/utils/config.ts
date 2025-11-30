@@ -11,6 +11,11 @@ const configSchema = z.object({
   CDK_REGION: z.string().optional(),
   CDK_OU: z.string().optional(),
   CDK_OWNER: z.string().optional(),
+  CDK_APP_ENABLE_LOGGING: z
+    .enum(['true', 'false'] as const)
+    .default('true')
+    .transform((val) => val === 'true'),
+  CDK_APP_LOGGING_LEVEL: z.enum(['debug', 'info', 'warn', 'error'] as const).default('info'),
 });
 
 /**

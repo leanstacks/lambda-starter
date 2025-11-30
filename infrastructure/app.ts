@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 
 import { getConfig, getEnvironmentConfig, getTags } from './utils/config';
 import { DataStack } from './stacks/data-stack';
+import { LambdaStack } from './stacks/lambda-stack';
 
 // Load and validate configuration
 const config = getConfig();
@@ -18,10 +19,21 @@ const tags = getTags(config);
 const environmentConfig = getEnvironmentConfig(config);
 
 // Create Data Stack
-new DataStack(app, `${config.CDK_APP_NAME}-data-stack-${config.CDK_ENV}`, {
+const dataStack = new DataStack(app, `${config.CDK_APP_NAME}-data-stack-${config.CDK_ENV}`, {
   envName: config.CDK_ENV,
   stackName: `${config.CDK_APP_NAME}-data-${config.CDK_ENV}`,
   description: `Data resources for ${config.CDK_APP_NAME} (${config.CDK_ENV})`,
+  ...(environmentConfig && { env: environmentConfig }),
+});
+
+// Create Lambda Stack
+new LambdaStack(app, `${config.CDK_APP_NAME}-lambda-stack-${config.CDK_ENV}`, {
+  envName: config.CDK_ENV,
+  stackName: `${config.CDK_APP_NAME}-lambda-${config.CDK_ENV}`,
+  description: `Lambda functions and API Gateway for ${config.CDK_APP_NAME} (${config.CDK_ENV})`,
+  taskTable: dataStack.taskTable,
+  enableLogging: config.CDK_APP_ENABLE_LOGGING,
+  loggingLevel: config.CDK_APP_LOGGING_LEVEL,
   ...(environmentConfig && { env: environmentConfig }),
 });
 

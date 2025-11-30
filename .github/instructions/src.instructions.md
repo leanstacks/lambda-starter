@@ -5,6 +5,8 @@ applyTo: 'src/**/*.ts,!src/**/*.test.ts,!src/**/*.spec.ts'
 # Source Code Guidelines
 
 - Use **TypeScript** for all source and infrastructure code.
+- Use arrow functions for defining functions.
+- Use path aliases for cleaner imports (e.g., `@utils`, `@models`).
 - Handlers parse input, call services, and return responses reside in `/handlers`.
 - Core business logic should reside in `/services`.
 - Create types and interfaces in `/models` for data structures and DTOs.
