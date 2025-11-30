@@ -33,7 +33,7 @@ export class DataStack extends cdk.Stack {
     this.taskTable = new dynamodb.Table(this, 'TaskTable', {
       tableName: `${props.appName}-task-${props.envName}`,
       partitionKey: {
-        name: 'id',
+        name: 'pk',
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,

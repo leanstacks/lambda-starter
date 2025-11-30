@@ -1,6 +1,6 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb';
 
-import { Task } from '../models/task.js';
+import { Task, TaskItem, toTask } from '../models/task.js';
 import { config } from '../utils/config.js';
 import { dynamoDocClient } from '../utils/dynamodb-client.js';
 import { logger } from '../utils/logger.js';
@@ -20,12 +20,15 @@ export const listTasks = async (): Promise<Task[]> => {
 
     const response = await dynamoDocClient.send(command);
 
+    const taskItems = (response.Items as TaskItem[]) ?? [];
+    const tasks = taskItems.map(toTask);
+
     logger.info('Successfully retrieved tasks', {
-      count: response.Items?.length ?? 0,
+      count: tasks.length,
       scannedCount: response.ScannedCount,
     });
 
-    return (response.Items as Task[]) ?? [];
+    return tasks;
   } catch (error) {
     logger.error('Failed to fetch tasks from DynamoDB', error as Error, {
       tableName: config.TASKS_TABLE,

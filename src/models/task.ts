@@ -1,19 +1,43 @@
-import { z } from 'zod';
+/**
+ * Prefix for task partition keys in Single Table Design
+ */
+export const TASK_PK_PREFIX = 'TASK#';
 
 /**
- * Zod schema for Task validation
+ * Type representing a Task (without DynamoDB-specific fields)
  */
-export const taskSchema = z.object({
-  id: z.uuid('Task id must be a valid UUID'),
-  title: z.string().min(1, 'Task title is required').max(100, 'Task title must not exceed 100 characters'),
-  detail: z.string().max(1000, 'Task detail must not exceed 1000 characters').optional(),
-  dueAt: z.iso.datetime('Task dueAt must be a valid ISO8601 timestamp').optional(),
-  isComplete: z.boolean().default(false),
-  createdAt: z.iso.datetime('Task createdAt must be a valid ISO8601 timestamp'),
-  updatedAt: z.iso.datetime('Task updatedAt must be a valid ISO8601 timestamp'),
-});
+export type Task = {
+  id: string;
+  title: string;
+  detail?: string;
+  dueAt?: string;
+  isComplete: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
 
 /**
- * Type representing a Task
+ * Type representing a Task as stored in DynamoDB (Single Table Design)
+ * Extends Task with partition key for Single Table Design
  */
-export type Task = z.infer<typeof taskSchema>;
+export type TaskItem = Task & {
+  pk: string; // Partition key: TASK#<uuid>
+};
+
+/**
+ * Transforms a TaskItem from DynamoDB into a Task
+ * @param taskItem - The task item from DynamoDB
+ * @returns Task object without DynamoDB-specific fields
+ */
+export const toTask = (taskItem: TaskItem): Task => {
+  const { pk: _pk, ...task } = taskItem;
+  return task;
+};
+
+/**
+ * Keys for DynamoDB operations related to Task items using Single Table Design.
+ * These keys help in constructing keys for tasks.
+ */
+export const TaskKeys = {
+  pk: (id: string) => `${TASK_PK_PREFIX}${id}`,
+};

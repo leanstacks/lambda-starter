@@ -389,7 +389,7 @@ Each environment can have different settings:
 **Configuration**:
 
 - **Table Name**: `task-{env}`
-- **Partition Key**: `id` (String)
+- **Partition Key**: `pk` (String)
 - **Billing Mode**: Pay-per-request (on-demand)
 - **Encryption**: AWS managed (SSE)
 - **Point-in-time Recovery**: Enabled for `prd` only

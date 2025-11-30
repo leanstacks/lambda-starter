@@ -1,4 +1,4 @@
-import { Task } from '../models/task';
+import { TaskItem } from '../models/task';
 
 // Mock dependencies
 const mockSend = jest.fn();
@@ -56,8 +56,9 @@ describe('task-service', () => {
 
     it('should return all tasks when they exist', async () => {
       // Arrange
-      const mockTasks: Task[] = [
+      const mockTaskItems: TaskItem[] = [
         {
+          pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
           id: '123e4567-e89b-12d3-a456-426614174000',
           title: 'Test Task 1',
           detail: 'Test detail 1',
@@ -66,6 +67,7 @@ describe('task-service', () => {
           updatedAt: '2025-11-01T10:00:00.000Z',
         },
         {
+          pk: 'TASK#123e4567-e89b-12d3-a456-426614174001',
           id: '123e4567-e89b-12d3-a456-426614174001',
           title: 'Test Task 2',
           dueAt: '2025-12-01T10:00:00.000Z',
@@ -76,7 +78,7 @@ describe('task-service', () => {
       ];
 
       mockSend.mockResolvedValue({
-        Items: mockTasks,
+        Items: mockTaskItems,
         ScannedCount: 2,
       });
 
@@ -85,7 +87,11 @@ describe('task-service', () => {
 
       // Assert
       expect(result).toHaveLength(2);
-      expect(result).toEqual(mockTasks);
+      // Tasks should not include pk field
+      expect(result[0]).not.toHaveProperty('pk');
+      expect(result[1]).not.toHaveProperty('pk');
+      expect(result[0].id).toBe('123e4567-e89b-12d3-a456-426614174000');
+      expect(result[1].id).toBe('123e4567-e89b-12d3-a456-426614174001');
       expect(mockSend).toHaveBeenCalledTimes(1);
     });
 
