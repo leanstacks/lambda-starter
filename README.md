@@ -115,6 +115,7 @@ npm run test:watch
 - **Testing:** Jest
 - **Linting/Formatting:** ESLint + Prettier
 - **Validation:** Zod
+- **Logging:** Pino + Pino Lambda
 - **Package Manager:** npm
 - **Infrastructure:** AWS CDK
 - **DevOps:** GitHub Actions
@@ -143,17 +144,6 @@ The project supports multiple environments:
 - **prd** - Production environment
 
 Each environment has its own AWS account and configuration.
-
-## Contributing
-
-Contributions are welcome! Please follow the existing code style and ensure all tests pass before submitting a pull request.
-
-```bash
-# Before committing, ensure:
-npm run format       # Code is formatted
-npm run lint         # No linting errors
-npm run test:coverage # All tests pass
-```
 
 ## License
 
