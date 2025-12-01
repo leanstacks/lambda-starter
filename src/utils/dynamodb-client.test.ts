@@ -1,6 +1,6 @@
 describe('dynamodb-client', () => {
   let dynamoDocClient: typeof import('./dynamodb-client').dynamoDocClient;
-  let dynamoDBClient: typeof import('./dynamodb-client').dynamoDBClient;
+  let dynamoClient: typeof import('./dynamodb-client').dynamoClient;
   let mockLoggerInfo: jest.Mock;
 
   beforeEach(() => {
@@ -39,22 +39,22 @@ describe('dynamodb-client', () => {
     it('should create a DynamoDB client instance', () => {
       // Arrange & Act
       const module = require('./dynamodb-client');
-      dynamoDBClient = module.dynamoDBClient;
+      dynamoClient = module.dynamoClient;
 
       // Assert
-      expect(dynamoDBClient).toBeDefined();
-      expect(dynamoDBClient.constructor.name).toBe('DynamoDBClient');
+      expect(dynamoClient).toBeDefined();
+      expect(dynamoClient.constructor.name).toBe('DynamoDBClient');
     });
 
     it('should configure DynamoDB client with AWS region from config', () => {
       // Arrange & Act
       const module = require('./dynamodb-client');
-      dynamoDBClient = module.dynamoDBClient;
+      dynamoClient = module.dynamoClient;
 
       // Assert
-      expect(dynamoDBClient).toBeDefined();
+      expect(dynamoClient).toBeDefined();
       // Verify the client has the config property
-      expect(dynamoDBClient.config).toBeDefined();
+      expect(dynamoClient.config).toBeDefined();
     });
 
     it('should log initialization with region information', () => {
@@ -62,8 +62,10 @@ describe('dynamodb-client', () => {
       require('./dynamodb-client');
 
       // Assert
-      expect(mockLoggerInfo).toHaveBeenCalledWith('Initialized AWS DynamoDB client', {
-        region: 'us-east-1',
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[DynamoDBClient] - Initialized AWS DynamoDB client', {
+        config: {
+          region: 'us-east-1',
+        },
       });
     });
   });
@@ -83,11 +85,11 @@ describe('dynamodb-client', () => {
       // Arrange & Act
       const module = require('./dynamodb-client');
       dynamoDocClient = module.dynamoDocClient;
-      dynamoDBClient = module.dynamoDBClient;
+      dynamoClient = module.dynamoClient;
 
       // Assert
       expect(dynamoDocClient).toBeDefined();
-      expect(dynamoDBClient).toBeDefined();
+      expect(dynamoClient).toBeDefined();
       expect(dynamoDocClient.constructor.name).toBe('DynamoDBDocumentClient');
     });
   });
@@ -130,25 +132,27 @@ describe('dynamodb-client', () => {
       require('./dynamodb-client');
 
       // Assert
-      expect(mockLoggerInfo).toHaveBeenCalledWith('Initialized AWS DynamoDB client', {
-        region: 'eu-west-1',
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[DynamoDBClient] - Initialized AWS DynamoDB client', {
+        config: {
+          region: 'eu-west-1',
+        },
       });
     });
   });
 
   describe('exports', () => {
-    it('should export both dynamoDBClient and dynamoDocClient', () => {
+    it('should export both dynamoClient and dynamoDocClient', () => {
       // Arrange & Act
       const module = require('./dynamodb-client');
 
       // Assert
-      expect(module.dynamoDBClient).toBeDefined();
+      expect(module.dynamoClient).toBeDefined();
       expect(module.dynamoDocClient).toBeDefined();
     });
 
-    it('should export dynamoDBClient as DynamoDBClient instance', () => {
+    it('should export dynamoClient as DynamoDBClient instance', () => {
       // Arrange & Act
-      const { dynamoDBClient: client } = require('./dynamodb-client');
+      const { dynamoClient: client } = require('./dynamodb-client');
 
       // Assert
       expect(client.constructor.name).toBe('DynamoDBClient');

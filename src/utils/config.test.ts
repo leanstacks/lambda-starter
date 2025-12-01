@@ -7,6 +7,16 @@ describe('config', () => {
     // Reset modules to clear the config cache
     jest.resetModules();
 
+    // Mock logger to avoid circular dependency issues during testing
+    jest.doMock('./logger', () => ({
+      logger: {
+        debug: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+      },
+    }));
+
     // Reset environment variables to a clean slate
     process.env = { ...originalEnv };
   });
@@ -41,6 +51,7 @@ describe('config', () => {
       expect(config.AWS_REGION).toBe('us-east-1');
       expect(config.ENABLE_LOGGING).toBe(true);
       expect(config.LOG_LEVEL).toBe('debug');
+      expect(config.LOG_FORMAT).toBe('json');
       expect(config.CORS_ALLOW_ORIGIN).toBe('*');
     });
 
@@ -50,6 +61,7 @@ describe('config', () => {
       process.env.AWS_REGION = 'us-west-2';
       process.env.ENABLE_LOGGING = 'false';
       process.env.LOG_LEVEL = 'error';
+      process.env.LOG_FORMAT = 'text';
       process.env.CORS_ALLOW_ORIGIN = 'https://example.com';
 
       // Act
@@ -59,6 +71,7 @@ describe('config', () => {
       expect(config.AWS_REGION).toBe('us-west-2');
       expect(config.ENABLE_LOGGING).toBe(false);
       expect(config.LOG_LEVEL).toBe('error');
+      expect(config.LOG_FORMAT).toBe('text');
       expect(config.CORS_ALLOW_ORIGIN).toBe('https://example.com');
     });
 
@@ -148,6 +161,32 @@ describe('config', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
       process.env.ENABLE_LOGGING = 'yes';
+
+      // Act & Assert
+      expect(() => {
+        const { config: testConfig } = require('./config');
+        return testConfig;
+      }).toThrow('Configuration validation failed');
+    });
+
+    it('should validate LOG_FORMAT enum values', () => {
+      // Arrange
+      process.env.TASKS_TABLE = 'my-tasks-table';
+
+      // Act & Assert - valid values
+      const validLogFormats = ['text', 'json'];
+      validLogFormats.forEach((format) => {
+        jest.resetModules();
+        process.env.LOG_FORMAT = format;
+        config = require('./config').config;
+        expect(config.LOG_FORMAT).toBe(format);
+      });
+    });
+
+    it('should throw error for invalid LOG_FORMAT', () => {
+      // Arrange
+      process.env.TASKS_TABLE = 'my-tasks-table';
+      process.env.LOG_FORMAT = 'xml';
 
       // Act & Assert
       expect(() => {

@@ -1,24 +1,24 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 import { config } from './config.js';
 import { logger } from './logger.js';
 
 /**
- * Singleton DynamoDB client configured with the application's region
+ * Configuration for the DynamoDB client
  */
-const dynamoClient = new DynamoDBClient({
+const clientConfig: DynamoDBClientConfig = {
   region: config.AWS_REGION,
-});
-
-logger.info('Initialized AWS DynamoDB client', { region: config.AWS_REGION });
+};
 
 /**
- * DynamoDB Document client for easier interaction with DynamoDB
+ * Singleton DynamoDB client configured with the application's region
+ */
+export const dynamoClient = new DynamoDBClient(clientConfig);
+
+/**
+ * Singleton DynamoDB Document client for easier interaction with DynamoDB
  */
 export const dynamoDocClient = DynamoDBDocumentClient.from(dynamoClient);
 
-/**
- * Export the base DynamoDB client for direct operations if needed
- */
-export const dynamoDBClient = dynamoClient;
+logger.info('[DynamoDBClient] - Initialized AWS DynamoDB client', { config: clientConfig });

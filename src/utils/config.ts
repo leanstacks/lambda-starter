@@ -16,6 +16,7 @@ const envSchema = z.object({
     .default('true')
     .transform((val) => val === 'true'),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error'] as const).default('debug'),
+  LOG_FORMAT: z.enum(['text', 'json'] as const).default('json'),
 
   // CORS configuration
   CORS_ALLOW_ORIGIN: z.string().default('*'),
@@ -35,7 +36,7 @@ let configCache: Config | null = null;
  * Validates environment variables against schema and returns a validated config object
  * @throws {Error} if validation fails
  */
-function validateConfig(): Config {
+const _validateConfig = (): Config => {
   try {
     // Parse and validate environment variables
     return envSchema.parse(process.env);
@@ -50,16 +51,16 @@ function validateConfig(): Config {
     // Re-throw other errors
     throw error;
   }
-}
+};
 
 /**
  * Refreshes the configuration by re-validating environment variables
  * Useful in tests when environment variables are changed
  */
-export function refreshConfig(): Config {
-  configCache = validateConfig();
+export const refreshConfig = (): Config => {
+  configCache = _validateConfig();
   return configCache;
-}
+};
 
 /**
  * Validated configuration object

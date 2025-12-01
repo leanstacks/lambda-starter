@@ -21,13 +21,13 @@ describe('DataStack', () => {
         BillingMode: 'PAY_PER_REQUEST',
         KeySchema: [
           {
-            AttributeName: 'id',
+            AttributeName: 'pk',
             KeyType: 'HASH',
           },
         ],
         AttributeDefinitions: [
           {
-            AttributeName: 'id',
+            AttributeName: 'pk',
             AttributeType: 'S',
           },
         ],

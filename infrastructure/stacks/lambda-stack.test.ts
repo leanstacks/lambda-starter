@@ -42,6 +42,7 @@ describe('LambdaStack', () => {
         taskTable: testMockTable,
         enableLogging: true,
         loggingLevel: 'debug',
+        loggingFormat: 'json',
       });
       template = Template.fromStack(stack);
     });
@@ -63,6 +64,7 @@ describe('LambdaStack', () => {
             TASKS_TABLE: Match.anyValue(),
             ENABLE_LOGGING: 'true',
             LOG_LEVEL: 'debug',
+            LOG_FORMAT: 'json',
           },
         },
       });
@@ -179,6 +181,7 @@ describe('LambdaStack', () => {
         taskTable: testMockTable,
         enableLogging: true,
         loggingLevel: 'info',
+        loggingFormat: 'json',
       });
       template = Template.fromStack(stack);
     });
@@ -233,6 +236,7 @@ describe('LambdaStack', () => {
         taskTable: testMockTable,
         enableLogging: true,
         loggingLevel: 'debug',
+        loggingFormat: 'json',
       });
       template = Template.fromStack(stack);
     });

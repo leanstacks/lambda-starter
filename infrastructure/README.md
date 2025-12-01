@@ -180,6 +180,7 @@ All CDK configuration is managed through environment variables prefixed with `CD
 | `CDK_OWNER`              | No       | Team or owner name                         | Any string                       | `unknown`                          |
 | `CDK_APP_ENABLE_LOGGING` | No       | Enable application logging                 | `true`, `false`                  | `true`                             |
 | `CDK_APP_LOGGING_LEVEL`  | No       | Application logging level                  | `debug`, `info`, `warn`, `error` | `info`                             |
+| `CDK_APP_LOGGING_FORMAT` | No       | Application logging format                 | `text`, `json`                   | `json`                             |
 
 ### AWS Account and Region Resolution
 
@@ -294,12 +295,18 @@ npm run cdk destroy --all
 
 **Logging Configuration:**
 
-The Lambda stack uses the `CDK_APP_ENABLE_LOGGING` and `CDK_APP_LOGGING_LEVEL` environment variables to configure application logging:
+The Lambda stack uses the `CDK_APP_ENABLE_LOGGING`, `CDK_APP_LOGGING_LEVEL`, and `CDK_APP_LOGGING_FORMAT` environment variables to configure application logging:
 
 - **CDK_APP_ENABLE_LOGGING**: Controls whether logging is enabled in the Lambda functions
 - **CDK_APP_LOGGING_LEVEL**: Sets the minimum log level (`debug`, `info`, `warn`, `error`)
+- **CDK_APP_LOGGING_FORMAT**: Sets the log output format (`text` or `json`)
 
-These values are passed to the Lambda functions as environment variables (`ENABLE_LOGGING` and `LOG_LEVEL`) and control both CloudWatch log output and application-level logging behavior.
+These values are passed to the Lambda functions as environment variables (`ENABLE_LOGGING`, `LOG_LEVEL`, and `LOG_FORMAT`) and control both CloudWatch log output and application-level logging behavior.
+
+**Log Format Options:**
+
+- **json** (default): Structured JSON logs ideal for CloudWatch Logs Insights and log aggregation tools. Each log entry is a JSON object with fields like `timestamp`, `level`, `message`, and any additional context fields.
+- **text**: Human-readable text format with timestamp, level, and message. Context is stringified and appended to the message.
 
 ## Resource Tagging
 

@@ -36,6 +36,7 @@ new LambdaStack(app, `${config.CDK_APP_NAME}-lambda-stack-${config.CDK_ENV}`, {
   taskTable: dataStack.taskTable,
   enableLogging: config.CDK_APP_ENABLE_LOGGING,
   loggingLevel: config.CDK_APP_LOGGING_LEVEL,
+  loggingFormat: config.CDK_APP_LOGGING_FORMAT,
   ...(environmentConfig && { env: environmentConfig }),
 });
 

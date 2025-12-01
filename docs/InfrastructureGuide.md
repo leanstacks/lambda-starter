@@ -324,6 +324,7 @@ All configuration is managed through environment variables prefixed with `CDK_`:
 | `CDK_OWNER`              | No       | Resource owner             | `unknown`        |
 | `CDK_APP_ENABLE_LOGGING` | No       | Enable application logging | `true`           |
 | `CDK_APP_LOGGING_LEVEL`  | No       | Application logging level  | `info`           |
+| `CDK_APP_LOGGING_FORMAT` | No       | Application logging format | `json`           |
 
 ### Configuration Validation
 
@@ -342,6 +343,7 @@ const configSchema = z.object({
     .transform((val) => val === 'true')
     .default('true'),
   CDK_APP_LOGGING_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  CDK_APP_LOGGING_FORMAT: z.enum(['text', 'json']).default('json'),
 });
 ```
 
@@ -432,6 +434,7 @@ const tableName = process.env.TASK_TABLE_NAME;
   - `TASKS_TABLE`: DynamoDB table name
   - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
   - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
 **CloudWatch Logs**:
 
@@ -486,16 +489,24 @@ The Lambda stack uses environment variables to configure application behavior:
   - Passed to Lambda as `LOG_LEVEL` environment variable
   - Controls verbosity of application logging
 
+- **CDK_APP_LOGGING_FORMAT**: Sets the log output format
+  - Valid values: `text`, `json` (default)
+  - Passed to Lambda as `LOG_FORMAT` environment variable
+  - `json`: Structured JSON logs ideal for CloudWatch Logs Insights and log aggregation
+  - `text`: Human-readable text format with stringified context
+
 **Example Usage**:
 
 ```bash
-# Development with debug logging
+# Development with debug logging in text format
 CDK_APP_ENABLE_LOGGING=true
 CDK_APP_LOGGING_LEVEL=debug
+CDK_APP_LOGGING_FORMAT=text
 
-# Production with info logging
+# Production with info logging in JSON format
 CDK_APP_ENABLE_LOGGING=true
 CDK_APP_LOGGING_LEVEL=info
+CDK_APP_LOGGING_FORMAT=json
 
 # Disable logging (not recommended)
 CDK_APP_ENABLE_LOGGING=false

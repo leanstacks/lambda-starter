@@ -35,6 +35,11 @@ export interface LambdaStackProps extends cdk.StackProps {
    * Application logging level.
    */
   loggingLevel: string;
+
+  /**
+   * Application logging format (text or json).
+   */
+  loggingFormat: string;
 }
 
 /**
@@ -64,6 +69,7 @@ export class LambdaStack extends cdk.Stack {
         TASKS_TABLE: props.taskTable.tableName,
         ENABLE_LOGGING: props.enableLogging.toString(),
         LOG_LEVEL: props.loggingLevel,
+        LOG_FORMAT: props.loggingFormat,
       },
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,

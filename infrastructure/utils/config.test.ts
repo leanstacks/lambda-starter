@@ -32,6 +32,7 @@ describe('config', () => {
       process.env.CDK_OWNER = 'platform-team';
       process.env.CDK_APP_ENABLE_LOGGING = 'false';
       process.env.CDK_APP_LOGGING_LEVEL = 'warn';
+      process.env.CDK_APP_LOGGING_FORMAT = 'text';
 
       const config = getConfig();
 
@@ -44,6 +45,7 @@ describe('config', () => {
         CDK_OWNER: 'platform-team',
         CDK_APP_ENABLE_LOGGING: false,
         CDK_APP_LOGGING_LEVEL: 'warn',
+        CDK_APP_LOGGING_FORMAT: 'text',
       });
     });
 
@@ -58,6 +60,26 @@ describe('config', () => {
 
       expect(() => getConfig()).toThrow('CDK_ENV must be one of: dev, qat, prd');
     });
+
+    it('should validate CDK_APP_LOGGING_FORMAT enum values', () => {
+      process.env.CDK_ENV = 'dev';
+
+      // Valid values
+      const validFormats = ['text', 'json'];
+      validFormats.forEach((format) => {
+        jest.resetModules();
+        process.env.CDK_APP_LOGGING_FORMAT = format;
+        const config = getConfig();
+        expect(config.CDK_APP_LOGGING_FORMAT).toBe(format);
+      });
+    });
+
+    it('should throw error when CDK_APP_LOGGING_FORMAT is invalid', () => {
+      process.env.CDK_ENV = 'dev';
+      process.env.CDK_APP_LOGGING_FORMAT = 'xml';
+
+      expect(() => getConfig()).toThrow('CDK configuration validation failed');
+    });
   });
 
   describe('getTags', () => {
@@ -69,6 +91,7 @@ describe('config', () => {
         CDK_OWNER: 'platform-team',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const tags = getTags(config);
@@ -87,6 +110,7 @@ describe('config', () => {
         CDK_ENV: 'qat',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const tags = getTags(config);
@@ -105,6 +129,7 @@ describe('config', () => {
         CDK_ENV: 'dev',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const tags = getTags(config);
@@ -130,6 +155,7 @@ describe('config', () => {
         CDK_REGION: 'us-west-2',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -151,6 +177,7 @@ describe('config', () => {
         CDK_ENV: 'dev',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -172,6 +199,7 @@ describe('config', () => {
         CDK_REGION: 'ap-southeast-2',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -193,6 +221,7 @@ describe('config', () => {
         CDK_ENV: 'dev',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -209,6 +238,7 @@ describe('config', () => {
         CDK_ENV: 'dev',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -225,6 +255,7 @@ describe('config', () => {
         CDK_ENV: 'dev',
         CDK_APP_ENABLE_LOGGING: true,
         CDK_APP_LOGGING_LEVEL: 'info',
+        CDK_APP_LOGGING_FORMAT: 'json',
       };
 
       const envConfig = getEnvironmentConfig(config);

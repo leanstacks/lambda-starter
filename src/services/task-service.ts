@@ -11,7 +11,7 @@ import { logger } from '../utils/logger.js';
  * @throws Error if the DynamoDB scan operation fails
  */
 export const listTasks = async (): Promise<Task[]> => {
-  logger.info('Fetching all tasks from DynamoDB', { tableName: config.TASKS_TABLE });
+  logger.info('[TaskService] > listTasks', { tableName: config.TASKS_TABLE });
 
   try {
     const command = new ScanCommand({
@@ -23,14 +23,14 @@ export const listTasks = async (): Promise<Task[]> => {
     const taskItems = (response.Items as TaskItem[]) ?? [];
     const tasks = taskItems.map(toTask);
 
-    logger.info('Successfully retrieved tasks', {
+    logger.info('[TaskService] < listTasks - successfully retrieved tasks', {
       count: tasks.length,
       scannedCount: response.ScannedCount,
     });
 
     return tasks;
   } catch (error) {
-    logger.error('Failed to fetch tasks from DynamoDB', error as Error, {
+    logger.error('[TaskService] < listTasks - failed to fetch tasks from DynamoDB', error as Error, {
       tableName: config.TASKS_TABLE,
     });
     throw error;

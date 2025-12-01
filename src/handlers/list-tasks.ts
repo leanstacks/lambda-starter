@@ -12,23 +12,22 @@ import { logger } from '../utils/logger.js';
  * @returns API Gateway proxy result with list of tasks or error message
  */
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info('Processing list tasks request', {
+  logger.info('[ListTasks] > handler', {
     requestId: event.requestContext.requestId,
-    path: event.path,
-    httpMethod: event.httpMethod,
+    event,
   });
 
   try {
     const tasks = await listTasks();
 
-    logger.info('Successfully retrieved tasks', {
+    logger.info('[ListTasks] < handler - successfully retrieved tasks', {
       count: tasks.length,
       requestId: event.requestContext.requestId,
     });
 
     return ok(tasks);
   } catch (error) {
-    logger.error('Failed to list tasks', error as Error, {
+    logger.error('[ListTasks] < handler - failed to list tasks', error as Error, {
       requestId: event.requestContext.requestId,
     });
 

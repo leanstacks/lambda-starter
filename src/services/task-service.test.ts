@@ -49,7 +49,7 @@ describe('task-service', () => {
       // Assert
       expect(result).toEqual([]);
       expect(mockSend).toHaveBeenCalledTimes(1);
-      expect(mockLoggerInfo).toHaveBeenCalledWith('Fetching all tasks from DynamoDB', {
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] > listTasks', {
         tableName: 'test-tasks-table',
       });
     });

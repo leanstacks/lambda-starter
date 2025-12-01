@@ -1,4 +1,16 @@
+import pino from 'pino';
+
 import { config } from './config';
+
+const _logger = pino({
+  level: config.LOG_LEVEL,
+  formatters: {
+    level: (label) => {
+      return { level: label };
+    },
+  },
+  timestamp: pino.stdTimeFunctions.isoTime,
+});
 
 /**
  * Log levels with numeric values for comparison
@@ -15,57 +27,93 @@ type LogLevel = keyof typeof LOG_LEVELS;
 /**
  * Check if a given log level should be logged based on configured level
  */
-function shouldLog(level: LogLevel): boolean {
+const _shouldLog = (level: LogLevel): boolean => {
   if (!config.ENABLE_LOGGING) return false;
 
   const configuredLevel = LOG_LEVELS[config.LOG_LEVEL as LogLevel];
   const requestedLevel = LOG_LEVELS[level];
 
   return requestedLevel >= configuredLevel;
-}
+};
 
 /**
- * Format a log message with timestamp and metadata
+ * Internal logging function that logs messages in text format.
  */
-function formatLogMessage(level: LogLevel, message: string, context?: Record<string, unknown>): string {
-  const timestamp = new Date().toISOString();
-  const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-  return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
-}
+const _logText = (level: LogLevel, message: string, context?: Record<string, unknown>): void => {
+  switch (level) {
+    case 'debug':
+      console.debug(message, context);
+      break;
+    case 'info':
+      console.info(message, context);
+      break;
+    case 'warn':
+      console.warn(message, context);
+      break;
+    case 'error':
+      console.error(message, context);
+      break;
+  }
+};
+
+/**
+ * Internal logging function that logs messages in json format.
+ */
+const _logJson = (level: LogLevel, message: string, context?: Record<string, unknown>): void => {
+  switch (level) {
+    case 'debug':
+      _logger.debug({ context }, message);
+      break;
+    case 'info':
+      _logger.info({ context }, message);
+      break;
+    case 'warn':
+      _logger.warn({ context }, message);
+      break;
+    case 'error':
+      _logger.error({ context }, message);
+      break;
+  }
+};
+
+/**
+ * Internal logging function that routes to appropriate formatter.
+ */
+const _log = (level: LogLevel, message: string, context?: Record<string, unknown>): void => {
+  if (!_shouldLog(level)) return;
+
+  if (config.LOG_FORMAT === 'json') {
+    _logJson(level, message, context);
+  } else {
+    _logText(level, message, context);
+  }
+};
 
 /**
  * Logger utility configured based on environment settings
  */
 export const logger = {
   debug(message: string, context?: Record<string, unknown>): void {
-    if (shouldLog('debug')) {
-      console.debug(formatLogMessage('debug', message, context));
-    }
+    _log('debug', message, context);
   },
 
   info(message: string, context?: Record<string, unknown>): void {
-    if (shouldLog('info')) {
-      console.info(formatLogMessage('info', message, context));
-    }
+    _log('info', message, context);
   },
 
   warn(message: string, context?: Record<string, unknown>): void {
-    if (shouldLog('warn')) {
-      console.warn(formatLogMessage('warn', message, context));
-    }
+    _log('warn', message, context);
   },
 
   error(message: string, error?: Error, context?: Record<string, unknown>): void {
-    if (shouldLog('error')) {
-      const errorContext = error
-        ? {
-            ...context,
-            errorMessage: error.message,
-            stack: error.stack,
-          }
-        : context;
+    const errorContext = error
+      ? {
+          ...context,
+          errorMessage: error.message,
+          stack: error.stack,
+        }
+      : context;
 
-      console.error(formatLogMessage('error', message, errorContext));
-    }
+    _log('error', message, errorContext);
   },
 };

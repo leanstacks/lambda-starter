@@ -16,6 +16,7 @@ const configSchema = z.object({
     .default('true')
     .transform((val) => val === 'true'),
   CDK_APP_LOGGING_LEVEL: z.enum(['debug', 'info', 'warn', 'error'] as const).default('info'),
+  CDK_APP_LOGGING_FORMAT: z.enum(['text', 'json'] as const).default('json'),
 });
 
 /**
