@@ -187,8 +187,8 @@ The lambda-starter infrastructure uses a modular, environment-aware design:
 
 ```
 ┌─────────────────────────────────────────┐
-│           CDK Application                │
-│                                          │
+│           CDK Application               │
+│                                         │
 │  ┌────────────────────────────────────┐ │
 │  │        Configuration Layer         │ │
 │  │  • Environment Variables (.env)    │ │
@@ -196,26 +196,20 @@ The lambda-starter infrastructure uses a modular, environment-aware design:
 │  │  • AWS Account/Region Resolution   │ │
 │  │  • Logging Configuration           │ │
 │  └────────────────────────────────────┘ │
-│                                          │
+│                                         │
 │  ┌────────────────────────────────────┐ │
 │  │          Data Stack                │ │
 │  │  • DynamoDB Tables                 │ │
 │  │  • Environment-specific configs    │ │
 │  │  • Resource tagging                │ │
 │  └────────────────────────────────────┘ │
-│                                          │
+│                                         │
 │  ┌────────────────────────────────────┐ │
 │  │         Lambda Stack               │ │
 │  │  • Lambda Functions                │ │
 │  │  • API Gateway REST API            │ │
 │  │  • CloudWatch Logs (JSON format)   │ │
 │  │  • Environment-specific retention  │ │
-│  └────────────────────────────────────┘ │
-│                                          │
-│  ┌────────────────────────────────────┐ │
-│  │      Future Stacks (Planned)       │ │
-│  │  • Monitoring Stack                │ │
-│  │  • Networking Stack                │ │
 │  └────────────────────────────────────┘ │
 └─────────────────────────────────────────┘
 ```
@@ -231,12 +225,11 @@ The lambda-starter infrastructure uses a modular, environment-aware design:
 
 ### Technology Stack
 
-- **AWS CDK**: v2.178.0+
-- **TypeScript**: 5.9+
-- **Node.js**: v24+
-- **Testing**: Jest
-- **Validation**: Zod
-- **AWS SDK**: v3
+- **AWS CDK**: https://docs.aws.amazon.com/cdk/api/v2/
+- **TypeScript**: https://www.typescriptlang.org/
+- **Node.js**: https://nodejs.org/
+- **Testing**: https://jestjs.io/
+- **Validation**: https://zod.dev/
 
 ---
 
@@ -328,26 +321,7 @@ All configuration is managed through environment variables prefixed with `CDK_`:
 
 ### Configuration Validation
 
-Configuration is validated using Zod schemas:
-
-```typescript
-const configSchema = z.object({
-  CDK_APP_NAME: z.string().default('lambda-starter'),
-  CDK_ENV: z.enum(['dev', 'qat', 'prd']),
-  CDK_ACCOUNT: z.string().optional(),
-  CDK_REGION: z.string().optional(),
-  CDK_OU: z.string().optional(),
-  CDK_OWNER: z.string().optional(),
-  CDK_APP_ENABLE_LOGGING: z
-    .string()
-    .transform((val) => val === 'true')
-    .default('true'),
-  CDK_APP_LOGGING_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
-  CDK_APP_LOGGING_FORMAT: z.enum(['text', 'json']).default('json'),
-});
-```
-
-Invalid configurations fail at synthesis time with descriptive errors.
+Configuration is validated using Zod schemas. Invalid configurations fail at synthesis time with descriptive errors.
 
 ### AWS Account Resolution
 
@@ -390,7 +364,7 @@ Each environment can have different settings:
 
 **Configuration**:
 
-- **Table Name**: `task-{env}`
+- **Table Name**: `{app-name}-task-{env}`
 - **Partition Key**: `pk` (String)
 - **Billing Mode**: Pay-per-request (on-demand)
 - **Encryption**: AWS managed (SSE)
@@ -423,7 +397,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 
 **Configuration**:
 
-- **Function Name**: `list-tasks-{env}`
+- **Function Name**: `{app-name}-list-tasks-{env}`
 - **Runtime**: Node.js 24.x
 - **Handler**: `handler` (bundled with esbuild)
 - **Memory**: 256 MB
@@ -438,7 +412,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 
 **CloudWatch Logs**:
 
-- **Log Group**: `/aws/lambda/list-tasks-{env}`
+- **Log Group**: `/aws/lambda/{app-name}-list-tasks-{env}`
 - **Log Retention**:
   - `prd`: 30 days
   - Other environments: 7 days
@@ -452,7 +426,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 
 **Configuration**:
 
-- **API Name**: `lambda-starter-api-{env}`
+- **API Name**: `{app-name}-api-{env}`
 - **Description**: "Lambda Starter API for {env} environment"
 - **Stage**: `{env}` (e.g., `dev`, `prd`)
 - **CORS**: Enabled with preflight OPTIONS support
