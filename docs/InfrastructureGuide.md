@@ -420,6 +420,45 @@ const tableName = process.env.TASK_TABLE_NAME;
   - `prd`: `RETAIN` (logs preserved on stack deletion)
   - Other environments: `DESTROY` (logs deleted on stack deletion)
 
+**IAM Permissions**:
+
+- **DynamoDB**: Read access (Scan) to the Task table
+- **CloudWatch Logs**: Write access to its log group
+
+#### Create Task Function
+
+**Resource Type**: AWS Lambda Function
+
+**Configuration**:
+
+- **Function Name**: `{app-name}-create-task-{env}`
+- **Runtime**: Node.js 24.x
+- **Handler**: `handler` (bundled with esbuild)
+- **Memory**: 256 MB
+- **Timeout**: 10 seconds
+- **Log Format**: JSON (structured logging)
+- **Bundling**: Automatic TypeScript compilation with esbuild
+- **Environment Variables**:
+  - `TASKS_TABLE`: DynamoDB table name
+  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+
+**CloudWatch Logs**:
+
+- **Log Group**: `/aws/lambda/{app-name}-create-task-{env}`
+- **Log Retention**:
+  - `prd`: 30 days
+  - Other environments: 7 days
+- **Removal Policy**:
+  - `prd`: `RETAIN` (logs preserved on stack deletion)
+  - Other environments: `DESTROY` (logs deleted on stack deletion)
+
+**IAM Permissions**:
+
+- **DynamoDB**: Write access (PutItem) to the Task table
+- **CloudWatch Logs**: Write access to its log group
+
 #### Lambda Starter API
 
 **Resource Type**: API Gateway REST API
@@ -440,14 +479,20 @@ const tableName = process.env.TASK_TABLE_NAME;
 **API Resources**:
 
 - **GET /tasks**: List all tasks
-  - Integration: Lambda proxy integration
+  - Integration: Lambda proxy integration with List Tasks Function
   - Response: JSON array of tasks
+
+- **POST /tasks**: Create a new task
+  - Integration: Lambda proxy integration with Create Task Function
+  - Request Body: JSON object with task properties (title, description, status)
+  - Response: JSON object with created task including ID and timestamps
 
 **Outputs**:
 
 - `ApiUrl`: The API Gateway endpoint URL (e.g., `https://abc123.execute-api.us-east-1.amazonaws.com/dev/`)
 - `ApiId`: The API Gateway ID
-- `ListTasksFunctionArn`: The Lambda function ARN
+- `ListTasksFunctionArn`: The List Tasks Lambda function ARN
+- `CreateTaskFunctionArn`: The Create Task Lambda function ARN
 
 **Logging Configuration**:
 
@@ -485,13 +530,6 @@ CDK_APP_LOGGING_FORMAT=json
 # Disable logging (not recommended)
 CDK_APP_ENABLE_LOGGING=false
 ```
-
-**IAM Permissions**:
-
-The Lambda function is granted:
-
-- **DynamoDB**: Read access (Scan) to the Task table
-- **CloudWatch Logs**: Write access to its log group
 
 ### Resource Tagging
 
