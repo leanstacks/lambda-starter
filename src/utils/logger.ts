@@ -1,16 +1,29 @@
 import pino from 'pino';
+import { pinoLambdaDestination } from 'pino-lambda';
 
 import { config } from './config';
 
-const _logger = pino({
-  level: config.LOG_LEVEL,
-  formatters: {
-    level: (label) => {
-      return { level: label };
+/**
+ * Initialize Pino logger with Lambda destination
+ * @see https://www.npmjs.com/package/pino-lambda#best-practices
+ */
+const _lambdaDestination = pinoLambdaDestination();
+
+/**
+ * Pino logger instance
+ */
+const _logger = pino(
+  {
+    level: config.LOG_LEVEL,
+    formatters: {
+      level: (label) => {
+        return { level: label };
+      },
     },
+    timestamp: pino.stdTimeFunctions.isoTime,
   },
-  timestamp: pino.stdTimeFunctions.isoTime,
-});
+  _lambdaDestination,
+);
 
 /**
  * Log levels with numeric values for comparison

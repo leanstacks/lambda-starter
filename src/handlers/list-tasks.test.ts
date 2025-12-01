@@ -1,4 +1,4 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
+import { APIGatewayProxyEvent, Context } from 'aws-lambda';
 
 import { Task } from '../models/task';
 
@@ -85,6 +85,23 @@ describe('list-tasks handler', () => {
     };
   };
 
+  const createMockContext = (): Context => {
+    return {
+      callbackWaitsForEmptyEventLoop: false,
+      functionName: 'test-function',
+      functionVersion: '1',
+      invokedFunctionArn: 'arn:aws:lambda:us-east-1:123456789012:function:test-function',
+      memoryLimitInMB: '128',
+      awsRequestId: 'test-aws-request-id',
+      logGroupName: '/aws/lambda/test-function',
+      logStreamName: '2025/12/01/[$LATEST]test',
+      getRemainingTimeInMillis: () => 30000,
+      done: () => {},
+      fail: () => {},
+      succeed: () => {},
+    };
+  };
+
   describe('handler', () => {
     it('should return tasks when service returns successfully', async () => {
       // Arrange
@@ -108,9 +125,10 @@ describe('list-tasks handler', () => {
 
       mockListTasks.mockResolvedValue(mockTasks);
       const event = createMockEvent();
+      const context = createMockContext();
 
       // Act
-      const result = await handler(event);
+      const result = await handler(event, context);
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -127,9 +145,10 @@ describe('list-tasks handler', () => {
       // Arrange
       mockListTasks.mockResolvedValue([]);
       const event = createMockEvent();
+      const context = createMockContext();
 
       // Act
-      const result = await handler(event);
+      const result = await handler(event, context);
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -142,9 +161,10 @@ describe('list-tasks handler', () => {
       const mockError = new Error('Service error');
       mockListTasks.mockRejectedValue(mockError);
       const event = createMockEvent();
+      const context = createMockContext();
 
       // Act
-      const result = await handler(event);
+      const result = await handler(event, context);
 
       // Assert
       expect(result.statusCode).toBe(500);
@@ -163,9 +183,10 @@ describe('list-tasks handler', () => {
       // Arrange
       mockListTasks.mockResolvedValue([]);
       const event = createMockEvent();
+      const context = createMockContext();
 
       // Act
-      const result = await handler(event);
+      const result = await handler(event, context);
 
       // Assert
       expect(result.headers).toBeDefined();
@@ -177,9 +198,10 @@ describe('list-tasks handler', () => {
       // Arrange
       mockListTasks.mockResolvedValue([]);
       const event = createMockEvent();
+      const context = createMockContext();
 
       // Act
-      await handler(event);
+      await handler(event, context);
 
       // Assert
       expect(mockLoggerInfo).toHaveBeenCalledWith('[ListTasks] > handler', {
@@ -201,9 +223,10 @@ describe('list-tasks handler', () => {
       ];
       mockListTasks.mockResolvedValue(mockTasks);
       const event = createMockEvent();
+      const context = createMockContext();
 
       // Act
-      await handler(event);
+      await handler(event, context);
 
       // Assert
       expect(mockLoggerInfo).toHaveBeenCalledWith('[ListTasks] < handler - successfully retrieved tasks', {
