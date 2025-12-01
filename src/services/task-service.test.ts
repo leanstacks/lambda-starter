@@ -3,6 +3,7 @@ import { TaskItem } from '../models/task';
 
 // Mock dependencies
 const mockSend = jest.fn();
+const mockLoggerDebug = jest.fn();
 const mockLoggerInfo = jest.fn();
 const mockLoggerError = jest.fn();
 const mockRandomUUID = jest.fn();
@@ -19,6 +20,7 @@ jest.mock('../utils/dynamodb-client', () => ({
 
 jest.mock('../utils/logger', () => ({
   logger: {
+    debug: mockLoggerDebug,
     info: mockLoggerInfo,
     error: mockLoggerError,
   },

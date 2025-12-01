@@ -19,6 +19,7 @@ export const listTasks = async (): Promise<Task[]> => {
     const command = new ScanCommand({
       TableName: config.TASKS_TABLE,
     });
+    logger.debug('[TaskService] listTasks - ScanCommand', { command });
 
     const response = await dynamoDocClient.send(command);
 
@@ -67,6 +68,7 @@ export const createTask = async (createTaskDto: CreateTaskDto): Promise<Task> =>
       TableName: config.TASKS_TABLE,
       Item: taskItem,
     });
+    logger.debug('[TaskService] createTask - PutCommand', { command });
 
     await dynamoDocClient.send(command);
 
