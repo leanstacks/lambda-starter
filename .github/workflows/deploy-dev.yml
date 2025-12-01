@@ -1,0 +1,85 @@
+name: Deploy to DEV
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.1
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN_DEV }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: deploy-dev-lambda-starter
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Install infrastructure dependencies
+        working-directory: ./infrastructure
+        run: npm ci
+
+      - name: Create infrastructure .env file
+        working-directory: ./infrastructure
+        run: echo "${{ vars.CDK_ENV_DEV }}" > .env
+
+      - name: Build infrastructure
+        working-directory: ./infrastructure
+        run: npm run build
+
+      - name: Bootstrap CDK (if needed)
+        working-directory: ./infrastructure
+        run: |
+          # Check if bootstrap is needed
+          if ! aws cloudformation describe-stacks --stack-name CDKToolkit --region ${{ vars.AWS_REGION }} >/dev/null 2>&1; then
+            echo "Bootstrapping CDK..."
+            npm run bootstrap
+          else
+            echo "CDK already bootstrapped"
+          fi
+
+      - name: Synthesize CDK stacks
+        working-directory: ./infrastructure
+        run: npm run synth
+
+      - name: Deploy CDK stacks
+        working-directory: ./infrastructure
+        run: npm run deploy:all -- --require-approval never --progress events
+
+      # Final Step: Clean up sensitive infrastructure files
+      - name: Clean up sensitive files
+        if: always()
+        working-directory: ./infrastructure
+        run: |
+          echo "🧹 Cleaning up sensitive files..."
+          rm -f .env
+          rm -rf cdk.out
+          echo "✅ Sensitive files cleaned up"
