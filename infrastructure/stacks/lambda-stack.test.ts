@@ -57,6 +57,16 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should create a create task Lambda function', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'lambda-starter-create-task-dev',
+        Runtime: 'nodejs24.x',
+        Handler: 'handler',
+        Timeout: 10,
+        MemorySize: 256,
+      });
+    });
+
     it('should configure Lambda environment variables', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
         Environment: {
@@ -87,6 +97,12 @@ describe('LambdaStack', () => {
     it('should create a GET method on /tasks', () => {
       template.hasResourceProperties('AWS::ApiGateway::Method', {
         HttpMethod: 'GET',
+      });
+    });
+
+    it('should create a POST method on /tasks', () => {
+      template.hasResourceProperties('AWS::ApiGateway::Method', {
+        HttpMethod: 'POST',
       });
     });
 
@@ -136,6 +152,24 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should grant Lambda write access to DynamoDB', () => {
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: [
+                'dynamodb:BatchWriteItem',
+                'dynamodb:PutItem',
+                'dynamodb:UpdateItem',
+                'dynamodb:DeleteItem',
+                'dynamodb:DescribeTable',
+              ],
+            }),
+          ]),
+        },
+      });
+    });
+
     it('should export API URL', () => {
       template.hasOutput('ApiUrl', {
         Export: {
@@ -156,6 +190,14 @@ describe('LambdaStack', () => {
       template.hasOutput('ListTasksFunctionArn', {
         Export: {
           Name: 'dev-list-tasks-function-arn',
+        },
+      });
+    });
+
+    it('should export create task function ARN', () => {
+      template.hasOutput('CreateTaskFunctionArn', {
+        Export: {
+          Name: 'dev-create-task-function-arn',
         },
       });
     });
