@@ -21,6 +21,7 @@ This project uses the following technologies:
 - **Testing:** Jest
 - **Linting/Formatting:** ESLint + Prettier
 - **Validation:** Zod
+- **Logging:** Pino + Pino-Lambda
 - **Package Manager:** npm
 - **Infrastructure:** AWS CDK
 - **DevOps:** GitHub Actions
