@@ -407,8 +407,8 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
   - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
-  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
-  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+  - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
 **CloudWatch Logs**:
 
@@ -441,8 +441,8 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
   - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
-  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
-  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+  - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
 **CloudWatch Logs**:
 
@@ -475,8 +475,8 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
   - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
-  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
-  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+  - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
 **CloudWatch Logs**:
 
@@ -509,8 +509,8 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
   - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
-  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
-  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+  - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
 **CloudWatch Logs**:
 
@@ -543,8 +543,8 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
   - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
-  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
-  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+  - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
 **CloudWatch Logs**:
 
@@ -650,12 +650,12 @@ The Lambda stack uses environment variables to configure application behavior:
 
 - **CDK_APP_LOGGING_LEVEL**: Sets the minimum log level for application logs
   - Valid values: `debug`, `info` (default), `warn`, `error`
-  - Passed to Lambda as `LOG_LEVEL` environment variable
+  - Passed to Lambda as `LOGGING_LEVEL` environment variable
   - Controls verbosity of application logging
 
 - **CDK_APP_LOGGING_FORMAT**: Sets the log output format
   - Valid values: `text`, `json` (default)
-  - Passed to Lambda as `LOG_FORMAT` environment variable
+  - Passed to Lambda as `LOGGING_FORMAT` environment variable
   - `json`: Structured JSON logs ideal for CloudWatch Logs Insights and log aggregation
   - `text`: Human-readable text format with stringified context
 
