@@ -49,9 +49,9 @@ describe('config', () => {
 
       // Assert
       expect(config.AWS_REGION).toBe('us-east-1');
-      expect(config.ENABLE_LOGGING).toBe(true);
-      expect(config.LOG_LEVEL).toBe('debug');
-      expect(config.LOG_FORMAT).toBe('json');
+      expect(config.LOGGING_ENABLED).toBe(true);
+      expect(config.LOGGING_LEVEL).toBe('debug');
+      expect(config.LOGGING_FORMAT).toBe('json');
       expect(config.CORS_ALLOW_ORIGIN).toBe('*');
     });
 
@@ -59,9 +59,9 @@ describe('config', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
       process.env.AWS_REGION = 'us-west-2';
-      process.env.ENABLE_LOGGING = 'false';
-      process.env.LOG_LEVEL = 'error';
-      process.env.LOG_FORMAT = 'text';
+      process.env.LOGGING_ENABLED = 'false';
+      process.env.LOGGING_LEVEL = 'error';
+      process.env.LOGGING_FORMAT = 'text';
       process.env.CORS_ALLOW_ORIGIN = 'https://example.com';
 
       // Act
@@ -69,9 +69,9 @@ describe('config', () => {
 
       // Assert
       expect(config.AWS_REGION).toBe('us-west-2');
-      expect(config.ENABLE_LOGGING).toBe(false);
-      expect(config.LOG_LEVEL).toBe('error');
-      expect(config.LOG_FORMAT).toBe('text');
+      expect(config.LOGGING_ENABLED).toBe(false);
+      expect(config.LOGGING_LEVEL).toBe('error');
+      expect(config.LOGGING_FORMAT).toBe('text');
       expect(config.CORS_ALLOW_ORIGIN).toBe('https://example.com');
     });
 
@@ -105,33 +105,33 @@ describe('config', () => {
       }).toThrow('TASKS_TABLE');
     });
 
-    it('should transform ENABLE_LOGGING string to boolean true', () => {
+    it('should transform LOGGING_ENABLED string to boolean true', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
-      process.env.ENABLE_LOGGING = 'true';
+      process.env.LOGGING_ENABLED = 'true';
 
       // Act
       config = require('./config').config;
 
       // Assert
-      expect(config.ENABLE_LOGGING).toBe(true);
-      expect(typeof config.ENABLE_LOGGING).toBe('boolean');
+      expect(config.LOGGING_ENABLED).toBe(true);
+      expect(typeof config.LOGGING_ENABLED).toBe('boolean');
     });
 
-    it('should transform ENABLE_LOGGING string to boolean false', () => {
+    it('should transform LOGGING_ENABLED string to boolean false', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
-      process.env.ENABLE_LOGGING = 'false';
+      process.env.LOGGING_ENABLED = 'false';
 
       // Act
       config = require('./config').config;
 
       // Assert
-      expect(config.ENABLE_LOGGING).toBe(false);
-      expect(typeof config.ENABLE_LOGGING).toBe('boolean');
+      expect(config.LOGGING_ENABLED).toBe(false);
+      expect(typeof config.LOGGING_ENABLED).toBe('boolean');
     });
 
-    it('should validate LOG_LEVEL enum values', () => {
+    it('should validate LOGGING_LEVEL enum values', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
 
@@ -139,16 +139,16 @@ describe('config', () => {
       const validLogLevels = ['debug', 'info', 'warn', 'error'];
       validLogLevels.forEach((level) => {
         jest.resetModules();
-        process.env.LOG_LEVEL = level;
+        process.env.LOGGING_LEVEL = level;
         config = require('./config').config;
-        expect(config.LOG_LEVEL).toBe(level);
+        expect(config.LOGGING_LEVEL).toBe(level);
       });
     });
 
-    it('should throw error for invalid LOG_LEVEL', () => {
+    it('should throw error for invalid LOGGING_LEVEL', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
-      process.env.LOG_LEVEL = 'invalid';
+      process.env.LOGGING_LEVEL = 'invalid';
 
       // Act & Assert
       expect(() => {
@@ -157,10 +157,10 @@ describe('config', () => {
       }).toThrow('Configuration validation failed');
     });
 
-    it('should throw error for invalid ENABLE_LOGGING value', () => {
+    it('should throw error for invalid LOGGING_ENABLED value', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
-      process.env.ENABLE_LOGGING = 'yes';
+      process.env.LOGGING_ENABLED = 'yes';
 
       // Act & Assert
       expect(() => {
@@ -169,7 +169,7 @@ describe('config', () => {
       }).toThrow('Configuration validation failed');
     });
 
-    it('should validate LOG_FORMAT enum values', () => {
+    it('should validate LOGGING_FORMAT enum values', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
 
@@ -177,16 +177,16 @@ describe('config', () => {
       const validLogFormats = ['text', 'json'];
       validLogFormats.forEach((format) => {
         jest.resetModules();
-        process.env.LOG_FORMAT = format;
+        process.env.LOGGING_FORMAT = format;
         config = require('./config').config;
-        expect(config.LOG_FORMAT).toBe(format);
+        expect(config.LOGGING_FORMAT).toBe(format);
       });
     });
 
-    it('should throw error for invalid LOG_FORMAT', () => {
+    it('should throw error for invalid LOGGING_FORMAT', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
-      process.env.LOG_FORMAT = 'xml';
+      process.env.LOGGING_FORMAT = 'xml';
 
       // Act & Assert
       expect(() => {
@@ -289,7 +289,7 @@ describe('config', () => {
     it('should provide detailed error message for multiple validation failures', () => {
       // Arrange
       delete process.env.TASKS_TABLE;
-      process.env.LOG_LEVEL = 'invalid';
+      process.env.LOGGING_LEVEL = 'invalid';
 
       // Act & Assert
       expect(() => {
@@ -321,8 +321,8 @@ describe('config', () => {
       // Arrange
       process.env.TASKS_TABLE = 'my-tasks-table';
       process.env.AWS_REGION = 'us-east-1';
-      process.env.ENABLE_LOGGING = 'true';
-      process.env.LOG_LEVEL = 'info';
+      process.env.LOGGING_ENABLED = 'true';
+      process.env.LOGGING_LEVEL = 'info';
       process.env.CORS_ALLOW_ORIGIN = 'https://example.com';
 
       // Act
@@ -331,8 +331,8 @@ describe('config', () => {
       // Assert - verify all expected properties exist and have correct types
       expect(typeof config.TASKS_TABLE).toBe('string');
       expect(typeof config.AWS_REGION).toBe('string');
-      expect(typeof config.ENABLE_LOGGING).toBe('boolean');
-      expect(['debug', 'info', 'warn', 'error']).toContain(config.LOG_LEVEL);
+      expect(typeof config.LOGGING_ENABLED).toBe('boolean');
+      expect(['debug', 'info', 'warn', 'error']).toContain(config.LOGGING_LEVEL);
       expect(typeof config.CORS_ALLOW_ORIGIN).toBe('string');
     });
   });

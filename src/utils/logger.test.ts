@@ -6,13 +6,13 @@ describe('logger', () => {
   let mockError: jest.SpyInstance<void, [message?: any, ...optionalParams: any[]]>;
 
   // Helper to mock config before importing logger
-  function setConfig(overrides: Partial<{ ENABLE_LOGGING: boolean; LOG_LEVEL: string; LOG_FORMAT: string }>) {
+  function setConfig(overrides: Partial<{ LOGGING_ENABLED: boolean; LOGGING_LEVEL: string; LOGGING_FORMAT: string }>) {
     jest.resetModules();
     jest.doMock('./config', () => ({
       config: {
-        ENABLE_LOGGING: true,
-        LOG_LEVEL: 'debug',
-        LOG_FORMAT: 'json',
+        LOGGING_ENABLED: true,
+        LOGGING_LEVEL: 'debug',
+        LOGGING_FORMAT: 'json',
         ...overrides,
       },
     }));
@@ -38,7 +38,7 @@ describe('logger', () => {
 
   it('logs debug when enabled and level is debug', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'debug', LOG_FORMAT: 'text' });
+    setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'debug', LOGGING_FORMAT: 'text' });
 
     // Act
     logger.debug('debug message', { foo: 'bar' });
@@ -49,7 +49,7 @@ describe('logger', () => {
 
   it('does not log debug if level is info', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'info' });
+    setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'info' });
 
     // Act
     logger.debug('should not log');
@@ -60,7 +60,7 @@ describe('logger', () => {
 
   it('logs info when enabled and level is info', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'info', LOG_FORMAT: 'text' });
+    setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'info', LOGGING_FORMAT: 'text' });
 
     // Act
     logger.info('info message');
@@ -71,7 +71,7 @@ describe('logger', () => {
 
   it('does not log info if level is warn', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'warn' });
+    setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'warn' });
 
     // Act
     logger.info('should not log');
@@ -82,7 +82,7 @@ describe('logger', () => {
 
   it('logs warn when enabled and level is warn', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'warn', LOG_FORMAT: 'text' });
+    setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'warn', LOGGING_FORMAT: 'text' });
 
     // Act
     logger.warn('warn message', { a: 1 });
@@ -93,7 +93,7 @@ describe('logger', () => {
 
   it('logs error with error object', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'error', LOG_FORMAT: 'text' });
+    setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'error', LOGGING_FORMAT: 'text' });
     const error = new Error('fail');
 
     // Act
@@ -109,7 +109,7 @@ describe('logger', () => {
 
   it('logs error without error object', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'error', LOG_FORMAT: 'text' });
+    setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'error', LOGGING_FORMAT: 'text' });
 
     // Act
     logger.error('error message');
@@ -118,9 +118,9 @@ describe('logger', () => {
     expect(mockError).toHaveBeenCalledWith('error message', undefined);
   });
 
-  it('does not log if ENABLE_LOGGING is false', () => {
+  it('does not log if LOGGING_ENABLED is false', () => {
     // Arrange
-    setConfig({ ENABLE_LOGGING: false, LOG_LEVEL: 'debug' });
+    setConfig({ LOGGING_ENABLED: false, LOGGING_LEVEL: 'debug' });
 
     // Act
     logger.debug('should not log');
@@ -146,9 +146,9 @@ describe('logger', () => {
       stdoutSpy.mockRestore();
     });
 
-    it('logs as JSON when LOG_FORMAT is json', () => {
+    it('logs as JSON when LOGGING_FORMAT is json', () => {
       // Arrange
-      setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'info', LOG_FORMAT: 'json' });
+      setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'info', LOGGING_FORMAT: 'json' });
 
       // Act
       logger.info('test message', { userId: 123 });
@@ -163,7 +163,7 @@ describe('logger', () => {
 
     it('logs context as separate fields in JSON format', () => {
       // Arrange
-      setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'debug', LOG_FORMAT: 'json' });
+      setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'debug', LOGGING_FORMAT: 'json' });
 
       // Act
       logger.debug('processing request', { requestId: 'abc-123', duration: 250 });
@@ -179,7 +179,7 @@ describe('logger', () => {
 
     it('logs error details in JSON format', () => {
       // Arrange
-      setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'error', LOG_FORMAT: 'json' });
+      setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'error', LOGGING_FORMAT: 'json' });
       const error = new Error('test error');
 
       // Act
@@ -196,9 +196,9 @@ describe('logger', () => {
   });
 
   describe('text format', () => {
-    it('logs as text when LOG_FORMAT is text', () => {
+    it('logs as text when LOGGING_FORMAT is text', () => {
       // Arrange
-      setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'info', LOG_FORMAT: 'text' });
+      setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'info', LOGGING_FORMAT: 'text' });
 
       // Act
       logger.info('test message', { userId: 123 });
@@ -213,7 +213,7 @@ describe('logger', () => {
 
     it('logs with context as stringified object in text format', () => {
       // Arrange
-      setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'warn', LOG_FORMAT: 'text' });
+      setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'warn', LOGGING_FORMAT: 'text' });
 
       // Act
       logger.warn('warning message', { code: 'WARN_001' });
@@ -228,7 +228,7 @@ describe('logger', () => {
 
     it('logs error with error details in text format', () => {
       // Arrange
-      setConfig({ ENABLE_LOGGING: true, LOG_LEVEL: 'error', LOG_FORMAT: 'text' });
+      setConfig({ LOGGING_ENABLED: true, LOGGING_LEVEL: 'error', LOGGING_FORMAT: 'text' });
       const error = new Error('test error');
 
       // Act

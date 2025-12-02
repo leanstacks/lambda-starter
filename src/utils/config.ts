@@ -10,13 +10,13 @@ const envSchema = z.object({
   // Optional variables with defaults
   AWS_REGION: z.string().default('us-east-1'),
 
-  // Feature flags (optional)
-  ENABLE_LOGGING: z
+  // Logging configuration
+  LOGGING_ENABLED: z
     .enum(['true', 'false'] as const)
     .default('true')
     .transform((val) => val === 'true'),
-  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error'] as const).default('debug'),
-  LOG_FORMAT: z.enum(['text', 'json'] as const).default('json'),
+  LOGGING_LEVEL: z.enum(['debug', 'info', 'warn', 'error'] as const).default('debug'),
+  LOGGING_FORMAT: z.enum(['text', 'json'] as const).default('json'),
 
   // CORS configuration
   CORS_ALLOW_ORIGIN: z.string().default('*'),

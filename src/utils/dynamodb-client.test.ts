@@ -13,7 +13,7 @@ describe('dynamodb-client', () => {
         AWS_REGION: 'us-east-1',
         TASKS_TABLE: 'test-table',
         ENABLE_LOGGING: true,
-        LOG_LEVEL: 'info',
+        LOGGING_LEVEL: 'info',
         CORS_ALLOW_ORIGIN: '*',
       },
     }));
@@ -115,7 +115,7 @@ describe('dynamodb-client', () => {
           AWS_REGION: 'eu-west-1',
           TASKS_TABLE: 'test-table',
           ENABLE_LOGGING: true,
-          LOG_LEVEL: 'info',
+          LOGGING_LEVEL: 'info',
           CORS_ALLOW_ORIGIN: '*',
         },
       }));

@@ -11,7 +11,7 @@ jest.mock('../utils/config', () => ({
     TASKS_TABLE: 'test-tasks-table',
     AWS_REGION: 'us-east-1',
     ENABLE_LOGGING: true,
-    LOG_LEVEL: 'info',
+    LOGGING_LEVEL: 'info',
     CORS_ALLOW_ORIGIN: '*',
   },
 }));

@@ -14,7 +14,7 @@ const _lambdaDestination = pinoLambdaDestination();
  */
 const _logger = pino(
   {
-    level: config.LOG_LEVEL,
+    level: config.LOGGING_LEVEL,
     formatters: {
       level: (label) => {
         return { level: label };
@@ -41,9 +41,9 @@ type LogLevel = keyof typeof LOG_LEVELS;
  * Check if a given log level should be logged based on configured level
  */
 const _shouldLog = (level: LogLevel): boolean => {
-  if (!config.ENABLE_LOGGING) return false;
+  if (!config.LOGGING_ENABLED) return false;
 
-  const configuredLevel = LOG_LEVELS[config.LOG_LEVEL as LogLevel];
+  const configuredLevel = LOG_LEVELS[config.LOGGING_LEVEL as LogLevel];
   const requestedLevel = LOG_LEVELS[level];
 
   return requestedLevel >= configuredLevel;
@@ -95,7 +95,7 @@ const _logJson = (level: LogLevel, message: string, context?: Record<string, unk
 const _log = (level: LogLevel, message: string, context?: Record<string, unknown>): void => {
   if (!_shouldLog(level)) return;
 
-  if (config.LOG_FORMAT === 'json') {
+  if (config.LOGGING_FORMAT === 'json') {
     _logJson(level, message, context);
   } else {
     _logText(level, message, context);
