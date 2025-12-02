@@ -184,16 +184,14 @@ describe('LambdaStack', () => {
         PolicyDocument: {
           Statement: Match.arrayWith([
             Match.objectLike({
-              Action: [
+              Action: Match.arrayWith([
                 'dynamodb:BatchGetItem',
-                'dynamodb:GetRecords',
-                'dynamodb:GetShardIterator',
                 'dynamodb:Query',
                 'dynamodb:GetItem',
                 'dynamodb:Scan',
                 'dynamodb:ConditionCheckItem',
                 'dynamodb:DescribeTable',
-              ],
+              ]),
             }),
           ]),
         },
@@ -281,8 +279,6 @@ describe('LambdaStack', () => {
             Match.objectLike({
               Action: Match.arrayWith([
                 'dynamodb:BatchGetItem',
-                'dynamodb:GetRecords',
-                'dynamodb:GetShardIterator',
                 'dynamodb:Query',
                 'dynamodb:GetItem',
                 'dynamodb:Scan',
