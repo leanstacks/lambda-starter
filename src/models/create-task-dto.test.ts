@@ -233,7 +233,7 @@ describe('create-task-dto', () => {
 
     it('should allow extra fields like createdAt and updatedAt', () => {
       // Arrange
-      const validDto = {
+      const invalidDto = {
         title: 'Test Task',
         isComplete: false,
         createdAt: '2025-01-01T10:00:00.000Z',
@@ -242,7 +242,7 @@ describe('create-task-dto', () => {
       };
 
       // Act
-      const result = CreateTaskDtoSchema.safeParse(validDto);
+      const result = CreateTaskDtoSchema.safeParse(invalidDto);
 
       // Assert
       expect(result.success).toBe(true);
@@ -250,6 +250,9 @@ describe('create-task-dto', () => {
         // Validated DTO only contains the fields we defined in the schema
         expect(result.data.title).toBe('Test Task');
         expect(result.data.isComplete).toBe(false);
+        expect(result.data).not.toHaveProperty('createdAt');
+        expect(result.data).not.toHaveProperty('updatedAt');
+        expect(result.data).not.toHaveProperty('id');
       }
     });
   });
