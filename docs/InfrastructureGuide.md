@@ -307,17 +307,17 @@ The lambda-starter infrastructure uses a modular, environment-aware design:
 
 All configuration is managed through environment variables prefixed with `CDK_`:
 
-| Variable                 | Required | Description                | Default          |
-| ------------------------ | -------- | -------------------------- | ---------------- |
-| `CDK_APP_NAME`           | No       | Application name           | `lambda-starter` |
-| `CDK_ENV`                | Yes      | Environment                | -                |
-| `CDK_ACCOUNT`            | No       | AWS account ID override    | From AWS CLI     |
-| `CDK_REGION`             | No       | AWS region override        | From AWS CLI     |
-| `CDK_OU`                 | No       | Organizational unit        | `leanstacks`     |
-| `CDK_OWNER`              | No       | Resource owner             | `unknown`        |
-| `CDK_APP_ENABLE_LOGGING` | No       | Enable application logging | `true`           |
-| `CDK_APP_LOGGING_LEVEL`  | No       | Application logging level  | `info`           |
-| `CDK_APP_LOGGING_FORMAT` | No       | Application logging format | `json`           |
+| Variable                  | Required | Description                | Default          |
+| ------------------------- | -------- | -------------------------- | ---------------- |
+| `CDK_APP_NAME`            | No       | Application name           | `lambda-starter` |
+| `CDK_ENV`                 | Yes      | Environment                | -                |
+| `CDK_ACCOUNT`             | No       | AWS account ID override    | From AWS CLI     |
+| `CDK_REGION`              | No       | AWS region override        | From AWS CLI     |
+| `CDK_OU`                  | No       | Organizational unit        | `leanstacks`     |
+| `CDK_OWNER`               | No       | Resource owner             | `unknown`        |
+| `CDK_APP_LOGGING_ENABLED` | No       | Enable application logging | `true`           |
+| `CDK_APP_LOGGING_LEVEL`   | No       | Application logging level  | `info`           |
+| `CDK_APP_LOGGING_FORMAT`  | No       | Application logging format | `json`           |
 
 ### Configuration Validation
 
@@ -406,7 +406,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Bundling**: Automatic TypeScript compilation with esbuild
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
-  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOGGING_ENABLED`: Logging enabled flag (from `CDK_APP_LOGGING_ENABLED`)
   - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
   - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
@@ -440,7 +440,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Bundling**: Automatic TypeScript compilation with esbuild
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
-  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOGGING_ENABLED`: Logging enabled flag (from `CDK_APP_LOGGING_ENABLED`)
   - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
   - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
@@ -474,7 +474,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Bundling**: Automatic TypeScript compilation with esbuild
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
-  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOGGING_ENABLED`: Logging enabled flag (from `CDK_APP_LOGGING_ENABLED`)
   - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
   - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
@@ -508,7 +508,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Bundling**: Automatic TypeScript compilation with esbuild
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
-  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOGGING_ENABLED`: Logging enabled flag (from `CDK_APP_LOGGING_ENABLED`)
   - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
   - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
@@ -542,7 +542,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **Bundling**: Automatic TypeScript compilation with esbuild
 - **Environment Variables**:
   - `TASKS_TABLE`: DynamoDB table name
-  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOGGING_ENABLED`: Logging enabled flag (from `CDK_APP_LOGGING_ENABLED`)
   - `LOGGING_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
   - `LOGGING_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
 
@@ -643,9 +643,9 @@ const tableName = process.env.TASK_TABLE_NAME;
 
 The Lambda stack uses environment variables to configure application behavior:
 
-- **CDK_APP_ENABLE_LOGGING**: Controls whether logging is enabled in Lambda functions
+- **CDK_APP_LOGGING_ENABLED**: Controls whether logging is enabled in Lambda functions
   - Set to `true` (default) or `false`
-  - Passed to Lambda as `ENABLE_LOGGING` environment variable
+  - Passed to Lambda as `LOGGING_ENABLED` environment variable
   - When disabled, Lambda functions produce minimal log output
 
 - **CDK_APP_LOGGING_LEVEL**: Sets the minimum log level for application logs
@@ -663,17 +663,17 @@ The Lambda stack uses environment variables to configure application behavior:
 
 ```bash
 # Development with debug logging in text format
-CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_ENABLED=true
 CDK_APP_LOGGING_LEVEL=debug
 CDK_APP_LOGGING_FORMAT=text
 
 # Production with info logging in JSON format
-CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_ENABLED=true
 CDK_APP_LOGGING_LEVEL=info
 CDK_APP_LOGGING_FORMAT=json
 
 # Disable logging (not recommended)
-CDK_APP_ENABLE_LOGGING=false
+CDK_APP_LOGGING_ENABLED=false
 ```
 
 ### Resource Tagging
@@ -819,7 +819,7 @@ npm run cdk watch
 # 1. Configure for dev
 cat > .env << EOF
 CDK_ENV=dev
-CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_ENABLED=true
 CDK_APP_LOGGING_LEVEL=debug
 EOF
 
@@ -841,7 +841,7 @@ CDK_ACCOUNT=123456789012
 CDK_REGION=us-east-1
 CDK_OU=leanstacks
 CDK_OWNER=platform-team
-CDK_APP_ENABLE_LOGGING=true
+CDK_APP_LOGGING_ENABLED=true
 CDK_APP_LOGGING_LEVEL=info
 EOF
 
@@ -859,7 +859,7 @@ npm run deploy
 export CDK_ENV=prd
 export CDK_ACCOUNT=123456789012
 export CDK_REGION=us-east-1
-export CDK_APP_ENABLE_LOGGING=true
+export CDK_APP_LOGGING_ENABLED=true
 export CDK_APP_LOGGING_LEVEL=info
 
 # Deploy without prompts
