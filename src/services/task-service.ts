@@ -141,7 +141,8 @@ export const updateTask = async (id: string, updateTaskDto: UpdateTaskDto): Prom
     const now = new Date().toISOString();
 
     // Build update expression dynamically
-    let updateExpression = 'SET title = :title, isComplete = :isComplete, updatedAt = :updatedAt';
+    const setExpressions: string[] = ['title = :title', 'isComplete = :isComplete', 'updatedAt = :updatedAt'];
+    const removeExpressions: string[] = [];
     const expressionAttributeValues: Record<string, unknown> = {
       ':title': updateTaskDto.title,
       ':isComplete': updateTaskDto.isComplete,
@@ -150,21 +151,31 @@ export const updateTask = async (id: string, updateTaskDto: UpdateTaskDto): Prom
 
     // Handle optional detail field
     if (updateTaskDto.detail !== undefined) {
-      updateExpression += ', detail = :detail';
+      setExpressions.push('detail = :detail');
       expressionAttributeValues[':detail'] = updateTaskDto.detail;
     } else {
       // Remove detail if not present in request
-      updateExpression += ' REMOVE detail';
+      removeExpressions.push('detail');
     }
 
     // Handle optional dueAt field
     if (updateTaskDto.dueAt !== undefined) {
-      updateExpression += ', dueAt = :dueAt';
+      setExpressions.push('dueAt = :dueAt');
       expressionAttributeValues[':dueAt'] = updateTaskDto.dueAt;
     } else {
       // Remove dueAt if not present in request
-      updateExpression += ' REMOVE dueAt';
+      removeExpressions.push('dueAt');
     }
+
+    // Construct the update expression with proper syntax
+    const updateExpressionParts: string[] = [];
+    if (setExpressions.length > 0) {
+      updateExpressionParts.push(`SET ${setExpressions.join(', ')}`);
+    }
+    if (removeExpressions.length > 0) {
+      updateExpressionParts.push(`REMOVE ${removeExpressions.join(', ')}`);
+    }
+    const updateExpression = updateExpressionParts.join(' ');
 
     const command = new UpdateCommand({
       TableName: config.TASKS_TABLE,
