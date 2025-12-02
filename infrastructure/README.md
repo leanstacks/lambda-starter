@@ -299,13 +299,13 @@ npm run cdk destroy --all
 
 **Common Lambda Configuration:**
 
-  - Log Format: JSON (structured logging)
-  - Log Retention:
-    - `prd`: 30 days
-    - Other environments: 7 days
-  - Log Removal Policy:
-    - `prd`: `RETAIN` (logs preserved on stack deletion)
-    - Other environments: `DESTROY` (logs deleted on stack deletion)
+- Log Format: JSON (structured logging)
+- Log Retention:
+  - `prd`: 30 days
+  - Other environments: 7 days
+- Log Removal Policy:
+  - `prd`: `RETAIN` (logs preserved on stack deletion)
+  - Other environments: `DESTROY` (logs deleted on stack deletion)
 
 - **Lambda Starter API** (`lambda-starter-api-{env}`)
   - Type: REST API
