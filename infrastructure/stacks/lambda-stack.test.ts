@@ -77,6 +77,16 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should create an update task Lambda function', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'lambda-starter-update-task-dev',
+        Runtime: 'nodejs24.x',
+        Handler: 'handler',
+        Timeout: 10,
+        MemorySize: 256,
+      });
+    });
+
     it('should configure Lambda environment variables', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
         Environment: {
@@ -119,6 +129,12 @@ describe('LambdaStack', () => {
     it('should create a POST method on /tasks', () => {
       template.hasResourceProperties('AWS::ApiGateway::Method', {
         HttpMethod: 'POST',
+      });
+    });
+
+    it('should create a PUT method on /tasks/{taskId}', () => {
+      template.hasResourceProperties('AWS::ApiGateway::Method', {
+        HttpMethod: 'PUT',
       });
     });
 
@@ -222,6 +238,39 @@ describe('LambdaStack', () => {
       template.hasOutput('GetTaskFunctionArn', {
         Export: {
           Name: 'lambda-starter-get-task-function-arn-dev',
+        },
+      });
+    });
+
+    it('should export update task function ARN', () => {
+      template.hasOutput('UpdateTaskFunctionArn', {
+        Export: {
+          Name: 'lambda-starter-update-task-function-arn-dev',
+        },
+      });
+    });
+
+    it('should grant Lambda read-write access to DynamoDB for update function', () => {
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: Match.arrayWith([
+                'dynamodb:BatchGetItem',
+                'dynamodb:GetRecords',
+                'dynamodb:GetShardIterator',
+                'dynamodb:Query',
+                'dynamodb:GetItem',
+                'dynamodb:Scan',
+                'dynamodb:ConditionCheckItem',
+                'dynamodb:BatchWriteItem',
+                'dynamodb:PutItem',
+                'dynamodb:UpdateItem',
+                'dynamodb:DeleteItem',
+                'dynamodb:DescribeTable',
+              ]),
+            }),
+          ]),
         },
       });
     });

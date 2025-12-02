@@ -1,7 +1,8 @@
 import { randomUUID } from 'crypto';
-import { GetCommand, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 import { CreateTaskDto } from '../models/create-task-dto.js';
+import { UpdateTaskDto } from '../models/update-task-dto.js';
 import { Task, TaskItem, TaskKeys, toTask } from '../models/task.js';
 import { config } from '../utils/config.js';
 import { dynamoDocClient } from '../utils/dynamodb-client.js';
@@ -121,6 +122,84 @@ export const createTask = async (createTaskDto: CreateTaskDto): Promise<Task> =>
   } catch (error) {
     logger.error('[TaskService] < createTask - failed to create task in DynamoDB', error as Error, {
       tableName: config.TASKS_TABLE,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Updates an existing task in the DynamoDB table
+ * @param id - The unique identifier of the task to update
+ * @param updateTaskDto - The data to update the task with
+ * @returns Promise that resolves to the updated Task object if found, or null if not found
+ * @throws Error if the DynamoDB update operation fails
+ */
+export const updateTask = async (id: string, updateTaskDto: UpdateTaskDto): Promise<Task | null> => {
+  logger.info('[TaskService] > updateTask', { tableName: config.TASKS_TABLE, id });
+
+  try {
+    const now = new Date().toISOString();
+
+    // Build update expression dynamically
+    let updateExpression = 'SET title = :title, isComplete = :isComplete, updatedAt = :updatedAt';
+    const expressionAttributeValues: Record<string, unknown> = {
+      ':title': updateTaskDto.title,
+      ':isComplete': updateTaskDto.isComplete,
+      ':updatedAt': now,
+    };
+
+    // Handle optional detail field
+    if (updateTaskDto.detail !== undefined) {
+      updateExpression += ', detail = :detail';
+      expressionAttributeValues[':detail'] = updateTaskDto.detail;
+    } else {
+      // Remove detail if not present in request
+      updateExpression += ' REMOVE detail';
+    }
+
+    // Handle optional dueAt field
+    if (updateTaskDto.dueAt !== undefined) {
+      updateExpression += ', dueAt = :dueAt';
+      expressionAttributeValues[':dueAt'] = updateTaskDto.dueAt;
+    } else {
+      // Remove dueAt if not present in request
+      updateExpression += ' REMOVE dueAt';
+    }
+
+    const command = new UpdateCommand({
+      TableName: config.TASKS_TABLE,
+      Key: {
+        pk: TaskKeys.pk(id),
+      },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ConditionExpression: 'attribute_exists(pk)',
+      ReturnValues: 'ALL_NEW',
+    });
+    logger.debug('[TaskService] updateTask - UpdateCommand', { command });
+
+    const response = await dynamoDocClient.send(command);
+
+    if (!response.Attributes) {
+      logger.info('[TaskService] < updateTask - task not found', { id });
+      return null;
+    }
+
+    const task = toTask(response.Attributes as TaskItem);
+
+    logger.info('[TaskService] < updateTask - successfully updated task', { id });
+
+    return task;
+  } catch (error) {
+    // Check if the error is a conditional check failure (task not found)
+    if (error instanceof Error && error.name === 'ConditionalCheckFailedException') {
+      logger.info('[TaskService] < updateTask - task not found', { id });
+      return null;
+    }
+
+    logger.error('[TaskService] < updateTask - failed to update task in DynamoDB', error as Error, {
+      tableName: config.TASKS_TABLE,
+      id,
     });
     throw error;
   }

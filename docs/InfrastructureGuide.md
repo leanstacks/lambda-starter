@@ -493,6 +493,40 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **DynamoDB**: Write access (PutItem) to the Task table
 - **CloudWatch Logs**: Write access to its log group
 
+#### Update Task Function
+
+**Resource Type**: AWS Lambda Function
+
+**Configuration**:
+
+- **Function Name**: `{app-name}-update-task-{env}`
+- **Runtime**: Node.js 24.x
+- **Handler**: `handler` (bundled with esbuild)
+- **Memory**: 256 MB
+- **Timeout**: 10 seconds
+- **Log Format**: JSON (structured logging)
+- **Bundling**: Automatic TypeScript compilation with esbuild
+- **Environment Variables**:
+  - `TASKS_TABLE`: DynamoDB table name
+  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+
+**CloudWatch Logs**:
+
+- **Log Group**: `/aws/lambda/{app-name}-update-task-{env}`
+- **Log Retention**:
+  - `prd`: 30 days
+  - Other environments: 7 days
+- **Removal Policy**:
+  - `prd`: `RETAIN` (logs preserved on stack deletion)
+  - Other environments: `DESTROY` (logs deleted on stack deletion)
+
+**IAM Permissions**:
+
+- **DynamoDB**: Read-write access (GetItem, UpdateItem) to the Task table
+- **CloudWatch Logs**: Write access to its log group
+
 #### Lambda Starter API
 
 **Resource Type**: API Gateway REST API
@@ -526,8 +560,31 @@ const tableName = process.env.TASK_TABLE_NAME;
 
 - **POST /tasks**: Create a new task
   - Integration: Lambda proxy integration with Create Task Function
-  - Request Body: JSON object with task properties (title, description, status)
+  - Request Body: JSON object with task properties
+    - `title` (required): string, max 100 characters
+    - `detail` (optional): string, max 1000 characters
+    - `dueAt` (optional): ISO8601 timestamp
+    - `isComplete` (optional): boolean, defaults to false
   - Response: JSON object with created task including ID and timestamps
+  - Success Status: 201 Created
+  - Error Responses:
+    - 400 Bad Request: Invalid request body or validation error
+    - 500 Internal Server Error: Failed to create task
+
+- **PUT /tasks/{taskId}**: Update an existing task
+  - Integration: Lambda proxy integration with Update Task Function
+  - Path Parameter: `taskId` - The unique identifier of the task
+  - Request Body: JSON object with task properties
+    - `title` (required): string, max 100 characters
+    - `detail` (optional): string, max 1000 characters - omit to remove from task
+    - `dueAt` (optional): ISO8601 timestamp - omit to remove from task
+    - `isComplete` (required): boolean
+  - Response: JSON object with updated task
+  - Success Status: 200 OK
+  - Error Responses:
+    - 400 Bad Request: Invalid request body or validation error
+    - 404 Not Found: Task ID does not exist
+    - 500 Internal Server Error: Failed to update task
 
 **Outputs**:
 
@@ -536,6 +593,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - `ListTasksFunctionArn`: The List Tasks Lambda function ARN
 - `GetTaskFunctionArn`: The Get Task Lambda function ARN
 - `CreateTaskFunctionArn`: The Create Task Lambda function ARN
+- `UpdateTaskFunctionArn`: The Update Task Lambda function ARN
 
 **Logging Configuration**:
 
