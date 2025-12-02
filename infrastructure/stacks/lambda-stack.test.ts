@@ -87,6 +87,16 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should create a delete task Lambda function', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'lambda-starter-delete-task-dev',
+        Runtime: 'nodejs24.x',
+        Handler: 'handler',
+        Timeout: 10,
+        MemorySize: 256,
+      });
+    });
+
     it('should configure Lambda environment variables', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
         Environment: {
@@ -138,6 +148,12 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should create a DELETE method on /tasks/{taskId}', () => {
+      template.hasResourceProperties('AWS::ApiGateway::Method', {
+        HttpMethod: 'DELETE',
+      });
+    });
+
     it('should integrate API Gateway with Lambda', () => {
       template.hasResourceProperties('AWS::ApiGateway::Method', {
         Integration: {
@@ -168,16 +184,14 @@ describe('LambdaStack', () => {
         PolicyDocument: {
           Statement: Match.arrayWith([
             Match.objectLike({
-              Action: [
+              Action: Match.arrayWith([
                 'dynamodb:BatchGetItem',
-                'dynamodb:GetRecords',
-                'dynamodb:GetShardIterator',
                 'dynamodb:Query',
                 'dynamodb:GetItem',
                 'dynamodb:Scan',
                 'dynamodb:ConditionCheckItem',
                 'dynamodb:DescribeTable',
-              ],
+              ]),
             }),
           ]),
         },
@@ -250,6 +264,14 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should export delete task function ARN', () => {
+      template.hasOutput('DeleteTaskFunctionArn', {
+        Export: {
+          Name: 'lambda-starter-delete-task-function-arn-dev',
+        },
+      });
+    });
+
     it('should grant Lambda read-write access to DynamoDB for update function', () => {
       template.hasResourceProperties('AWS::IAM::Policy', {
         PolicyDocument: {
@@ -257,8 +279,6 @@ describe('LambdaStack', () => {
             Match.objectLike({
               Action: Match.arrayWith([
                 'dynamodb:BatchGetItem',
-                'dynamodb:GetRecords',
-                'dynamodb:GetShardIterator',
                 'dynamodb:Query',
                 'dynamodb:GetItem',
                 'dynamodb:Scan',

@@ -527,6 +527,40 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **DynamoDB**: Read-write access (GetItem, UpdateItem) to the Task table
 - **CloudWatch Logs**: Write access to its log group
 
+#### Delete Task Function
+
+**Resource Type**: AWS Lambda Function
+
+**Configuration**:
+
+- **Function Name**: `{app-name}-delete-task-{env}`
+- **Runtime**: Node.js 24.x
+- **Handler**: `handler` (bundled with esbuild)
+- **Memory**: 256 MB
+- **Timeout**: 10 seconds
+- **Log Format**: JSON (structured logging)
+- **Bundling**: Automatic TypeScript compilation with esbuild
+- **Environment Variables**:
+  - `TASKS_TABLE`: DynamoDB table name
+  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+
+**CloudWatch Logs**:
+
+- **Log Group**: `/aws/lambda/{app-name}-delete-task-{env}`
+- **Log Retention**:
+  - `prd`: 30 days
+  - Other environments: 7 days
+- **Removal Policy**:
+  - `prd`: `RETAIN` (logs preserved on stack deletion)
+  - Other environments: `DESTROY` (logs deleted on stack deletion)
+
+**IAM Permissions**:
+
+- **DynamoDB**: Read-write access (DeleteItem) to the Task table
+- **CloudWatch Logs**: Write access to its log group
+
 #### Lambda Starter API
 
 **Resource Type**: API Gateway REST API
@@ -586,6 +620,15 @@ const tableName = process.env.TASK_TABLE_NAME;
     - 404 Not Found: Task ID does not exist
     - 500 Internal Server Error: Failed to update task
 
+- **DELETE /tasks/{taskId}**: Delete an existing task
+  - Integration: Lambda proxy integration with Delete Task Function
+  - Path Parameter: `taskId` - The unique identifier of the task
+  - Response: No content on successful deletion
+  - Success Status: 204 No Content
+  - Error Responses:
+    - 404 Not Found: Task ID does not exist or path parameter is missing
+    - 500 Internal Server Error: Failed to delete task
+
 **Outputs**:
 
 - `ApiUrl`: The API Gateway endpoint URL (e.g., `https://abc123.execute-api.us-east-1.amazonaws.com/dev/`)
@@ -594,6 +637,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - `GetTaskFunctionArn`: The Get Task Lambda function ARN
 - `CreateTaskFunctionArn`: The Create Task Lambda function ARN
 - `UpdateTaskFunctionArn`: The Update Task Lambda function ARN
+- `DeleteTaskFunctionArn`: The Delete Task Lambda function ARN
 
 **Logging Configuration**:
 

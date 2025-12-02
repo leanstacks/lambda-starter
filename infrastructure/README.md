@@ -297,6 +297,13 @@ npm run cdk destroy --all
   - Handler: Updates an existing task in DynamoDB
   - IAM Permissions: Read-write access to Task table (GetItem, UpdateItem)
 
+- **Delete Task Function** (`delete-task-{env}`)
+  - Runtime: Node.js 24.x
+  - Memory: 256 MB
+  - Timeout: 10 seconds
+  - Handler: Deletes an existing task from DynamoDB
+  - IAM Permissions: Read-write access to Task table (DeleteItem)
+
 **Common Lambda Configuration:**
 
 - Log Format: JSON (structured logging)
@@ -314,6 +321,7 @@ npm run cdk destroy --all
     - `GET /tasks/{taskId}` - Get a specific task
     - `POST /tasks` - Create a new task
     - `PUT /tasks/{taskId}` - Update an existing task
+    - `DELETE /tasks/{taskId}` - Delete an existing task
   - CORS: Enabled with preflight OPTIONS support
   - Throttling: Rate and burst limits configured
   - Stage: `{env}` (e.g., `dev`, `prd`)
@@ -326,6 +334,7 @@ npm run cdk destroy --all
 - `GetTaskFunctionArn`: The Get Task Lambda function ARN
 - `CreateTaskFunctionArn`: The Create Task Lambda function ARN
 - `UpdateTaskFunctionArn`: The Update Task Lambda function ARN
+- `DeleteTaskFunctionArn`: The Delete Task Lambda function ARN
 
 **Logging Configuration:**
 
