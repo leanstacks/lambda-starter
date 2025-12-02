@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { GetCommand, PutCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { DeleteCommand, GetCommand, PutCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 import { CreateTaskDto } from '../models/create-task-dto.js';
 import { UpdateTaskDto } from '../models/update-task-dto.js';
@@ -209,6 +209,45 @@ export const updateTask = async (id: string, updateTaskDto: UpdateTaskDto): Prom
     }
 
     logger.error('[TaskService] < updateTask - failed to update task in DynamoDB', error as Error, {
+      tableName: config.TASKS_TABLE,
+      id,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Deletes a task from the DynamoDB table
+ * @param id - The unique identifier of the task to delete
+ * @returns Promise that resolves to true if the task was deleted, or false if not found
+ * @throws Error if the DynamoDB delete operation fails
+ */
+export const deleteTask = async (id: string): Promise<boolean> => {
+  logger.info('[TaskService] > deleteTask', { tableName: config.TASKS_TABLE, id });
+
+  try {
+    const command = new DeleteCommand({
+      TableName: config.TASKS_TABLE,
+      Key: {
+        pk: TaskKeys.pk(id),
+      },
+      ConditionExpression: 'attribute_exists(pk)',
+    });
+    logger.debug('[TaskService] deleteTask - DeleteCommand', { command });
+
+    await dynamoDocClient.send(command);
+
+    logger.info('[TaskService] < deleteTask - successfully deleted task', { id });
+
+    return true;
+  } catch (error) {
+    // Check if the error is a conditional check failure (task not found)
+    if (error instanceof Error && error.name === 'ConditionalCheckFailedException') {
+      logger.info('[TaskService] < deleteTask - task not found', { id });
+      return false;
+    }
+
+    logger.error('[TaskService] < deleteTask - failed to delete task from DynamoDB', error as Error, {
       tableName: config.TASKS_TABLE,
       id,
     });

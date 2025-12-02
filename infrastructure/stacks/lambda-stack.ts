@@ -71,6 +71,11 @@ export class LambdaStack extends cdk.Stack {
    */
   public readonly updateTaskFunction: NodejsFunction;
 
+  /**
+   * The delete task Lambda function.
+   */
+  public readonly deleteTaskFunction: NodejsFunction;
+
   constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id, props);
 
@@ -198,6 +203,37 @@ export class LambdaStack extends cdk.Stack {
     // Grant the Lambda function read and write access to the DynamoDB table
     props.taskTable.grantReadWriteData(this.updateTaskFunction);
 
+    // Create the delete task Lambda function
+    this.deleteTaskFunction = new NodejsFunction(this, 'DeleteTaskFunction', {
+      functionName: `${props.appName}-delete-task-${props.envName}`,
+      runtime: lambda.Runtime.NODEJS_24_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../src/handlers/delete-task.ts'),
+      environment: {
+        TASKS_TABLE: props.taskTable.tableName,
+        ENABLE_LOGGING: props.enableLogging.toString(),
+        LOG_LEVEL: props.loggingLevel,
+        LOG_FORMAT: props.loggingFormat,
+      },
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 256,
+      bundling: {
+        minify: true,
+        sourceMap: true,
+      },
+      loggingFormat: lambda.LoggingFormat.JSON,
+      applicationLogLevelV2: lambda.ApplicationLogLevel.INFO,
+      systemLogLevelV2: lambda.SystemLogLevel.INFO,
+      logGroup: new logs.LogGroup(this, 'DeleteTaskFunctionLogGroup', {
+        logGroupName: `/aws/lambda/${props.appName}-delete-task-${props.envName}`,
+        retention: props.envName === 'prd' ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
+        removalPolicy: props.envName === 'prd' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      }),
+    });
+
+    // Grant the Lambda function read and write access to the DynamoDB table
+    props.taskTable.grantReadWriteData(this.deleteTaskFunction);
+
     // Create API Gateway REST API
     this.api = new apigateway.RestApi(this, 'LambdaStarterApi', {
       restApiName: `${props.appName}-api-${props.envName}`,
@@ -231,6 +267,9 @@ export class LambdaStack extends cdk.Stack {
 
     // Add PUT method to /tasks/{taskId}
     taskResource.addMethod('PUT', new apigateway.LambdaIntegration(this.updateTaskFunction));
+
+    // Add DELETE method to /tasks/{taskId}
+    taskResource.addMethod('DELETE', new apigateway.LambdaIntegration(this.deleteTaskFunction));
 
     // Output the API URL
     new cdk.CfnOutput(this, 'ApiUrl', {
@@ -272,6 +311,13 @@ export class LambdaStack extends cdk.Stack {
       value: this.updateTaskFunction.functionArn,
       description: 'ARN of the update task Lambda function',
       exportName: `${props.appName}-update-task-function-arn-${props.envName}`,
+    });
+
+    // Output the delete task function ARN
+    new cdk.CfnOutput(this, 'DeleteTaskFunctionArn', {
+      value: this.deleteTaskFunction.functionArn,
+      description: 'ARN of the delete task Lambda function',
+      exportName: `${props.appName}-delete-task-function-arn-${props.envName}`,
     });
   }
 }

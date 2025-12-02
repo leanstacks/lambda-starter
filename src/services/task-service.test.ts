@@ -38,6 +38,7 @@ describe('task-service', () => {
   let getTask: typeof import('./task-service').getTask;
   let createTask: typeof import('./task-service').createTask;
   let updateTask: typeof import('./task-service').updateTask;
+  let deleteTask: typeof import('./task-service').deleteTask;
 
   beforeEach(() => {
     // Clear all mocks
@@ -49,6 +50,7 @@ describe('task-service', () => {
     getTask = taskService.getTask;
     createTask = taskService.createTask;
     updateTask = taskService.updateTask;
+    deleteTask = taskService.deleteTask;
   });
 
   describe('listTasks', () => {
@@ -724,6 +726,104 @@ describe('task-service', () => {
       const command = mockSend.mock.calls[0][0];
       expect(command.input.UpdateExpression).toContain('dueAt = :dueAt');
       expect(command.input.ExpressionAttributeValues[':dueAt']).toBe('2025-12-31T23:59:59.000Z');
+    });
+  });
+
+  describe('deleteTask', () => {
+    it('should delete a task successfully', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      mockSend.mockResolvedValue({});
+
+      // Act
+      const result = await deleteTask(taskId);
+
+      // Assert
+      expect(result).toBe(true);
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            TableName: 'test-tasks-table',
+            Key: {
+              pk: `TASK#${taskId}`,
+            },
+            ConditionExpression: 'attribute_exists(pk)',
+          }),
+        }),
+      );
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] > deleteTask', {
+        tableName: 'test-tasks-table',
+        id: taskId,
+      });
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] < deleteTask - successfully deleted task', {
+        id: taskId,
+      });
+    });
+
+    it('should return false when task does not exist', async () => {
+      // Arrange
+      const taskId = 'non-existent-id';
+      const mockError = new Error('Conditional check failed');
+      mockError.name = 'ConditionalCheckFailedException';
+      mockSend.mockRejectedValue(mockError);
+
+      // Act
+      const result = await deleteTask(taskId);
+
+      // Assert
+      expect(result).toBe(false);
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] < deleteTask - task not found', {
+        id: taskId,
+      });
+    });
+
+    it('should handle DynamoDB errors and rethrow them', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const mockError = new Error('DynamoDB error');
+      mockSend.mockRejectedValue(mockError);
+
+      // Act & Assert
+      await expect(deleteTask(taskId)).rejects.toThrow('DynamoDB error');
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        '[TaskService] < deleteTask - failed to delete task from DynamoDB',
+        mockError,
+        {
+          tableName: 'test-tasks-table',
+          id: taskId,
+        },
+      );
+    });
+
+    it('should construct correct DynamoDB key with task ID', async () => {
+      // Arrange
+      const taskId = 'custom-task-id-456';
+      mockSend.mockResolvedValue({});
+
+      // Act
+      await deleteTask(taskId);
+
+      // Assert
+      const command = mockSend.mock.calls[0][0];
+      expect(command.input.Key).toEqual({
+        pk: `TASK#${taskId}`,
+      });
+    });
+
+    it('should include condition expression to ensure task exists', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      mockSend.mockResolvedValue({});
+
+      // Act
+      await deleteTask(taskId);
+
+      // Assert
+      const command = mockSend.mock.calls[0][0];
+      expect(command.input.ConditionExpression).toBe('attribute_exists(pk)');
     });
   });
 });

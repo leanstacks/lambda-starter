@@ -87,6 +87,16 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should create a delete task Lambda function', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'lambda-starter-delete-task-dev',
+        Runtime: 'nodejs24.x',
+        Handler: 'handler',
+        Timeout: 10,
+        MemorySize: 256,
+      });
+    });
+
     it('should configure Lambda environment variables', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
         Environment: {
@@ -135,6 +145,12 @@ describe('LambdaStack', () => {
     it('should create a PUT method on /tasks/{taskId}', () => {
       template.hasResourceProperties('AWS::ApiGateway::Method', {
         HttpMethod: 'PUT',
+      });
+    });
+
+    it('should create a DELETE method on /tasks/{taskId}', () => {
+      template.hasResourceProperties('AWS::ApiGateway::Method', {
+        HttpMethod: 'DELETE',
       });
     });
 
@@ -246,6 +262,14 @@ describe('LambdaStack', () => {
       template.hasOutput('UpdateTaskFunctionArn', {
         Export: {
           Name: 'lambda-starter-update-task-function-arn-dev',
+        },
+      });
+    });
+
+    it('should export delete task function ARN', () => {
+      template.hasOutput('DeleteTaskFunctionArn', {
+        Export: {
+          Name: 'lambda-starter-delete-task-function-arn-dev',
         },
       });
     });
