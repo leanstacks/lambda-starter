@@ -57,6 +57,16 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should create a get task Lambda function', () => {
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        FunctionName: 'lambda-starter-get-task-dev',
+        Runtime: 'nodejs24.x',
+        Handler: 'handler',
+        Timeout: 10,
+        MemorySize: 256,
+      });
+    });
+
     it('should create a create task Lambda function', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
         FunctionName: 'lambda-starter-create-task-dev',
@@ -88,9 +98,15 @@ describe('LambdaStack', () => {
     });
 
     it('should create a /tasks resource', () => {
-      template.resourceCountIs('AWS::ApiGateway::Resource', 1);
+      template.resourceCountIs('AWS::ApiGateway::Resource', 2);
       template.hasResourceProperties('AWS::ApiGateway::Resource', {
         PathPart: 'tasks',
+      });
+    });
+
+    it('should create a /tasks/{taskId} resource', () => {
+      template.hasResourceProperties('AWS::ApiGateway::Resource', {
+        PathPart: '{taskId}',
       });
     });
 
@@ -173,7 +189,7 @@ describe('LambdaStack', () => {
     it('should export API URL', () => {
       template.hasOutput('ApiUrl', {
         Export: {
-          Name: 'dev-tasks-api-url',
+          Name: 'lambda-starter-tasks-api-url-dev',
         },
       });
     });
@@ -181,7 +197,7 @@ describe('LambdaStack', () => {
     it('should export API ID', () => {
       template.hasOutput('ApiId', {
         Export: {
-          Name: 'dev-tasks-api-id',
+          Name: 'lambda-starter-tasks-api-id-dev',
         },
       });
     });
@@ -189,7 +205,7 @@ describe('LambdaStack', () => {
     it('should export Lambda function ARN', () => {
       template.hasOutput('ListTasksFunctionArn', {
         Export: {
-          Name: 'dev-list-tasks-function-arn',
+          Name: 'lambda-starter-list-tasks-function-arn-dev',
         },
       });
     });
@@ -197,7 +213,15 @@ describe('LambdaStack', () => {
     it('should export create task function ARN', () => {
       template.hasOutput('CreateTaskFunctionArn', {
         Export: {
-          Name: 'dev-create-task-function-arn',
+          Name: 'lambda-starter-create-task-function-arn-dev',
+        },
+      });
+    });
+
+    it('should export get task function ARN', () => {
+      template.hasOutput('GetTaskFunctionArn', {
+        Export: {
+          Name: 'lambda-starter-get-task-function-arn-dev',
         },
       });
     });

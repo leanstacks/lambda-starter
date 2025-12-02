@@ -34,6 +34,7 @@ jest.mock('../utils/config', () => ({
 
 describe('task-service', () => {
   let listTasks: typeof import('./task-service').listTasks;
+  let getTask: typeof import('./task-service').getTask;
   let createTask: typeof import('./task-service').createTask;
 
   beforeEach(() => {
@@ -43,6 +44,7 @@ describe('task-service', () => {
     // Import the module after mocks are set up
     const taskService = require('./task-service');
     listTasks = taskService.listTasks;
+    getTask = taskService.getTask;
     createTask = taskService.createTask;
   });
 
@@ -129,6 +131,130 @@ describe('task-service', () => {
       // Assert
       expect(result).toEqual([]);
       expect(mockSend).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getTask', () => {
+    it('should return a task when it exists', async () => {
+      // Arrange
+      const mockTaskItem: TaskItem = {
+        pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        title: 'Test Task',
+        detail: 'Test detail',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-11-01T10:00:00.000Z',
+      };
+
+      mockSend.mockResolvedValue({
+        Item: mockTaskItem,
+      });
+
+      // Act
+      const result = await getTask('123e4567-e89b-12d3-a456-426614174000');
+
+      // Assert
+      expect(result).toEqual({
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        title: 'Test Task',
+        detail: 'Test detail',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-11-01T10:00:00.000Z',
+      });
+      expect(result).not.toHaveProperty('pk');
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            TableName: 'test-tasks-table',
+            Key: {
+              pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+            },
+          }),
+        }),
+      );
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] > getTask', {
+        tableName: 'test-tasks-table',
+        id: '123e4567-e89b-12d3-a456-426614174000',
+      });
+    });
+
+    it('should return null when task does not exist', async () => {
+      // Arrange
+      mockSend.mockResolvedValue({});
+
+      // Act
+      const result = await getTask('non-existent-id');
+
+      // Assert
+      expect(result).toBeNull();
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] < getTask - task not found', {
+        id: 'non-existent-id',
+      });
+    });
+
+    it('should return a task with only required fields', async () => {
+      // Arrange
+      const mockTaskItem: TaskItem = {
+        pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        title: 'Test Task',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-11-01T10:00:00.000Z',
+      };
+
+      mockSend.mockResolvedValue({
+        Item: mockTaskItem,
+      });
+
+      // Act
+      const result = await getTask('123e4567-e89b-12d3-a456-426614174000');
+
+      // Assert
+      expect(result).toEqual({
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        title: 'Test Task',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-11-01T10:00:00.000Z',
+      });
+      expect(result).not.toHaveProperty('detail');
+      expect(result).not.toHaveProperty('dueAt');
+    });
+
+    it('should handle DynamoDB errors and rethrow them', async () => {
+      // Arrange
+      const mockError = new Error('DynamoDB error');
+      mockSend.mockRejectedValue(mockError);
+
+      // Act & Assert
+      await expect(getTask('123e4567-e89b-12d3-a456-426614174000')).rejects.toThrow('DynamoDB error');
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockLoggerError).toHaveBeenCalled();
+    });
+
+    it('should construct correct DynamoDB key with task ID', async () => {
+      // Arrange
+      const taskId = 'test-task-id-123';
+      mockSend.mockResolvedValue({});
+
+      // Act
+      await getTask(taskId);
+
+      // Assert
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            Key: {
+              pk: 'TASK#test-task-id-123',
+            },
+          }),
+        }),
+      );
     });
   });
 

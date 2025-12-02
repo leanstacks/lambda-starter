@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { GetCommand, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 
 import { CreateTaskDto } from '../models/create-task-dto.js';
 import { Task, TaskItem, TaskKeys, toTask } from '../models/task.js';
@@ -35,6 +35,45 @@ export const listTasks = async (): Promise<Task[]> => {
   } catch (error) {
     logger.error('[TaskService] < listTasks - failed to fetch tasks from DynamoDB', error as Error, {
       tableName: config.TASKS_TABLE,
+    });
+    throw error;
+  }
+};
+
+/**
+ * Retrieves a task by ID from the DynamoDB table
+ * @param id - The unique identifier of the task
+ * @returns Promise that resolves to the Task object if found, or null if not found
+ * @throws Error if the DynamoDB get operation fails
+ */
+export const getTask = async (id: string): Promise<Task | null> => {
+  logger.info('[TaskService] > getTask', { tableName: config.TASKS_TABLE, id });
+
+  try {
+    const command = new GetCommand({
+      TableName: config.TASKS_TABLE,
+      Key: {
+        pk: TaskKeys.pk(id),
+      },
+    });
+    logger.debug('[TaskService] getTask - GetCommand', { command });
+
+    const response = await dynamoDocClient.send(command);
+
+    if (!response.Item) {
+      logger.info('[TaskService] < getTask - task not found', { id });
+      return null;
+    }
+
+    const task = toTask(response.Item as TaskItem);
+
+    logger.info('[TaskService] < getTask - successfully retrieved task', { id });
+
+    return task;
+  } catch (error) {
+    logger.error('[TaskService] < getTask - failed to fetch task from DynamoDB', error as Error, {
+      tableName: config.TASKS_TABLE,
+      id,
     });
     throw error;
   }
