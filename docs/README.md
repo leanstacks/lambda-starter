@@ -4,6 +4,16 @@ Welcome to the lambda-starter project documentation. This directory contains com
 
 ## Table of Contents
 
+### Configuration
+
+- **[Configuration Guide](ConfigurationGuide.md)** - Complete guide to application and infrastructure configuration
+  - Application environment variables and validation
+  - Infrastructure CDK configuration variables
+  - Resource tagging standards
+  - Environment-specific configuration recommendations
+  - Configuration flow from infrastructure to application
+  - Troubleshooting and best practices
+
 ### Infrastructure
 
 - **[Infrastructure Guide](InfrastructureGuide.md)** - Complete guide to AWS CDK infrastructure implementation
@@ -23,9 +33,9 @@ Welcome to the lambda-starter project documentation. This directory contains com
 New to the project? Start here:
 
 1. Review the [main README](../README.md) for project overview
-2. Read the [Infrastructure Guide](InfrastructureGuide.md) to understand the AWS CDK setup
-3. Follow the [Getting Started](InfrastructureGuide.md#getting-started) section to deploy infrastructure
-4. Check the [Configuration](InfrastructureGuide.md#configuration) section for environment setup
+2. Read the [Configuration Guide](ConfigurationGuide.md) to understand environment variables
+3. Read the [Infrastructure Guide](InfrastructureGuide.md) to understand the AWS CDK setup
+4. Follow the [Getting Started](InfrastructureGuide.md#getting-started) section to deploy infrastructure
 
 ---
 
@@ -53,9 +63,10 @@ When adding new documentation:
 
 ## Document Index
 
-| Document                                       | Description                          | Last Updated |
-| ---------------------------------------------- | ------------------------------------ | ------------ |
-| [Infrastructure Guide](InfrastructureGuide.md) | AWS CDK infrastructure documentation | 2025-11-30   |
+| Document                                       | Description                                  | Last Updated |
+| ---------------------------------------------- | -------------------------------------------- | ------------ |
+| [Configuration Guide](ConfigurationGuide.md)   | Application and infrastructure configuration | 2025-12-02   |
+| [Infrastructure Guide](InfrastructureGuide.md) | AWS CDK infrastructure documentation         | 2025-11-30   |
 
 ---
 

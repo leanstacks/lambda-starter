@@ -40,9 +40,10 @@ describe('LambdaStack', () => {
         appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
-        enableLogging: true,
+        loggingEnabled: true,
         loggingLevel: 'debug',
         loggingFormat: 'json',
+        corsAllowOrigin: '*',
       });
       template = Template.fromStack(stack);
     });
@@ -102,9 +103,10 @@ describe('LambdaStack', () => {
         Environment: {
           Variables: {
             TASKS_TABLE: Match.anyValue(),
-            ENABLE_LOGGING: 'true',
-            LOG_LEVEL: 'debug',
-            LOG_FORMAT: 'json',
+            LOGGING_ENABLED: 'true',
+            LOGGING_LEVEL: 'debug',
+            LOGGING_FORMAT: 'json',
+            CORS_ALLOW_ORIGIN: '*',
           },
         },
       });
@@ -314,9 +316,10 @@ describe('LambdaStack', () => {
         appName: 'lambda-starter',
         envName: 'prd',
         taskTable: testMockTable,
-        enableLogging: true,
+        loggingEnabled: true,
         loggingLevel: 'info',
         loggingFormat: 'json',
+        corsAllowOrigin: '*',
       });
       template = Template.fromStack(stack);
     });
@@ -331,7 +334,7 @@ describe('LambdaStack', () => {
       template.hasResourceProperties('AWS::Lambda::Function', {
         Environment: {
           Variables: {
-            LOG_LEVEL: 'info',
+            LOGGING_LEVEL: 'info',
           },
         },
       });
@@ -369,9 +372,10 @@ describe('LambdaStack', () => {
         appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
-        enableLogging: true,
+        loggingEnabled: true,
         loggingLevel: 'debug',
         loggingFormat: 'json',
+        corsAllowOrigin: '*',
       });
       template = Template.fromStack(stack);
     });

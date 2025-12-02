@@ -29,7 +29,7 @@ export interface LambdaStackProps extends cdk.StackProps {
   /**
    * Whether to enable application logging.
    */
-  enableLogging: boolean;
+  loggingEnabled: boolean;
 
   /**
    * Application logging level.
@@ -40,6 +40,11 @@ export interface LambdaStackProps extends cdk.StackProps {
    * Application logging format (text or json).
    */
   loggingFormat: string;
+
+  /**
+   * CORS allow origin value.
+   */
+  corsAllowOrigin: string;
 }
 
 /**
@@ -87,9 +92,10 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/list-tasks.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        ENABLE_LOGGING: props.enableLogging.toString(),
-        LOG_LEVEL: props.loggingLevel,
-        LOG_FORMAT: props.loggingFormat,
+        LOGGING_ENABLED: props.loggingEnabled.toString(),
+        LOGGING_LEVEL: props.loggingLevel,
+        LOGGING_FORMAT: props.loggingFormat,
+        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
       },
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
@@ -118,9 +124,10 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/get-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        ENABLE_LOGGING: props.enableLogging.toString(),
-        LOG_LEVEL: props.loggingLevel,
-        LOG_FORMAT: props.loggingFormat,
+        LOGGING_ENABLED: props.loggingEnabled.toString(),
+        LOGGING_LEVEL: props.loggingLevel,
+        LOGGING_FORMAT: props.loggingFormat,
+        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
       },
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
@@ -149,9 +156,10 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/create-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        ENABLE_LOGGING: props.enableLogging.toString(),
-        LOG_LEVEL: props.loggingLevel,
-        LOG_FORMAT: props.loggingFormat,
+        LOGGING_ENABLED: props.loggingEnabled.toString(),
+        LOGGING_LEVEL: props.loggingLevel,
+        LOGGING_FORMAT: props.loggingFormat,
+        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
       },
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
@@ -180,9 +188,10 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/update-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        ENABLE_LOGGING: props.enableLogging.toString(),
-        LOG_LEVEL: props.loggingLevel,
-        LOG_FORMAT: props.loggingFormat,
+        LOGGING_ENABLED: props.loggingEnabled.toString(),
+        LOGGING_LEVEL: props.loggingLevel,
+        LOGGING_FORMAT: props.loggingFormat,
+        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
       },
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
@@ -211,9 +220,10 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/delete-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        ENABLE_LOGGING: props.enableLogging.toString(),
-        LOG_LEVEL: props.loggingLevel,
-        LOG_FORMAT: props.loggingFormat,
+        LOGGING_ENABLED: props.loggingEnabled.toString(),
+        LOGGING_LEVEL: props.loggingLevel,
+        LOGGING_FORMAT: props.loggingFormat,
+        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
       },
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
@@ -244,7 +254,7 @@ export class LambdaStack extends cdk.Stack {
         throttlingBurstLimit: 200,
       },
       defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowOrigins: [props.corsAllowOrigin],
         allowMethods: apigateway.Cors.ALL_METHODS,
         allowHeaders: ['Content-Type', 'Authorization'],
       },

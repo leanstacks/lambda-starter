@@ -30,7 +30,8 @@ describe('config', () => {
       process.env.CDK_REGION = 'us-east-1';
       process.env.CDK_OU = 'leanstacks';
       process.env.CDK_OWNER = 'platform-team';
-      process.env.CDK_APP_ENABLE_LOGGING = 'false';
+      process.env.CDK_CORS_ALLOW_ORIGIN = 'https://example.com';
+      process.env.CDK_APP_LOGGING_ENABLED = 'false';
       process.env.CDK_APP_LOGGING_LEVEL = 'warn';
       process.env.CDK_APP_LOGGING_FORMAT = 'text';
 
@@ -43,7 +44,8 @@ describe('config', () => {
         CDK_REGION: 'us-east-1',
         CDK_OU: 'leanstacks',
         CDK_OWNER: 'platform-team',
-        CDK_APP_ENABLE_LOGGING: false,
+        CDK_CORS_ALLOW_ORIGIN: 'https://example.com',
+        CDK_APP_LOGGING_ENABLED: false,
         CDK_APP_LOGGING_LEVEL: 'warn',
         CDK_APP_LOGGING_FORMAT: 'text',
       });
@@ -89,7 +91,8 @@ describe('config', () => {
         CDK_ENV: 'dev',
         CDK_OU: 'leanstacks',
         CDK_OWNER: 'platform-team',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -108,7 +111,8 @@ describe('config', () => {
       const config: Config = {
         CDK_APP_NAME: 'lambda-starter',
         CDK_ENV: 'qat',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -127,7 +131,8 @@ describe('config', () => {
       const config: Config = {
         CDK_APP_NAME: 'my-custom-app',
         CDK_ENV: 'dev',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -153,7 +158,8 @@ describe('config', () => {
         CDK_ENV: 'dev',
         CDK_ACCOUNT: '123456789012',
         CDK_REGION: 'us-west-2',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -175,7 +181,8 @@ describe('config', () => {
       const config: Config = {
         CDK_APP_NAME: 'lambda-starter',
         CDK_ENV: 'dev',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -197,7 +204,8 @@ describe('config', () => {
         CDK_ENV: 'prd',
         CDK_ACCOUNT: '999999999999',
         CDK_REGION: 'ap-southeast-2',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -219,7 +227,8 @@ describe('config', () => {
       const config: Config = {
         CDK_APP_NAME: 'lambda-starter',
         CDK_ENV: 'dev',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -236,7 +245,8 @@ describe('config', () => {
       const config: Config = {
         CDK_APP_NAME: 'lambda-starter',
         CDK_ENV: 'dev',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
@@ -253,7 +263,8 @@ describe('config', () => {
       const config: Config = {
         CDK_APP_NAME: 'lambda-starter',
         CDK_ENV: 'dev',
-        CDK_APP_ENABLE_LOGGING: true,
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
       };
