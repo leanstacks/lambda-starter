@@ -398,14 +398,26 @@ describe('update-task handler', () => {
       expect(mockUpdateTask).not.toHaveBeenCalled();
     });
 
-    it('should return 400 when extra fields are provided', async () => {
+    it('should allow extra fields like createdAt and updatedAt', async () => {
       // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
       const requestBody = {
         title: 'Updated Task',
         isComplete: false,
-        extraField: 'not allowed',
+        createdAt: '2025-01-01T10:00:00.000Z',
+        updatedAt: '2025-12-02T10:00:00.000Z',
+        id: '123e4567-e89b-12d3-a456-426614174000',
       };
 
+      const mockTask: Task = {
+        id: taskId,
+        title: 'Updated Task',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-12-01T10:00:00.000Z',
+      };
+
+      mockUpdateTask.mockResolvedValue(mockTask);
       const event = createMockEvent({ body: JSON.stringify(requestBody) });
       const context = createMockContext();
 
@@ -413,10 +425,13 @@ describe('update-task handler', () => {
       const result = await handler(event, context);
 
       // Assert
-      expect(result.statusCode).toBe(400);
-      const responseBody = JSON.parse(result.body);
-      expect(responseBody.message).toContain('Validation failed');
-      expect(mockUpdateTask).not.toHaveBeenCalled();
+      expect(result.statusCode).toBe(200);
+      expect(mockUpdateTask).toHaveBeenCalledTimes(1);
+      // Verify only the validated DTO fields are passed to the service
+      expect(mockUpdateTask).toHaveBeenCalledWith(taskId, {
+        title: 'Updated Task',
+        isComplete: false,
+      });
     });
 
     it('should return 500 when update fails with unexpected error', async () => {
