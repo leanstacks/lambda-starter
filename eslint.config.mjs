@@ -9,7 +9,7 @@ import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 export default defineConfig(
   {
-    ignores: ['dist', 'coverage', 'cdk.out'],
+    ignores: ['**/dist', '**/coverage', '**/cdk.out'],
   },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],

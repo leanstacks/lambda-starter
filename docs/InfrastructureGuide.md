@@ -425,6 +425,40 @@ const tableName = process.env.TASK_TABLE_NAME;
 - **DynamoDB**: Read access (Scan) to the Task table
 - **CloudWatch Logs**: Write access to its log group
 
+#### Get Task Function
+
+**Resource Type**: AWS Lambda Function
+
+**Configuration**:
+
+- **Function Name**: `{app-name}-get-task-{env}`
+- **Runtime**: Node.js 24.x
+- **Handler**: `handler` (bundled with esbuild)
+- **Memory**: 256 MB
+- **Timeout**: 10 seconds
+- **Log Format**: JSON (structured logging)
+- **Bundling**: Automatic TypeScript compilation with esbuild
+- **Environment Variables**:
+  - `TASKS_TABLE`: DynamoDB table name
+  - `ENABLE_LOGGING`: Logging enabled flag (from `CDK_APP_ENABLE_LOGGING`)
+  - `LOG_LEVEL`: Minimum log level (from `CDK_APP_LOGGING_LEVEL`)
+  - `LOG_FORMAT`: Log output format (from `CDK_APP_LOGGING_FORMAT`)
+
+**CloudWatch Logs**:
+
+- **Log Group**: `/aws/lambda/{app-name}-get-task-{env}`
+- **Log Retention**:
+  - `prd`: 30 days
+  - Other environments: 7 days
+- **Removal Policy**:
+  - `prd`: `RETAIN` (logs preserved on stack deletion)
+  - Other environments: `DESTROY` (logs deleted on stack deletion)
+
+**IAM Permissions**:
+
+- **DynamoDB**: Read access (GetItem) to the Task table
+- **CloudWatch Logs**: Write access to its log group
+
 #### Create Task Function
 
 **Resource Type**: AWS Lambda Function
@@ -482,6 +516,14 @@ const tableName = process.env.TASK_TABLE_NAME;
   - Integration: Lambda proxy integration with List Tasks Function
   - Response: JSON array of tasks
 
+- **GET /tasks/{taskId}**: Get a specific task by ID
+  - Integration: Lambda proxy integration with Get Task Function
+  - Path Parameter: `taskId` - The unique identifier of the task
+  - Response: JSON object with the requested task
+  - Error Responses:
+    - 404 Not Found: Task ID does not exist or path parameter is missing
+    - 500 Internal Server Error: Failed to retrieve task
+
 - **POST /tasks**: Create a new task
   - Integration: Lambda proxy integration with Create Task Function
   - Request Body: JSON object with task properties (title, description, status)
@@ -492,6 +534,7 @@ const tableName = process.env.TASK_TABLE_NAME;
 - `ApiUrl`: The API Gateway endpoint URL (e.g., `https://abc123.execute-api.us-east-1.amazonaws.com/dev/`)
 - `ApiId`: The API Gateway ID
 - `ListTasksFunctionArn`: The List Tasks Lambda function ARN
+- `GetTaskFunctionArn`: The Get Task Lambda function ARN
 - `CreateTaskFunctionArn`: The Create Task Lambda function ARN
 
 **Logging Configuration**:
