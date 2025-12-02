@@ -273,16 +273,47 @@ npm run cdk destroy --all
   - Runtime: Node.js 24.x
   - Memory: 256 MB
   - Timeout: 10 seconds
-  - Log Format: JSON (structured logging)
-  - Log Retention:
-    - `prd`: 30 days
-    - Other environments: 7 days
-  - Log Removal Policy:
-    - `prd`: `RETAIN` (logs preserved on stack deletion)
-    - Other environments: `DESTROY` (logs deleted on stack deletion)
+  - Handler: Retrieves all tasks from DynamoDB
+  - IAM Permissions: Read access to Task table (Scan)
+
+- **Get Task Function** (`get-task-{env}`)
+  - Runtime: Node.js 24.x
+  - Memory: 256 MB
+  - Timeout: 10 seconds
+  - Handler: Retrieves a single task by ID
+  - IAM Permissions: Read access to Task table (GetItem)
+
+- **Create Task Function** (`create-task-{env}`)
+  - Runtime: Node.js 24.x
+  - Memory: 256 MB
+  - Timeout: 10 seconds
+  - Handler: Creates a new task in DynamoDB
+  - IAM Permissions: Write access to Task table (PutItem)
+
+- **Update Task Function** (`update-task-{env}`)
+  - Runtime: Node.js 24.x
+  - Memory: 256 MB
+  - Timeout: 10 seconds
+  - Handler: Updates an existing task in DynamoDB
+  - IAM Permissions: Read-write access to Task table (GetItem, UpdateItem)
+
+**Common Lambda Configuration:**
+
+- Log Format: JSON (structured logging)
+- Log Retention:
+  - `prd`: 30 days
+  - Other environments: 7 days
+- Log Removal Policy:
+  - `prd`: `RETAIN` (logs preserved on stack deletion)
+  - Other environments: `DESTROY` (logs deleted on stack deletion)
 
 - **Lambda Starter API** (`lambda-starter-api-{env}`)
   - Type: REST API
+  - Endpoints:
+    - `GET /tasks` - List all tasks
+    - `GET /tasks/{taskId}` - Get a specific task
+    - `POST /tasks` - Create a new task
+    - `PUT /tasks/{taskId}` - Update an existing task
   - CORS: Enabled with preflight OPTIONS support
   - Throttling: Rate and burst limits configured
   - Stage: `{env}` (e.g., `dev`, `prd`)
@@ -291,7 +322,10 @@ npm run cdk destroy --all
 
 - `ApiUrl`: The API Gateway endpoint URL
 - `ApiId`: The API Gateway ID
-- `ListTasksFunctionArn`: The Lambda function ARN
+- `ListTasksFunctionArn`: The List Tasks Lambda function ARN
+- `GetTaskFunctionArn`: The Get Task Lambda function ARN
+- `CreateTaskFunctionArn`: The Create Task Lambda function ARN
+- `UpdateTaskFunctionArn`: The Update Task Lambda function ARN
 
 **Logging Configuration:**
 

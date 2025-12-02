@@ -66,6 +66,11 @@ export class LambdaStack extends cdk.Stack {
    */
   public readonly createTaskFunction: NodejsFunction;
 
+  /**
+   * The update task Lambda function.
+   */
+  public readonly updateTaskFunction: NodejsFunction;
+
   constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id, props);
 
@@ -162,6 +167,37 @@ export class LambdaStack extends cdk.Stack {
     // Grant the Lambda function write access to the DynamoDB table
     props.taskTable.grantWriteData(this.createTaskFunction);
 
+    // Create the update task Lambda function
+    this.updateTaskFunction = new NodejsFunction(this, 'UpdateTaskFunction', {
+      functionName: `${props.appName}-update-task-${props.envName}`,
+      runtime: lambda.Runtime.NODEJS_24_X,
+      handler: 'handler',
+      entry: path.join(__dirname, '../../src/handlers/update-task.ts'),
+      environment: {
+        TASKS_TABLE: props.taskTable.tableName,
+        ENABLE_LOGGING: props.enableLogging.toString(),
+        LOG_LEVEL: props.loggingLevel,
+        LOG_FORMAT: props.loggingFormat,
+      },
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 256,
+      bundling: {
+        minify: true,
+        sourceMap: true,
+      },
+      loggingFormat: lambda.LoggingFormat.JSON,
+      applicationLogLevelV2: lambda.ApplicationLogLevel.INFO,
+      systemLogLevelV2: lambda.SystemLogLevel.INFO,
+      logGroup: new logs.LogGroup(this, 'UpdateTaskFunctionLogGroup', {
+        logGroupName: `/aws/lambda/${props.appName}-update-task-${props.envName}`,
+        retention: props.envName === 'prd' ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
+        removalPolicy: props.envName === 'prd' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      }),
+    });
+
+    // Grant the Lambda function read and write access to the DynamoDB table
+    props.taskTable.grantReadWriteData(this.updateTaskFunction);
+
     // Create API Gateway REST API
     this.api = new apigateway.RestApi(this, 'LambdaStarterApi', {
       restApiName: `${props.appName}-api-${props.envName}`,
@@ -192,6 +228,9 @@ export class LambdaStack extends cdk.Stack {
 
     // Add GET method to /tasks/{taskId}
     taskResource.addMethod('GET', new apigateway.LambdaIntegration(this.getTaskFunction));
+
+    // Add PUT method to /tasks/{taskId}
+    taskResource.addMethod('PUT', new apigateway.LambdaIntegration(this.updateTaskFunction));
 
     // Output the API URL
     new cdk.CfnOutput(this, 'ApiUrl', {
@@ -226,6 +265,13 @@ export class LambdaStack extends cdk.Stack {
       value: this.createTaskFunction.functionArn,
       description: 'ARN of the create task Lambda function',
       exportName: `${props.appName}-create-task-function-arn-${props.envName}`,
+    });
+
+    // Output the update task function ARN
+    new cdk.CfnOutput(this, 'UpdateTaskFunctionArn', {
+      value: this.updateTaskFunction.functionArn,
+      description: 'ARN of the update task Lambda function',
+      exportName: `${props.appName}-update-task-function-arn-${props.envName}`,
     });
   }
 }

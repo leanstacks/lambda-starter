@@ -231,20 +231,28 @@ describe('create-task-dto', () => {
       }
     });
 
-    it('should reject when extra fields are provided', () => {
+    it('should allow extra fields like createdAt and updatedAt', () => {
       // Arrange
       const invalidDto = {
         title: 'Test Task',
-        extraField: 'should not be here',
+        isComplete: false,
+        createdAt: '2025-01-01T10:00:00.000Z',
+        updatedAt: '2025-12-02T10:00:00.000Z',
+        id: '123e4567-e89b-12d3-a456-426614174000',
       };
 
       // Act
       const result = CreateTaskDtoSchema.safeParse(invalidDto);
 
       // Assert
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].code).toBe('unrecognized_keys');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        // Validated DTO only contains the fields we defined in the schema
+        expect(result.data.title).toBe('Test Task');
+        expect(result.data.isComplete).toBe(false);
+        expect(result.data).not.toHaveProperty('createdAt');
+        expect(result.data).not.toHaveProperty('updatedAt');
+        expect(result.data).not.toHaveProperty('id');
       }
     });
   });

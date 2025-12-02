@@ -1,16 +1,16 @@
 import { z } from 'zod';
 
 /**
- * Zod schema for validating create task request body
+ * Zod schema for validating update task request body
  */
-export const CreateTaskDtoSchema = z.object({
+export const UpdateTaskDtoSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must not exceed 100 characters'),
   detail: z.string().max(1000, 'Detail must not exceed 1000 characters').optional(),
   dueAt: z.iso.datetime({ message: 'Due date must be a valid ISO8601 timestamp' }).optional(),
-  isComplete: z.boolean().default(false),
+  isComplete: z.boolean(),
 });
 
 /**
- * Type representing the validated create task DTO
+ * Type representing the validated update task DTO
  */
-export type CreateTaskDto = z.infer<typeof CreateTaskDtoSchema>;
+export type UpdateTaskDto = z.infer<typeof UpdateTaskDtoSchema>;

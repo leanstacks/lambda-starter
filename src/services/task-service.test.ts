@@ -1,4 +1,5 @@
 import { CreateTaskDto } from '../models/create-task-dto';
+import { UpdateTaskDto } from '../models/update-task-dto';
 import { TaskItem } from '../models/task';
 
 // Mock dependencies
@@ -36,6 +37,7 @@ describe('task-service', () => {
   let listTasks: typeof import('./task-service').listTasks;
   let getTask: typeof import('./task-service').getTask;
   let createTask: typeof import('./task-service').createTask;
+  let updateTask: typeof import('./task-service').updateTask;
 
   beforeEach(() => {
     // Clear all mocks
@@ -46,6 +48,7 @@ describe('task-service', () => {
     listTasks = taskService.listTasks;
     getTask = taskService.getTask;
     createTask = taskService.createTask;
+    updateTask = taskService.updateTask;
   });
 
   describe('listTasks', () => {
@@ -442,6 +445,285 @@ describe('task-service', () => {
 
       // Assert
       expect(result).not.toHaveProperty('pk');
+    });
+  });
+
+  describe('updateTask', () => {
+    beforeEach(() => {
+      // Mock Date.now to return a fixed timestamp
+      jest.spyOn(global, 'Date').mockImplementation(() => {
+        return {
+          toISOString: () => '2025-12-01T10:00:00.000Z',
+        } as Date;
+      });
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should update a task with all fields', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        detail: 'Updated detail',
+        dueAt: '2025-12-31T23:59:59.000Z',
+        isComplete: true,
+      };
+
+      const updatedTaskItem: TaskItem = {
+        pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+        id: taskId,
+        title: 'Updated Task',
+        detail: 'Updated detail',
+        dueAt: '2025-12-31T23:59:59.000Z',
+        isComplete: true,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-12-01T10:00:00.000Z',
+      };
+
+      mockSend.mockResolvedValue({
+        Attributes: updatedTaskItem,
+      });
+
+      // Act
+      const result = await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result?.title).toBe('Updated Task');
+      expect(result?.detail).toBe('Updated detail');
+      expect(result?.dueAt).toBe('2025-12-31T23:59:59.000Z');
+      expect(result?.isComplete).toBe(true);
+      expect(result?.updatedAt).toBe('2025-12-01T10:00:00.000Z');
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] > updateTask', {
+        tableName: 'test-tasks-table',
+        id: taskId,
+      });
+    });
+
+    it('should update a task with only required fields', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        isComplete: false,
+      };
+
+      const updatedTaskItem: TaskItem = {
+        pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+        id: taskId,
+        title: 'Updated Task',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-12-01T10:00:00.000Z',
+      };
+
+      mockSend.mockResolvedValue({
+        Attributes: updatedTaskItem,
+      });
+
+      // Act
+      const result = await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      expect(result).not.toBeNull();
+      expect(result?.title).toBe('Updated Task');
+      expect(result?.detail).toBeUndefined();
+      expect(result?.dueAt).toBeUndefined();
+      expect(result?.isComplete).toBe(false);
+      expect(mockSend).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return null when task is not found', async () => {
+      // Arrange
+      const taskId = 'non-existent-id';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        isComplete: false,
+      };
+
+      const mockError = new Error('The conditional request failed');
+      mockError.name = 'ConditionalCheckFailedException';
+      mockSend.mockRejectedValue(mockError);
+
+      // Act
+      const result = await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      expect(result).toBeNull();
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockLoggerInfo).toHaveBeenCalledWith('[TaskService] < updateTask - task not found', {
+        id: taskId,
+      });
+    });
+
+    it('should update task and set updatedAt to current time', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        isComplete: false,
+      };
+
+      const updatedTaskItem: TaskItem = {
+        pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+        id: taskId,
+        title: 'Updated Task',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-12-01T10:00:00.000Z',
+      };
+
+      mockSend.mockResolvedValue({
+        Attributes: updatedTaskItem,
+      });
+
+      // Act
+      const result = await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      expect(result?.updatedAt).toBe('2025-12-01T10:00:00.000Z');
+    });
+
+    it('should handle DynamoDB errors and rethrow them', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        isComplete: false,
+      };
+
+      const mockError = new Error('DynamoDB error');
+      mockSend.mockRejectedValue(mockError);
+
+      // Act & Assert
+      await expect(updateTask(taskId, updateTaskDto)).rejects.toThrow('DynamoDB error');
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      expect(mockLoggerError).toHaveBeenCalled();
+    });
+
+    it('should not include pk field in returned task', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        isComplete: false,
+      };
+
+      const updatedTaskItem: TaskItem = {
+        pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+        id: taskId,
+        title: 'Updated Task',
+        isComplete: false,
+        createdAt: '2025-11-01T10:00:00.000Z',
+        updatedAt: '2025-12-01T10:00:00.000Z',
+      };
+
+      mockSend.mockResolvedValue({
+        Attributes: updatedTaskItem,
+      });
+
+      // Act
+      const result = await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      expect(result).not.toHaveProperty('pk');
+    });
+
+    it('should use UpdateCommand with correct parameters', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        detail: 'Updated detail',
+        isComplete: false,
+      };
+
+      mockSend.mockResolvedValue({
+        Attributes: {
+          pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+          id: taskId,
+          title: 'Updated Task',
+          detail: 'Updated detail',
+          isComplete: false,
+          createdAt: '2025-11-01T10:00:00.000Z',
+          updatedAt: '2025-12-01T10:00:00.000Z',
+        },
+      });
+
+      // Act
+      await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      expect(mockSend).toHaveBeenCalledTimes(1);
+      const command = mockSend.mock.calls[0][0];
+      expect(command.input.TableName).toBe('test-tasks-table');
+      expect(command.input.Key).toEqual({ pk: 'TASK#123e4567-e89b-12d3-a456-426614174000' });
+      expect(command.input.ConditionExpression).toBe('attribute_exists(pk)');
+      expect(command.input.ReturnValues).toBe('ALL_NEW');
+    });
+
+    it('should add detail to update expression when detail is provided', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        detail: 'New detail',
+        isComplete: false,
+      };
+
+      mockSend.mockResolvedValue({
+        Attributes: {
+          pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+          id: taskId,
+          title: 'Updated Task',
+          detail: 'New detail',
+          isComplete: false,
+          createdAt: '2025-11-01T10:00:00.000Z',
+          updatedAt: '2025-12-01T10:00:00.000Z',
+        },
+      });
+
+      // Act
+      await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      const command = mockSend.mock.calls[0][0];
+      expect(command.input.UpdateExpression).toContain('detail = :detail');
+      expect(command.input.ExpressionAttributeValues[':detail']).toBe('New detail');
+    });
+
+    it('should add dueAt to update expression when dueAt is provided', async () => {
+      // Arrange
+      const taskId = '123e4567-e89b-12d3-a456-426614174000';
+      const updateTaskDto: UpdateTaskDto = {
+        title: 'Updated Task',
+        dueAt: '2025-12-31T23:59:59.000Z',
+        isComplete: false,
+      };
+
+      mockSend.mockResolvedValue({
+        Attributes: {
+          pk: 'TASK#123e4567-e89b-12d3-a456-426614174000',
+          id: taskId,
+          title: 'Updated Task',
+          dueAt: '2025-12-31T23:59:59.000Z',
+          isComplete: false,
+          createdAt: '2025-11-01T10:00:00.000Z',
+          updatedAt: '2025-12-01T10:00:00.000Z',
+        },
+      });
+
+      // Act
+      await updateTask(taskId, updateTaskDto);
+
+      // Assert
+      const command = mockSend.mock.calls[0][0];
+      expect(command.input.UpdateExpression).toContain('dueAt = :dueAt');
+      expect(command.input.ExpressionAttributeValues[':dueAt']).toBe('2025-12-31T23:59:59.000Z');
     });
   });
 });
