@@ -1,6 +1,6 @@
 # Infrastructure Guide
 
-This guide provides a concise overview of the AWS CDK infrastructure for the Lambda Starter project. It is intended for software and DevOps engineers deploying and maintaining the project on AWS.
+This guide provides a concise overview of the AWS CDK infrastructure for the project. It is intended for software and DevOps engineers deploying and maintaining the project on AWS.
 
 ---
 
@@ -19,7 +19,7 @@ The infrastructure is organized into two main AWS CDK stacks:
 
 **Purpose:** Manages DynamoDB tables and data-related resources.
 
-**Key Resource:**
+**Key Resources:**
 
 | Resource       | Name Pattern            | Key Properties                                                                                                                        |
 | -------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |

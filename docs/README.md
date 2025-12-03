@@ -1,6 +1,6 @@
 # Documentation
 
-This directory contains technical documentation for the Lambda Starter project. For project overview, see the main [README](../README.md).
+This directory contains technical documentation for the project. For an overview of the project, see the main [README](../README.md).
 
 ---
 
