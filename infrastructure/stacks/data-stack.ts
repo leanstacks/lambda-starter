@@ -48,14 +48,14 @@ export class DataStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'TaskTableName', {
       value: this.taskTable.tableName,
       description: 'The name of the Task DynamoDB table',
-      exportName: `${props.envName}-task-table-name`,
+      exportName: `${props.appName}-task-table-name-${props.envName}`,
     });
 
     // Output the table ARN
     new cdk.CfnOutput(this, 'TaskTableArn', {
       value: this.taskTable.tableArn,
       description: 'The ARN of the Task DynamoDB table',
-      exportName: `${props.envName}-task-table-arn`,
+      exportName: `${props.appName}-task-table-arn-${props.envName}`,
     });
   }
 }
