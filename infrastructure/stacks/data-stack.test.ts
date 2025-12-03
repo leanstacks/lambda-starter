@@ -59,7 +59,7 @@ describe('DataStack', () => {
     it('should export table name', () => {
       template.hasOutput('TaskTableName', {
         Export: {
-          Name: 'dev-task-table-name',
+          Name: 'lambda-starter-task-table-name-dev',
         },
       });
     });
@@ -67,7 +67,7 @@ describe('DataStack', () => {
     it('should export table ARN', () => {
       template.hasOutput('TaskTableArn', {
         Export: {
-          Name: 'dev-task-table-arn',
+          Name: 'lambda-starter-task-table-arn-dev',
         },
       });
     });
