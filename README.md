@@ -4,7 +4,7 @@ A Lambda starter kit for Node.js TypeScript serverless functions.
 
 ## Overview
 
-This project provides a solid foundation for implementing Serverless Microservice Patterns with AWS Lambda functions using Node.js and TypeScript. The project uses with AWS CDK for infrastructure as code, Jest for testing, and modern development tooling.
+This project provides a solid foundation for implementing Serverless Microservice Patterns with AWS Lambda functions using Node.js and TypeScript. The project uses the AWS CDK for infrastructure as code, Jest for testing, and modern development tooling.
 
 There are many Serverless Microservice Patterns which may be implemented with AWS Lambda functions. This project illustrates the "Simple Web Service" pattern, which is one of the most frequently used.
 
@@ -21,11 +21,11 @@ Before you begin, ensure you have the following installed:
 
 #### Setting up Node.js with NVM
 
-This project uses the Node.js version specified in `.nvmrc`.
+This project uses the Node.js version specified in `.nvmrc`. See the [official nvm guide](https://github.com/nvm-sh/nvm) for additional information.
 
 ```bash
 # Install NVM (if not already installed)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
 # Install and use the correct Node.js version
 nvm install
