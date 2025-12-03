@@ -2,7 +2,11 @@
 
 A Lambda starter kit for Node.js TypeScript serverless functions.
 
-This project provides a solid foundation for building AWS Lambda functions using Node.js and TypeScript, with AWS CDK for infrastructure as code, Jest for testing, and modern development tooling.
+## Overview
+
+This project provides a solid foundation for implementing Serverless Microservice Patterns with AWS Lambda functions using Node.js and TypeScript. The project uses with AWS CDK for infrastructure as code, Jest for testing, and modern development tooling.
+
+There are many Serverless Microservice Patterns which may be implemented with AWS Lambda functions. This project illustrates the "Simple Web Service" pattern, which is one of the most frequently used.
 
 ## Getting started
 
@@ -11,13 +15,13 @@ This project provides a solid foundation for building AWS Lambda functions using
 Before you begin, ensure you have the following installed:
 
 - **[Node Version Manager (NVM)](https://github.com/nvm-sh/nvm)** - Manages Node.js versions
-- **Node.js 24+** - JavaScript runtime (install via NVM)
+- **Node.js** - JavaScript runtime (install via NVM)
 - **npm** - Package manager (comes with Node.js)
 - **AWS CLI** - For AWS credentials and configuration (recommended)
 
 #### Setting up Node.js with NVM
 
-This project uses Node.js version `24.11.1` as specified in `.nvmrc`.
+This project uses the Node.js version specified in `.nvmrc`.
 
 ```bash
 # Install NVM (if not already installed)
@@ -28,8 +32,7 @@ nvm install
 nvm use
 
 # Verify installation
-node --version  # Should output v24.11.1
-npm --version
+node --version  # Should output same version as in .nvmrc
 ```
 
 #### Installing Dependencies
@@ -41,19 +44,27 @@ npm install
 
 ## Project structure
 
+This is a high-level overview of the project structure. This structure separates the infrastructure as code from the Lambda application code. Within the Lambda microservice component, directories provide structure to implement DRY (Don't Repeat Yourself) code which follows the SRP (Single Responsibility Principle).
+
 ```
 /docs                           # Project documentation
+
 /infrastructure                 # AWS CDK infrastructure code
   /stacks                       # CDK stack definitions
   /utils                        # CDK utilities and helpers
   app.ts                        # CDK app entry point
   cdk.json                      # CDK configuration
+  jest.config.ts                # Infrastructure Jest configuration
+  package.json                  # Infrastructure dependencies and scripts
+  tsconfig.json                 # Infrastructure TypeScript configuration
+  .env.example                  # Infrastructure example .env
+
 /src                            # Application source code
   /handlers                     # Lambda function handlers
   /models                       # Data models and types
   /services                     # Business logic services
   /utils                        # Utility functions and helpers
-/coverage                       # Test coverage reports (generated)
+
 eslint.config.mjs               # ESLint configuration
 jest.config.ts                  # Jest testing configuration
 package.json                    # Project dependencies and scripts
@@ -110,13 +121,13 @@ npm run test:watch
 
 - **Language:** TypeScript
 - **Platform:** AWS Lambda
-- **Runtime:** Node.js 24+
-- **AWS SDK:** v3 (modular packages)
+- **Runtime:** Node.js 24+ (see .nvmrc)
+- **Package Manager:** npm
+- **AWS SDK:** v3
 - **Testing:** Jest
 - **Linting/Formatting:** ESLint + Prettier
 - **Validation:** Zod
 - **Logging:** Pino + Pino Lambda
-- **Package Manager:** npm
 - **Infrastructure:** AWS CDK
 - **DevOps:** GitHub Actions
 
@@ -127,6 +138,7 @@ npm run test:watch
 - **[@aws-sdk/client-dynamodb](https://www.npmjs.com/package/@aws-sdk/client-dynamodb)** - AWS SDK v3 DynamoDB client
 - **[@aws-sdk/lib-dynamodb](https://www.npmjs.com/package/@aws-sdk/lib-dynamodb)** - DynamoDB document client utilities
 - **[zod](https://www.npmjs.com/package/zod)** - TypeScript-first schema validation
+- **[pino](https://getpino.io/)** - Low overhead, fast logger for JavaScript
 
 ### Development Dependencies
 
@@ -148,3 +160,7 @@ Each environment has its own AWS account and configuration.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Further Reading
+
+- [Project Documentation](./docs/README.md)
