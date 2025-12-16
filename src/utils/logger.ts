@@ -1,13 +1,15 @@
 import pino from 'pino';
-import { pinoLambdaDestination } from 'pino-lambda';
+import { pinoLambdaDestination, StructuredLogFormatter } from 'pino-lambda';
 
 import { config } from './config';
 
 /**
- * Initialize Pino logger with Lambda destination
+ * Initialize Pino Lambda destination
  * @see https://www.npmjs.com/package/pino-lambda#best-practices
  */
-const _lambdaDestination = pinoLambdaDestination();
+const _lambdaDestination = pinoLambdaDestination({
+  formatter: new StructuredLogFormatter(),
+});
 
 /**
  * Pino logger instance
@@ -15,12 +17,6 @@ const _lambdaDestination = pinoLambdaDestination();
 const _logger = pino(
   {
     level: config.LOGGING_LEVEL,
-    formatters: {
-      level: (label) => {
-        return { level: label };
-      },
-    },
-    timestamp: pino.stdTimeFunctions.isoTime,
   },
   _lambdaDestination,
 );

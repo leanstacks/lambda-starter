@@ -5,8 +5,8 @@ AWS CDK infrastructure for this project.
 ## Technology Stack
 
 - **AWS CDK:** v2
-- **Language:** TypeScript 5.9+
-- **Node.js:** v24+
+- **Language:** TypeScript
+- **Node.js:** v24+ (see .nvmrc)
 - **Package Manager:** npm
 - **Testing:** Jest
 - **Validation:** Zod
@@ -43,7 +43,7 @@ Before you begin, ensure you have the following installed and configured:
 
    ```bash
    # Install NVM (if not already installed)
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
    # Install and use the Node.js version specified in .nvmrc
    nvm install
