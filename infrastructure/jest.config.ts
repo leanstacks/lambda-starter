@@ -11,6 +11,7 @@ const config: Config = {
     '!**/*.spec.ts',
     '!**/node_modules/**',
     '!**/cdk.out/**',
+    '!**/dist/**',
     '!jest.config.ts',
     '!jest.setup.ts',
   ],
