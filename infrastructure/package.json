@@ -1,6 +1,6 @@
 {
   "name": "lambda-starter-infrastructure",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha",
   "description": "AWS CDK infrastructure for lambda-starter",
   "private": true,
   "type": "commonjs",

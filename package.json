@@ -1,6 +1,6 @@
 {
   "name": "lambda-starter",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha",
   "description": "A starter project for Lambda functions using Node.js and TypeScript.",
   "keywords": [
     "aws",
@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "3.952.0",
+    "@aws-sdk/client-lambda": "3.952.0",
     "@aws-sdk/client-sns": "3.952.0",
     "@aws-sdk/lib-dynamodb": "3.952.0",
     "pino": "10.1.0",
