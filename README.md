@@ -136,6 +136,7 @@ npm run test:watch
 ### Runtime Dependencies
 
 - **[@aws-sdk/client-dynamodb](https://www.npmjs.com/package/@aws-sdk/client-dynamodb)** - AWS SDK v3 DynamoDB client
+- **[@aws-sdk/client-sns](https://www.npmjs.com/package/@aws-sdk/client-sns)** - AWS SDK v3 SNS client
 - **[@aws-sdk/lib-dynamodb](https://www.npmjs.com/package/@aws-sdk/lib-dynamodb)** - DynamoDB document client utilities
 - **[zod](https://www.npmjs.com/package/zod)** - TypeScript-first schema validation
 - **[pino](https://getpino.io/)** - Low overhead, fast logger for JavaScript
