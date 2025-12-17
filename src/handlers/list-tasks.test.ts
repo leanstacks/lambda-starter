@@ -25,6 +25,8 @@ jest.mock('../utils/logger', () => ({
   logger: {
     info: mockLoggerInfo,
     error: mockLoggerError,
+    debug: jest.fn(),
+    warn: jest.fn(),
   },
 }));
 
@@ -134,10 +136,16 @@ describe('list-tasks handler', () => {
       expect(result.statusCode).toBe(200);
       expect(JSON.parse(result.body)).toEqual(mockTasks);
       expect(mockListTasks).toHaveBeenCalledTimes(1);
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[ListTasks] > handler', expect.any(Object));
       expect(mockLoggerInfo).toHaveBeenCalledWith(
-        '[ListTasks] < handler - successfully retrieved tasks',
+        expect.objectContaining({
+          event: expect.any(Object),
+          context: expect.any(Object),
+        }),
+        '[ListTasksHandler] > handler',
+      );
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
         expect.any(Object),
+        '[ListTasksHandler] < handler - successfully retrieved tasks',
       );
     });
 
@@ -173,9 +181,8 @@ describe('list-tasks handler', () => {
       });
       expect(mockListTasks).toHaveBeenCalledTimes(1);
       expect(mockLoggerError).toHaveBeenCalledWith(
-        '[ListTasks] < handler - failed to list tasks',
-        mockError,
-        expect.any(Object),
+        expect.objectContaining({ error: mockError }),
+        '[ListTasksHandler] < handler - failed to list tasks',
       );
     });
 
@@ -204,10 +211,10 @@ describe('list-tasks handler', () => {
       await handler(event, context);
 
       // Assert
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[ListTasks] > handler', {
-        requestId: 'test-request-id',
-        event,
-      });
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        { context: expect.any(Object), event: expect.any(Object) },
+        '[ListTasksHandler] > handler',
+      );
     });
 
     it('should log successful response with count', async () => {
@@ -229,10 +236,12 @@ describe('list-tasks handler', () => {
       await handler(event, context);
 
       // Assert
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[ListTasks] < handler - successfully retrieved tasks', {
-        count: 1,
-        requestId: 'test-request-id',
-      });
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        {
+          count: 1,
+        },
+        '[ListTasksHandler] < handler - successfully retrieved tasks',
+      );
     });
   });
 });

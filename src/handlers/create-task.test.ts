@@ -27,6 +27,7 @@ jest.mock('../utils/logger', () => ({
     info: mockLoggerInfo,
     warn: mockLoggerWarn,
     error: mockLoggerError,
+    debug: jest.fn(),
   },
 }));
 
@@ -136,10 +137,16 @@ describe('create-task handler', () => {
       expect(JSON.parse(result.body)).toEqual(mockTask);
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockCreateTask).toHaveBeenCalledWith(requestBody);
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[CreateTask] > handler', expect.any(Object));
       expect(mockLoggerInfo).toHaveBeenCalledWith(
-        '[CreateTask] < handler - successfully created task',
+        expect.objectContaining({
+          event: expect.any(Object),
+          context: expect.any(Object),
+        }),
+        '[CreateTaskHandler] > handler',
+      );
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
         expect.any(Object),
+        '[CreateTaskHandler] < handler - successfully created task',
       );
     });
 
@@ -182,7 +189,7 @@ describe('create-task handler', () => {
       expect(result.statusCode).toBe(400);
       expect(JSON.parse(result.body)).toEqual({ message: 'Request body is required' });
       expect(mockCreateTask).not.toHaveBeenCalled();
-      expect(mockLoggerWarn).toHaveBeenCalledWith('[CreateTask] < handler - missing request body', expect.any(Object));
+      expect(mockLoggerWarn).toHaveBeenCalledWith('[CreateTaskHandler] < handler - missing request body');
     });
 
     it('should return 400 when request body is not valid JSON', async () => {
@@ -197,10 +204,7 @@ describe('create-task handler', () => {
       expect(result.statusCode).toBe(400);
       expect(JSON.parse(result.body)).toEqual({ message: 'Invalid JSON in request body' });
       expect(mockCreateTask).not.toHaveBeenCalled();
-      expect(mockLoggerWarn).toHaveBeenCalledWith(
-        '[CreateTask] < handler - invalid JSON in request body',
-        expect.any(Object),
-      );
+      expect(mockLoggerWarn).toHaveBeenCalledWith('[CreateTaskHandler] < handler - invalid JSON in request body');
     });
 
     it('should return 400 when title is missing', async () => {
@@ -221,7 +225,10 @@ describe('create-task handler', () => {
       expect(responseBody.message).toContain('Validation failed');
       expect(responseBody.message).toContain('title');
       expect(mockCreateTask).not.toHaveBeenCalled();
-      expect(mockLoggerWarn).toHaveBeenCalledWith('[CreateTask] < handler - validation error', expect.any(Object));
+      expect(mockLoggerWarn).toHaveBeenCalledWith(
+        expect.any(Object),
+        '[CreateTaskHandler] < handler - validation error',
+      );
     });
 
     it('should return 400 when title is empty', async () => {
@@ -345,9 +352,8 @@ describe('create-task handler', () => {
       expect(JSON.parse(result.body)).toEqual({ message: 'Failed to create task' });
       expect(mockCreateTask).toHaveBeenCalledTimes(1);
       expect(mockLoggerError).toHaveBeenCalledWith(
-        '[CreateTask] < handler - failed to create task',
-        mockError,
-        expect.any(Object),
+        expect.objectContaining({ error: mockError }),
+        '[CreateTaskHandler] < handler - failed to create task',
       );
     });
 

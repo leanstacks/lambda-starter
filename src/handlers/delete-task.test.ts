@@ -25,6 +25,7 @@ jest.mock('../utils/logger', () => ({
     info: mockLoggerInfo,
     warn: mockLoggerWarn,
     error: mockLoggerError,
+    debug: jest.fn(),
   },
 }));
 
@@ -119,10 +120,16 @@ describe('delete-task handler', () => {
       expect(JSON.parse(result.body)).toEqual({});
       expect(mockDeleteTask).toHaveBeenCalledTimes(1);
       expect(mockDeleteTask).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000');
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[DeleteTask] > handler', expect.any(Object));
       expect(mockLoggerInfo).toHaveBeenCalledWith(
-        '[DeleteTask] < handler - successfully deleted task',
+        expect.objectContaining({
+          event: expect.any(Object),
+          context: expect.any(Object),
+        }),
+        '[DeleteTaskHandler] > handler',
+      );
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
         expect.any(Object),
+        '[DeleteTaskHandler] < handler - successfully deleted task',
       );
     });
 
@@ -142,7 +149,7 @@ describe('delete-task handler', () => {
       });
       expect(mockDeleteTask).toHaveBeenCalledTimes(1);
       expect(mockDeleteTask).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000');
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[DeleteTask] < handler - task not found', expect.any(Object));
+      expect(mockLoggerInfo).toHaveBeenCalledWith(expect.any(Object), '[DeleteTaskHandler] < handler - task not found');
     });
 
     it('should return 404 when taskId path parameter is missing', async () => {
@@ -161,10 +168,7 @@ describe('delete-task handler', () => {
         message: 'Task not found',
       });
       expect(mockDeleteTask).not.toHaveBeenCalled();
-      expect(mockLoggerWarn).toHaveBeenCalledWith(
-        '[DeleteTask] < handler - missing taskId path parameter',
-        expect.any(Object),
-      );
+      expect(mockLoggerWarn).toHaveBeenCalledWith('[DeleteTaskHandler] < handler - missing taskId path parameter');
     });
 
     it('should return 404 when taskId is undefined', async () => {
@@ -202,9 +206,8 @@ describe('delete-task handler', () => {
       });
       expect(mockDeleteTask).toHaveBeenCalledTimes(1);
       expect(mockLoggerError).toHaveBeenCalledWith(
-        '[DeleteTask] < handler - failed to delete task',
-        mockError,
-        expect.any(Object),
+        expect.objectContaining({ error: mockError }),
+        '[DeleteTaskHandler] < handler - failed to delete task',
       );
     });
 
@@ -234,11 +237,11 @@ describe('delete-task handler', () => {
 
       // Assert
       expect(mockLoggerInfo).toHaveBeenCalledWith(
-        '[DeleteTask] > handler',
         expect.objectContaining({
-          requestId: 'test-request-id',
           event: expect.any(Object),
+          context: expect.any(Object),
         }),
+        '[DeleteTaskHandler] > handler',
       );
     });
 
@@ -286,11 +289,10 @@ describe('delete-task handler', () => {
 
       // Assert
       expect(mockLoggerInfo).toHaveBeenCalledWith(
-        '[DeleteTask] < handler - successfully deleted task',
         expect.objectContaining({
           taskId,
-          requestId: 'test-request-id',
         }),
+        '[DeleteTaskHandler] < handler - successfully deleted task',
       );
     });
 
@@ -306,11 +308,10 @@ describe('delete-task handler', () => {
 
       // Assert
       expect(mockLoggerInfo).toHaveBeenCalledWith(
-        '[DeleteTask] < handler - task not found',
         expect.objectContaining({
           taskId,
-          requestId: 'test-request-id',
         }),
+        '[DeleteTaskHandler] < handler - task not found',
       );
     });
   });

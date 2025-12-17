@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { lambdaRequestTracker } from 'pino-lambda';
 
-import { listTasks } from '../services/task-service.js';
-import { internalServerError, ok } from '../utils/apigateway-response.js';
-import { logger } from '../utils/logger.js';
+import { listTasks } from '@/services/task-service.js';
+import { internalServerError, ok } from '@/utils/apigateway-response.js';
+import { logger } from '@/utils/logger.js';
 
 /**
  * Lambda request tracker middleware for logging.
@@ -20,25 +20,18 @@ const withRequestTracking = lambdaRequestTracker();
  */
 export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   withRequestTracking(event, context);
-  logger.info('[ListTasks] > handler', {
-    requestId: event.requestContext.requestId,
-    event,
-  });
+  logger.info({ event, context }, '[ListTasksHandler] > handler');
 
   try {
+    // Retrieve the list of tasks
     const tasks = await listTasks();
 
-    logger.info('[ListTasks] < handler - successfully retrieved tasks', {
-      count: tasks.length,
-      requestId: event.requestContext.requestId,
-    });
-
+    // Return ok response with the list of tasks
+    logger.info({ count: tasks.length }, '[ListTasksHandler] < handler - successfully retrieved tasks');
     return ok(tasks);
   } catch (error) {
-    logger.error('[ListTasks] < handler - failed to list tasks', error as Error, {
-      requestId: event.requestContext.requestId,
-    });
-
+    // Handle unexpected errors
+    logger.error({ error }, '[ListTasksHandler] < handler - failed to list tasks');
     return internalServerError('Failed to retrieve tasks');
   }
 };

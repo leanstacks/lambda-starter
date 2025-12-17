@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
 import { lambdaRequestTracker } from 'pino-lambda';
 
-import { getTask } from '../services/task-service.js';
-import { internalServerError, notFound, ok } from '../utils/apigateway-response.js';
-import { logger } from '../utils/logger.js';
+import { getTask } from '@/services/task-service.js';
+import { internalServerError, notFound, ok } from '@/utils/apigateway-response.js';
+import { logger } from '@/utils/logger.js';
 
 /**
  * Lambda request tracker middleware for logging.
@@ -20,42 +20,32 @@ const withRequestTracking = lambdaRequestTracker();
  */
 export const handler = async (event: APIGatewayProxyEvent, context: Context): Promise<APIGatewayProxyResult> => {
   withRequestTracking(event, context);
-  logger.info('[GetTask] > handler', {
-    requestId: event.requestContext.requestId,
-    event,
-  });
+  logger.info({ event, context }, '[GetTaskHandler] > handler');
 
   try {
+    // Parse and validate the taskId from path parameters
     const taskId = event.pathParameters?.taskId;
 
     if (!taskId) {
-      logger.warn('[GetTask] < handler - missing taskId path parameter', {
-        requestId: event.requestContext.requestId,
-      });
+      logger.warn('[GetTaskHandler] < handler - missing taskId path parameter');
       return notFound('Task not found');
     }
 
+    // Retrieve the task
     const task = await getTask(taskId);
 
+    // Check if the task was found
     if (!task) {
-      logger.info('[GetTask] < handler - task not found', {
-        taskId,
-        requestId: event.requestContext.requestId,
-      });
+      logger.info({ taskId }, '[GetTaskHandler] < handler - task not found');
       return notFound('Task not found');
     }
 
-    logger.info('[GetTask] < handler - successfully retrieved task', {
-      taskId,
-      requestId: event.requestContext.requestId,
-    });
-
+    // Return ok response with the task
+    logger.info({ taskId }, '[GetTaskHandler] < handler - successfully retrieved task');
     return ok(task);
   } catch (error) {
-    logger.error('[GetTask] < handler - failed to get task', error as Error, {
-      requestId: event.requestContext.requestId,
-    });
-
+    // Handle unexpected errors
+    logger.error({ error }, '[GetTaskHandler] < handler - failed to get task');
     return internalServerError('Failed to retrieve task');
   }
 };
