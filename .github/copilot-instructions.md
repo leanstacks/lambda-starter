@@ -1,4 +1,4 @@
-# Main Project Guidelines
+# Lambda Starter Project Instructions
 
 ## Project Overview
 
