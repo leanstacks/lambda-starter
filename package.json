@@ -1,6 +1,6 @@
 {
   "name": "lambda-starter",
-  "version": "0.2.0-alpha",
+  "version": "0.2.0",
   "description": "A starter project for Lambda functions using Node.js and TypeScript.",
   "keywords": [
     "aws",
