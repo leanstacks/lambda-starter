@@ -21,46 +21,48 @@ export type JsonPayload = Record<string, unknown> | Array<unknown>;
  * @throws Error if the Lambda invocation fails
  */
 export const invokeLambdaSync = async <T = unknown>(functionName: string, payload: JsonPayload): Promise<T> => {
-  logger.info('[LambdaClient] > invokeLambdaSync', { functionName });
+  logger.info({ functionName }, '[LambdaClient] > invokeLambdaSync');
 
   try {
+    // Create the InvokeCommand with RequestResponse invocation type
     const command = new InvokeCommand({
       FunctionName: functionName,
       InvocationType: 'RequestResponse',
       Payload: JSON.stringify(payload),
     });
 
-    logger.debug('[LambdaClient] invokeLambdaSync - InvokeCommand', { command });
+    logger.debug({ command }, '[LambdaClient] invokeLambdaSync - InvokeCommand');
 
+    // Send the command to invoke the Lambda function
     const response = await _lambdaClient.send(command);
 
     // Parse the response payload
     const responsePayload = response.Payload ? JSON.parse(new TextDecoder().decode(response.Payload)) : null;
 
-    logger.info('[LambdaClient] < invokeLambdaSync - successfully invoked Lambda function', {
-      functionName,
-      statusCode: response.StatusCode,
-    });
-
     // Check for function errors
     if (response.FunctionError) {
       logger.error(
-        '[LambdaClient] < invokeLambdaSync - Lambda function returned an error',
-        new Error(response.FunctionError),
         {
           functionName,
           FunctionError: response.FunctionError,
           responsePayload,
         },
+        '[LambdaClient] < invokeLambdaSync - Lambda function returned an error',
       );
       throw new Error(`Lambda function error: ${response.FunctionError}`);
     }
 
+    logger.info(
+      { functionName, statusCode: response.StatusCode },
+      '[LambdaClient] < invokeLambdaSync - successfully invoked Lambda function',
+    );
     return responsePayload as T;
   } catch (error) {
-    logger.error('[LambdaClient] < invokeLambdaSync - failed to invoke Lambda function', error as Error, {
-      functionName,
-    });
+    // Handle invocation errors
+    logger.error(
+      { error: error as Error, functionName },
+      '[LambdaClient] < invokeLambdaSync - failed to invoke Lambda function',
+    );
     throw error;
   }
 };
@@ -72,40 +74,40 @@ export const invokeLambdaSync = async <T = unknown>(functionName: string, payloa
  * @throws Error if the Lambda invocation fails
  */
 export const invokeLambdaAsync = async (functionName: string, payload: JsonPayload): Promise<void> => {
-  logger.info('[LambdaClient] > invokeLambdaAsync', { functionName });
+  logger.info({ functionName }, '[LambdaClient] > invokeLambdaAsync');
 
   try {
+    // Create the InvokeCommand with Event invocation type
     const command = new InvokeCommand({
       FunctionName: functionName,
       InvocationType: 'Event',
       Payload: JSON.stringify(payload),
     });
 
-    logger.debug('[LambdaClient] invokeLambdaAsync - InvokeCommand', { command });
+    logger.debug({ command }, '[LambdaClient] invokeLambdaAsync - InvokeCommand');
 
+    // Send the command to invoke the Lambda function
     const response = await _lambdaClient.send(command);
 
     // Check for function errors
     if (response.FunctionError) {
       logger.error(
+        { functionName, FunctionError: response.FunctionError, response },
         '[LambdaClient] < invokeLambdaAsync - Lambda function returned an error',
-        new Error(response.FunctionError),
-        {
-          functionName,
-          response,
-        },
       );
       throw new Error(`Lambda function error: ${response.FunctionError}`);
     }
 
-    logger.info('[LambdaClient] < invokeLambdaAsync - successfully invoked Lambda function', {
-      functionName,
-      statusCode: response.StatusCode,
-    });
+    logger.info(
+      { functionName, statusCode: response.StatusCode },
+      '[LambdaClient] < invokeLambdaAsync - successfully invoked Lambda function',
+    );
   } catch (error) {
-    logger.error('[LambdaClient] < invokeLambdaAsync - failed to invoke Lambda function', error as Error, {
-      functionName,
-    });
+    // Handle invocation errors
+    logger.error(
+      { error: error as Error, functionName },
+      '[LambdaClient] < invokeLambdaAsync - failed to invoke Lambda function',
+    );
     throw error;
   }
 };

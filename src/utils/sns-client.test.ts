@@ -66,7 +66,10 @@ describe('sns-client', () => {
       // Assert
       expect(result).toBe('message-id-123');
       expect(mockSend).toHaveBeenCalledTimes(1);
-      expect(mockLoggerDebug).toHaveBeenCalledWith('[SnsClient] > publishToTopic', { topicArn });
+      expect(mockLoggerDebug).toHaveBeenCalledWith(
+        expect.objectContaining({ topicArn }),
+        '[SnsClient] > publishToTopic',
+      );
     });
 
     it('should convert message object to JSON string', async () => {
@@ -138,10 +141,13 @@ describe('sns-client', () => {
       await publishToTopic(topicArn, message);
 
       // Assert
-      expect(mockLoggerDebug).toHaveBeenCalledWith('[SnsClient] < publishToTopic - successfully published message', {
-        topicArn,
-        messageId: 'msg-delete-123',
-      });
+      expect(mockLoggerDebug).toHaveBeenCalledWith(
+        expect.objectContaining({
+          topicArn,
+          messageId: 'msg-delete-123',
+        }),
+        '[SnsClient] < publishToTopic - successfully published message',
+      );
     });
 
     it('should handle SNS publish errors and rethrow them', async () => {
@@ -155,11 +161,11 @@ describe('sns-client', () => {
       // Act & Assert
       await expect(publishToTopic(topicArn, message)).rejects.toThrow('SNS publish failed');
       expect(mockLoggerError).toHaveBeenCalledWith(
-        '[SnsClient] < publishToTopic - failed to publish message to SNS',
-        mockError,
-        {
+        expect.objectContaining({
+          error: mockError,
           topicArn,
-        },
+        }),
+        '[SnsClient] < publishToTopic - failed to publish message to SNS',
       );
     });
 

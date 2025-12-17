@@ -30,29 +30,33 @@ export const publishToTopic = async (
   message: Record<string, unknown>,
   attributes?: MessageAttributes,
 ): Promise<string> => {
-  logger.debug('[SnsClient] > publishToTopic', { topicArn });
+  logger.debug({ topicArn }, '[SnsClient] > publishToTopic');
 
   try {
+    // Create the PublishCommand with the message and attributes
     const command = new PublishCommand({
       TopicArn: topicArn,
       Message: JSON.stringify(message),
       MessageAttributes: attributes,
     });
 
-    logger.debug('[SnsClient] publishToTopic - PublishCommand', { command });
+    logger.debug({ command }, '[SnsClient] publishToTopic - PublishCommand');
 
+    // Send the publish command
     const response = await _snsClient.send(command);
 
-    logger.debug('[SnsClient] < publishToTopic - successfully published message', {
-      topicArn,
-      messageId: response.MessageId,
-    });
+    logger.debug(
+      { topicArn, messageId: response.MessageId },
+      '[SnsClient] < publishToTopic - successfully published message',
+    );
 
     return response.MessageId ?? '';
   } catch (error) {
-    logger.error('[SnsClient] < publishToTopic - failed to publish message to SNS', error as Error, {
-      topicArn,
-    });
+    // Handle publish errors
+    logger.error(
+      { error: error as Error, topicArn },
+      '[SnsClient] < publishToTopic - failed to publish message to SNS',
+    );
     throw error;
   }
 };

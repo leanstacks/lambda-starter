@@ -62,11 +62,14 @@ describe('dynamodb-client', () => {
       require('./dynamodb-client');
 
       // Assert
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[DynamoDBClient] - Initialized AWS DynamoDB client', {
-        config: {
-          region: 'us-east-1',
-        },
-      });
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dynamoDBClientConfig: expect.objectContaining({
+            region: 'us-east-1',
+          }),
+        }),
+        '[DynamoDBClient] - Initialized AWS DynamoDB client',
+      );
     });
   });
 
@@ -132,11 +135,14 @@ describe('dynamodb-client', () => {
       require('./dynamodb-client');
 
       // Assert
-      expect(mockLoggerInfo).toHaveBeenCalledWith('[DynamoDBClient] - Initialized AWS DynamoDB client', {
-        config: {
-          region: 'eu-west-1',
-        },
-      });
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dynamoDBClientConfig: expect.objectContaining({
+            region: 'eu-west-1',
+          }),
+        }),
+        '[DynamoDBClient] - Initialized AWS DynamoDB client',
+      );
     });
   });
 
