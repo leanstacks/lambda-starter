@@ -1,15 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { lambdaRequestTracker } from 'pino-lambda';
+import { withRequestTracking, internalServerError, ok } from '@leanstacks/lambda-utils';
 
-import { listTasks } from '@/services/task-service.js';
-import { internalServerError, ok } from '@/utils/apigateway-response.js';
-import { logger } from '@/utils/logger.js';
-
-/**
- * Lambda request tracker middleware for logging.
- * @see https://www.npmjs.com/package/pino-lambda#best-practices
- */
-const withRequestTracking = lambdaRequestTracker();
+import { logger } from '@/utils/logger';
+import { defaultResponseHeaders } from '@/utils/constants';
+import { listTasks } from '@/services/task-service';
 
 /**
  * Lambda handler for listing all tasks
@@ -28,10 +22,10 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
 
     // Return ok response with the list of tasks
     logger.info({ count: tasks.length }, '[ListTasksHandler] < handler - successfully retrieved tasks');
-    return ok(tasks);
+    return ok(tasks, defaultResponseHeaders);
   } catch (error) {
     // Handle unexpected errors
     logger.error({ error }, '[ListTasksHandler] < handler - failed to list tasks');
-    return internalServerError('Failed to retrieve tasks');
+    return internalServerError('Failed to retrieve tasks', defaultResponseHeaders);
   }
 };

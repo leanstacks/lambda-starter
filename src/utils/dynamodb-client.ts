@@ -1,8 +1,8 @@
 import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
-import { config } from './config.js';
-import { logger } from './logger.js';
+import { config } from './config';
+import { logger } from './logger';
 
 /**
  * Configuration for the DynamoDB client

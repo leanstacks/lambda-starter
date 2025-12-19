@@ -58,8 +58,7 @@
     "@aws-sdk/client-lambda": "3.953.0",
     "@aws-sdk/client-sns": "3.953.0",
     "@aws-sdk/lib-dynamodb": "3.953.0",
-    "pino": "10.1.0",
-    "pino-lambda": "4.4.1",
+    "@leanstacks/lambda-utils": "0.2.0-alpha.3",
     "zod": "4.2.1"
   }
 }

@@ -1,17 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { lambdaRequestTracker } from 'pino-lambda';
 import { ZodError } from 'zod';
+import { badRequest, created, internalServerError, withRequestTracking } from '@leanstacks/lambda-utils';
 
-import { CreateTaskDtoSchema } from '@/models/create-task-dto.js';
-import { createTask } from '@/services/task-service.js';
-import { badRequest, created, internalServerError } from '@/utils/apigateway-response.js';
-import { logger } from '@/utils/logger.js';
-
-/**
- * Lambda request tracker middleware for logging.
- * @see https://www.npmjs.com/package/pino-lambda#best-practices
- */
-const withRequestTracking = lambdaRequestTracker();
+import { defaultResponseHeaders } from '@/utils/constants';
+import { CreateTaskDtoSchema } from '@/models/create-task-dto';
+import { createTask } from '@/services/task-service';
+import { logger } from '@/utils/logger';
 
 /**
  * Lambda handler for creating a new task
@@ -28,7 +22,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     // Parse and validate request body
     if (!event.body) {
       logger.warn('[CreateTaskHandler] < handler - missing request body');
-      return badRequest('Request body is required');
+      return badRequest('Request body is required', defaultResponseHeaders);
     }
 
     let requestBody: unknown;
@@ -36,7 +30,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
       requestBody = JSON.parse(event.body);
     } catch (_error) {
       logger.warn('[CreateTaskHandler] < handler - invalid JSON in request body');
-      return badRequest('Invalid JSON in request body');
+      return badRequest('Invalid JSON in request body', defaultResponseHeaders);
     }
 
     // Validate request body against schema
@@ -52,7 +46,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
       '[CreateTaskHandler] < handler - successfully created task',
     );
     // Return created response with the new task
-    return created(task);
+    return created(task, defaultResponseHeaders);
   } catch (error) {
     if (error instanceof ZodError) {
       // Handle validation errors
@@ -63,11 +57,11 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
         },
         '[CreateTaskHandler] < handler - validation error',
       );
-      return badRequest(`Validation failed: ${errorMessages}`);
+      return badRequest(`Validation failed: ${errorMessages}`, defaultResponseHeaders);
     }
 
     // Handle other errors
     logger.error({ error }, '[CreateTaskHandler] < handler - failed to create task');
-    return internalServerError('Failed to create task');
+    return internalServerError('Failed to create task', defaultResponseHeaders);
   }
 };

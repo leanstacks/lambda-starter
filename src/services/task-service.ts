@@ -5,8 +5,8 @@ import { CreateTaskDto } from '@/models/create-task-dto.js';
 import { UpdateTaskDto } from '@/models/update-task-dto.js';
 import { Task, TaskItem, TaskKeys, toTask } from '@/models/task.js';
 import { config } from '@/utils/config.js';
+import { logger } from '@/utils/logger';
 import { dynamoDocClient } from '@/utils/dynamodb-client.js';
-import { logger } from '@/utils/logger.js';
 
 /**
  * Retrieves all tasks from the DynamoDB table

@@ -1,15 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { lambdaRequestTracker } from 'pino-lambda';
+import { internalServerError, notFound, ok, withRequestTracking } from '@leanstacks/lambda-utils';
 
-import { getTask } from '@/services/task-service.js';
-import { internalServerError, notFound, ok } from '@/utils/apigateway-response.js';
-import { logger } from '@/utils/logger.js';
-
-/**
- * Lambda request tracker middleware for logging.
- * @see https://www.npmjs.com/package/pino-lambda#best-practices
- */
-const withRequestTracking = lambdaRequestTracker();
+import { defaultResponseHeaders } from '@/utils/constants';
+import { getTask } from '@/services/task-service';
+import { logger } from '@/utils/logger';
 
 /**
  * Lambda handler for retrieving a task by ID
@@ -28,7 +22,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
 
     if (!taskId) {
       logger.warn('[GetTaskHandler] < handler - missing taskId path parameter');
-      return notFound('Task not found');
+      return notFound('Task not found', defaultResponseHeaders);
     }
 
     // Retrieve the task
@@ -37,15 +31,15 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     // Check if the task was found
     if (!task) {
       logger.info({ taskId }, '[GetTaskHandler] < handler - task not found');
-      return notFound('Task not found');
+      return notFound('Task not found', defaultResponseHeaders);
     }
 
     // Return ok response with the task
     logger.info({ taskId }, '[GetTaskHandler] < handler - successfully retrieved task');
-    return ok(task);
+    return ok(task, defaultResponseHeaders);
   } catch (error) {
     // Handle unexpected errors
     logger.error({ error }, '[GetTaskHandler] < handler - failed to get task');
-    return internalServerError('Failed to retrieve task');
+    return internalServerError('Failed to retrieve task', defaultResponseHeaders);
   }
 };
