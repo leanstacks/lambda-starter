@@ -1,24 +1,49 @@
-import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
+import { initializeDynamoDBClients, getDynamoDBClient, getDynamoDBDocumentClient } from '@leanstacks/lambda-utils';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 import { config } from './config';
 import { logger } from './logger';
 
 /**
- * Configuration for the DynamoDB client
+ * DynamoDB client configuration
  */
-const clientConfig: DynamoDBClientConfig = {
+const dynamoDbClientConfig = {
   region: config.AWS_REGION,
 };
 
 /**
+ * Configuration for marshalling JavaScript objects into DynamoDB items
+ */
+const marshallConfig = {
+  convertEmptyValues: false,
+  convertClassInstanceToMap: true,
+  removeUndefinedValues: true,
+};
+
+/**
+ * Configuration for unmarshalling DynamoDB items into JavaScript objects
+ */
+const unmarshallConfig = {
+  wrapNumbers: false,
+};
+
+/**
+ * Initialize the DynamoDB clients with the microservice configuration.
+ */
+initializeDynamoDBClients(dynamoDbClientConfig, marshallConfig, unmarshallConfig);
+
+/**
  * Singleton DynamoDB client configured with the application's region
  */
-export const dynamoClient = new DynamoDBClient(clientConfig);
+export const dynamoClient: DynamoDBClient = getDynamoDBClient();
 
 /**
  * Singleton DynamoDB Document client for easier interaction with DynamoDB
  */
-export const dynamoDocClient = DynamoDBDocumentClient.from(dynamoClient);
+export const dynamoDocClient: DynamoDBDocumentClient = getDynamoDBDocumentClient();
 
-logger.info({ dynamoDBClientConfig: clientConfig }, '[DynamoDBClient] - Initialized AWS DynamoDB client');
+logger.info(
+  { dynamoDbClientConfig, marshallConfig, unmarshallConfig },
+  '[DynamoDBClient] - Initialized AWS DynamoDB client',
+);
