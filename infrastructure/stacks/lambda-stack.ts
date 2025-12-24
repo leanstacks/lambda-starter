@@ -4,6 +4,7 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 
@@ -27,9 +28,9 @@ export interface LambdaStackProps extends cdk.StackProps {
   taskTable: dynamodb.ITable;
 
   /**
-   * ARN of the Task Event SNS topic.
+   * Reference to the Task Event SNS topic.
    */
-  taskEventTopicArn: string;
+  taskEventTopic: sns.ITopic;
 
   /**
    * Whether to enable application logging.
@@ -97,7 +98,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/list-tasks.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -130,7 +131,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/get-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -163,7 +164,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/create-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -188,6 +189,9 @@ export class LambdaStack extends cdk.Stack {
     // Grant the Lambda function write access to the DynamoDB table
     props.taskTable.grantWriteData(this.createTaskFunction);
 
+    // Grant the Lambda function permission to publish to the SNS topic
+    props.taskEventTopic.grantPublish(this.createTaskFunction);
+
     // Create the update task Lambda function
     this.updateTaskFunction = new NodejsFunction(this, 'UpdateTaskFunction', {
       functionName: `${props.appName}-update-task-${props.envName}`,
@@ -196,7 +200,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/update-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -221,6 +225,9 @@ export class LambdaStack extends cdk.Stack {
     // Grant the Lambda function read and write access to the DynamoDB table
     props.taskTable.grantReadWriteData(this.updateTaskFunction);
 
+    // Grant the Lambda function permission to publish to the SNS topic
+    props.taskEventTopic.grantPublish(this.updateTaskFunction);
+
     // Create the delete task Lambda function
     this.deleteTaskFunction = new NodejsFunction(this, 'DeleteTaskFunction', {
       functionName: `${props.appName}-delete-task-${props.envName}`,
@@ -229,7 +236,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/delete-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -253,6 +260,9 @@ export class LambdaStack extends cdk.Stack {
 
     // Grant the Lambda function read and write access to the DynamoDB table
     props.taskTable.grantReadWriteData(this.deleteTaskFunction);
+
+    // Grant the Lambda function permission to publish to the SNS topic
+    props.taskEventTopic.grantPublish(this.deleteTaskFunction);
 
     // Create API Gateway REST API
     this.api = new apigateway.RestApi(this, 'LambdaStarterApi', {
