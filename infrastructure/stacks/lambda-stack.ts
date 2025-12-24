@@ -27,6 +27,11 @@ export interface LambdaStackProps extends cdk.StackProps {
   taskTable: dynamodb.ITable;
 
   /**
+   * ARN of the Task Event SNS topic.
+   */
+  taskEventTopicArn: string;
+
+  /**
    * Whether to enable application logging.
    */
   loggingEnabled: boolean;
@@ -92,6 +97,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/list-tasks.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -124,6 +130,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/get-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -156,6 +163,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/create-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -188,6 +196,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/update-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,
@@ -220,6 +229,7 @@ export class LambdaStack extends cdk.Stack {
       entry: path.join(__dirname, '../../src/handlers/delete-task.ts'),
       environment: {
         TASKS_TABLE: props.taskTable.tableName,
+        TASK_EVENT_TOPIC_ARN: props.taskEventTopicArn,
         LOGGING_ENABLED: props.loggingEnabled.toString(),
         LOGGING_LEVEL: props.loggingLevel,
         LOGGING_FORMAT: props.loggingFormat,

@@ -40,6 +40,7 @@ describe('LambdaStack', () => {
         appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
+        taskEventTopicArn: 'arn:aws:sns:us-east-1:123456789012:lambda-starter-task-event-dev',
         loggingEnabled: true,
         loggingLevel: 'debug',
         loggingFormat: 'json',
@@ -103,6 +104,7 @@ describe('LambdaStack', () => {
         Environment: {
           Variables: {
             TASKS_TABLE: Match.anyValue(),
+            TASK_EVENT_TOPIC_ARN: 'arn:aws:sns:us-east-1:123456789012:lambda-starter-task-event-dev',
             LOGGING_ENABLED: 'true',
             LOGGING_LEVEL: 'debug',
             LOGGING_FORMAT: 'json',
@@ -316,6 +318,7 @@ describe('LambdaStack', () => {
         appName: 'lambda-starter',
         envName: 'prd',
         taskTable: testMockTable,
+        taskEventTopicArn: 'arn:aws:sns:us-east-1:123456789012:lambda-starter-task-event-prd',
         loggingEnabled: true,
         loggingLevel: 'info',
         loggingFormat: 'json',
@@ -372,6 +375,7 @@ describe('LambdaStack', () => {
         appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
+        taskEventTopicArn: 'arn:aws:sns:us-east-1:123456789012:lambda-starter-task-event-dev',
         loggingEnabled: true,
         loggingLevel: 'debug',
         loggingFormat: 'json',

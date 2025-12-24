@@ -11,6 +11,7 @@ The infrastructure is organized into two main AWS CDK stacks:
 | Stack Name Pattern        | Purpose                                    |
 | ------------------------- | ------------------------------------------ |
 | `{app-name}-data-{env}`   | Manages DynamoDB tables and data resources |
+| `{app-name}-sns-{env}`    | Manages SNS topics for messaging           |
 | `{app-name}-lambda-{env}` | Manages Lambda functions and API Gateway   |
 
 ---
@@ -34,6 +35,24 @@ The infrastructure is organized into two main AWS CDK stacks:
 
 ---
 
+## SNS Stack
+
+**Purpose:** Manages SNS topics for messaging and event publishing.
+
+**Key Resources:**
+
+| Resource  | Name Pattern                  | Key Properties                                    |
+| --------- | ----------------------------- | ------------------------------------------------- |
+| SNS Topic | `{app-name}-task-event-{env}` | Standard (non-FIFO) topic, AWS-managed encryption |
+
+**Outputs:**
+
+| Output Name         | Export Name Pattern                     | Description                     |
+| ------------------- | --------------------------------------- | ------------------------------- |
+| `TaskEventTopicArn` | `{app-name}-task-event-topic-arn-{env}` | Task Event Topic ARN (exported) |
+
+---
+
 ## Lambda Stack
 
 **Purpose:** Manages Lambda functions, API Gateway, and application runtime resources.
@@ -48,6 +67,19 @@ The infrastructure is organized into two main AWS CDK stacks:
 | Lambda Function | `{app-name}-update-task-{env}` | Update a task (DynamoDB UpdateItem)  |
 | Lambda Function | `{app-name}-delete-task-{env}` | Delete a task (DynamoDB DeleteItem)  |
 | API Gateway     | `{app-name}-api-{env}`         | REST API for Lambda functions        |
+
+**Environment Variables Passed to Lambda Functions:**
+
+All Lambda functions receive the following environment variables from the CDK configuration:
+
+| Variable               | Source                    | Purpose                                  |
+| ---------------------- | ------------------------- | ---------------------------------------- |
+| `TASKS_TABLE`          | Data Stack output         | DynamoDB table name for tasks            |
+| `TASK_EVENT_TOPIC_ARN` | SNS Stack output          | SNS topic ARN for publishing task events |
+| `LOGGING_ENABLED`      | `CDK_APP_LOGGING_ENABLED` | Enable/disable application logging       |
+| `LOGGING_LEVEL`        | `CDK_APP_LOGGING_LEVEL`   | Application logging level                |
+| `LOGGING_FORMAT`       | `CDK_APP_LOGGING_FORMAT`  | Application logging format               |
+| `CORS_ALLOW_ORIGIN`    | `CDK_CORS_ALLOW_ORIGIN`   | CORS allow origin header value           |
 
 **Outputs:**
 

@@ -7,6 +7,7 @@ import { createConfigManager } from '@leanstacks/lambda-utils';
 const envSchema = z.object({
   // Required variables
   TASKS_TABLE: z.string().min(1, 'TASKS_TABLE environment variable is required'),
+  TASK_EVENT_TOPIC_ARN: z.string().min(1, 'TASK_EVENT_TOPIC_ARN environment variable is required'),
 
   // Optional variables with defaults
   AWS_REGION: z.string().default('us-east-1'),
