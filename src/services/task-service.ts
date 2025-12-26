@@ -1,12 +1,13 @@
 import { randomUUID } from 'crypto';
 import { DeleteCommand, GetCommand, PutCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
+import { publishToTopic } from '@leanstacks/lambda-utils';
 
 import { CreateTaskDto } from '@/models/create-task-dto.js';
 import { UpdateTaskDto } from '@/models/update-task-dto.js';
 import { Task, TaskItem, TaskKeys, toTask } from '@/models/task.js';
 import { config } from '@/utils/config.js';
+import { logger } from '@/utils/logger';
 import { dynamoDocClient } from '@/utils/dynamodb-client.js';
-import { logger } from '@/utils/logger.js';
 
 /**
  * Retrieves all tasks from the DynamoDB table
@@ -123,9 +124,28 @@ export const createTask = async (createTaskDto: CreateTaskDto): Promise<Task> =>
 
     // Map the created item to a Task object
     const task = toTask(taskItem);
+    logger.debug({ task }, '[TaskService] - createTask - put Task in DynamoDB');
 
+    // Publish task creation event to SNS
+    const messageId = await publishToTopic(
+      config.TASK_EVENT_TOPIC_ARN,
+      {
+        task,
+      },
+      {
+        event: {
+          DataType: 'String',
+          StringValue: 'TaskCreated',
+        },
+      },
+    );
+    logger.debug(
+      { taskId: task.id, topicArn: config.TASK_EVENT_TOPIC_ARN, messageId },
+      '[TaskService] createTask - published TaskCreated event to SNS',
+    );
+
+    // Return the created task
     logger.info({ id: task.id }, '[TaskService] < createTask - successfully created task');
-
     return task;
   } catch (error) {
     // Handle unexpected errors
@@ -145,6 +165,13 @@ export const updateTask = async (id: string, updateTaskDto: UpdateTaskDto): Prom
   logger.info({ id }, '[TaskService] > updateTask');
 
   try {
+    // Fetch existing task to ensure it exists
+    const existingTask = await getTask(id);
+    if (!existingTask) {
+      logger.info({ id }, '[TaskService] < updateTask - task not found');
+      return null;
+    }
+
     // Prepare the task item to be updated
     const now = new Date().toISOString();
 
@@ -195,7 +222,7 @@ export const updateTask = async (id: string, updateTaskDto: UpdateTaskDto): Prom
       ConditionExpression: 'attribute_exists(pk)',
       ReturnValues: 'ALL_NEW',
     });
-    logger.debug({ input: command.input }, '[TaskService] updateTask - UpdateCommandInput');
+    logger.debug({ input: command.input }, '[TaskService] updateTask -  UpdateCommandInput');
 
     // Execute the update command
     const response = await dynamoDocClient.send(command);
@@ -208,9 +235,29 @@ export const updateTask = async (id: string, updateTaskDto: UpdateTaskDto): Prom
 
     // Map the updated item to a Task object
     const task = toTask(response.Attributes as TaskItem);
+    logger.info({ task }, '[TaskService] - updateTask - successfully updated task');
 
+    // Publish task update event to SNS
+    const messageId = await publishToTopic(
+      config.TASK_EVENT_TOPIC_ARN,
+      {
+        oldTask: existingTask,
+        newTask: task,
+      },
+      {
+        event: {
+          DataType: 'String',
+          StringValue: 'TaskUpdated',
+        },
+      },
+    );
+    logger.debug(
+      { taskId: id, topicArn: config.TASK_EVENT_TOPIC_ARN, messageId },
+      '[TaskService] updateTask - published TaskUpdated event to SNS',
+    );
+
+    // Return the updated task
     logger.info({ id }, '[TaskService] < updateTask - successfully updated task');
-
     return task;
   } catch (error) {
     // Handle conditional check failures (task not found)
@@ -247,7 +294,27 @@ export const deleteTask = async (id: string): Promise<boolean> => {
 
     // Execute the delete command
     await dynamoDocClient.send(command);
+    logger.info({ id }, '[TaskService] - deleteTask - deleted Task from DynamoDB');
 
+    // Publish task deletion event to SNS
+    const messageId = await publishToTopic(
+      config.TASK_EVENT_TOPIC_ARN,
+      {
+        taskId: id,
+      },
+      {
+        event: {
+          DataType: 'String',
+          StringValue: 'TaskDeleted',
+        },
+      },
+    );
+    logger.debug(
+      { taskId: id, topicArn: config.TASK_EVENT_TOPIC_ARN, messageId },
+      '[TaskService] deleteTask - published TaskDeleted event to SNS',
+    );
+
+    // Return true indicating successful deletion
     logger.info({ id }, '[TaskService] < deleteTask - successfully deleted task');
     return true;
   } catch (error) {

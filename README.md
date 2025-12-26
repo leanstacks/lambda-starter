@@ -158,10 +158,35 @@ The project supports multiple environments:
 
 Each environment has its own AWS account and configuration.
 
+## Lambda Utils Project
+
+The `@leanstacks/lambda-utils` package is a TypeScript utility library for AWS Lambda functions. It provides pre-configured logging, API response formatting, configuration validation, and AWS SDK clients—reducing boilerplate and promoting best practices within Node.js Lambda functions.
+
+Several of the Lambda Utils are used in the Lambda Starter application. You are encouraged to use the Lambda Utils library in your project or, if you want to maintain the source code yourself, you may fork the repo or copy only the code you need into your project.
+
+Learn more about the Lambda Utils with these resources...
+
+- **[@leanstacks/lambda-utils package on NPM](https://www.npmjs.com/package/@leanstacks/lambda-utils)**
+- **[lambda-utils repository on GitHub](https://github.com/leanstacks/lambda-utils)**
+
+## Serverless Microservice Patterns
+
+This project implements the **Simple Web Service** serverless microservice pattern. The [Serverless Microservice Patterns repository](https://github.com/leanstacks/serverless-microservice-patterns) provides a comprehensive collection of additional patterns and examples, including:
+
+- **Simple Web Service**: A basic serverless web service pattern using API Gateway, Lambda, and DynamoDB.
+- **Gatekeeper**: Adds an Auth microservice to authenticate and authorize API requests.
+- **Internal API**: Facilitates synchronous, internal microservice-to-microservice integration without API Gateway exposure.
+- **Internal Handoff**: Enables asynchronous microservice-to-microservice communication.
+- **Publish Subscribe**: Demonstrates event-driven architecture using SNS topics and SQS queues for loose coupling.
+- **Queue-Based Load Leveling**: Uses a message queue as a buffer to decouple producers from consumers and smooth demand spikes.
+
+Each pattern is implemented as a standalone project with practical examples and reference implementations for building scalable, event-driven microservices on AWS.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Further Reading
 
-- [Project Documentation](./docs/README.md)
+- [**Lambda Utils Project**](https://github.com/leanstacks/lambda-utils)
+- [**Project Documentation**](./docs/README.md)

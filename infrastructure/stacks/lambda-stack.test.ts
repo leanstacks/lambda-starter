@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as sns from 'aws-cdk-lib/aws-sns';
 import { LambdaStack } from './lambda-stack';
 
 // Mock NodejsFunction to avoid Docker bundling during tests
@@ -35,11 +36,15 @@ describe('LambdaStack', () => {
           type: dynamodb.AttributeType.STRING,
         },
       });
+      const testMockTopic = new sns.Topic(mockTestStack, 'MockTaskEventTopic', {
+        topicName: 'mock-task-event-dev',
+      });
 
       const stack = new LambdaStack(testApp, 'TestLambdaStack', {
         appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
+        taskEventTopic: testMockTopic,
         loggingEnabled: true,
         loggingLevel: 'debug',
         loggingFormat: 'json',
@@ -103,6 +108,7 @@ describe('LambdaStack', () => {
         Environment: {
           Variables: {
             TASKS_TABLE: Match.anyValue(),
+            TASK_EVENT_TOPIC_ARN: Match.anyValue(),
             LOGGING_ENABLED: 'true',
             LOGGING_LEVEL: 'debug',
             LOGGING_FORMAT: 'json',
@@ -218,6 +224,45 @@ describe('LambdaStack', () => {
       });
     });
 
+    it('should grant Lambda SNS publish permissions for create function', () => {
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'sns:Publish',
+              Resource: Match.anyValue(),
+            }),
+          ]),
+        },
+      });
+    });
+
+    it('should grant Lambda SNS publish permissions for update function', () => {
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'sns:Publish',
+              Resource: Match.anyValue(),
+            }),
+          ]),
+        },
+      });
+    });
+
+    it('should grant Lambda SNS publish permissions for delete function', () => {
+      template.hasResourceProperties('AWS::IAM::Policy', {
+        PolicyDocument: {
+          Statement: Match.arrayWith([
+            Match.objectLike({
+              Action: 'sns:Publish',
+              Resource: Match.anyValue(),
+            }),
+          ]),
+        },
+      });
+    });
+
     it('should export API URL', () => {
       template.hasOutput('ApiUrl', {
         Export: {
@@ -311,11 +356,15 @@ describe('LambdaStack', () => {
           type: dynamodb.AttributeType.STRING,
         },
       });
+      const testMockTopic = new sns.Topic(mockTestStack, 'MockTaskEventTopic', {
+        topicName: 'mock-task-event-prd',
+      });
 
       const stack = new LambdaStack(testApp, 'TestLambdaStack', {
         appName: 'lambda-starter',
         envName: 'prd',
         taskTable: testMockTable,
+        taskEventTopic: testMockTopic,
         loggingEnabled: true,
         loggingLevel: 'info',
         loggingFormat: 'json',
@@ -367,11 +416,15 @@ describe('LambdaStack', () => {
           type: dynamodb.AttributeType.STRING,
         },
       });
+      const testMockTopic = new sns.Topic(mockTestStack, 'MockTaskEventTopic', {
+        topicName: 'mock-task-event-dev',
+      });
 
       const stack = new LambdaStack(testApp, 'TestLambdaStack', {
         appName: 'lambda-starter',
         envName: 'dev',
         taskTable: testMockTable,
+        taskEventTopic: testMockTopic,
         loggingEnabled: true,
         loggingLevel: 'debug',
         loggingFormat: 'json',

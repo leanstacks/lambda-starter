@@ -1,17 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { lambdaRequestTracker } from 'pino-lambda';
 import { ZodError } from 'zod';
+import { badRequest, internalServerError, notFound, ok, withRequestTracking } from '@leanstacks/lambda-utils';
 
-import { UpdateTaskDtoSchema } from '@/models/update-task-dto.js';
-import { updateTask } from '@/services/task-service.js';
-import { badRequest, internalServerError, notFound, ok } from '@/utils/apigateway-response.js';
-import { logger } from '@/utils/logger.js';
-
-/**
- * Lambda request tracker middleware for logging.
- * @see https://www.npmjs.com/package/pino-lambda#best-practices
- */
-const withRequestTracking = lambdaRequestTracker();
+import { defaultResponseHeaders } from '@/utils/constants';
+import { UpdateTaskDtoSchema } from '@/models/update-task-dto';
+import { updateTask } from '@/services/task-service';
+import { logger } from '@/utils/logger';
 
 /**
  * Lambda handler for updating an existing task
@@ -29,13 +23,13 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     const taskId = event.pathParameters?.taskId;
     if (!taskId) {
       logger.warn('[UpdateTaskHandler] < handler - missing taskId');
-      return badRequest('Task ID is required');
+      return badRequest('Task ID is required', defaultResponseHeaders);
     }
 
     // Parse and validate request body
     if (!event.body) {
       logger.warn('[UpdateTaskHandler] < handler - missing request body');
-      return badRequest('Request body is required');
+      return badRequest('Request body is required', defaultResponseHeaders);
     }
 
     let requestBody: unknown;
@@ -43,7 +37,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
       requestBody = JSON.parse(event.body);
     } catch (_error) {
       logger.warn('[UpdateTaskHandler] < handler - invalid JSON in request body');
-      return badRequest('Invalid JSON in request body');
+      return badRequest('Invalid JSON in request body', defaultResponseHeaders);
     }
 
     // Validate request body against schema
@@ -55,22 +49,22 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     // Check if the task was found
     if (!task) {
       logger.info({ taskId }, '[UpdateTaskHandler] < handler - task not found');
-      return notFound();
+      return notFound('Task not found', defaultResponseHeaders);
     }
 
     // Return ok response with the updated task
     logger.info({ id: task.id }, '[UpdateTaskHandler] < handler - successfully updated task');
-    return ok(task);
+    return ok(task, defaultResponseHeaders);
   } catch (error) {
     // Handle validation errors
     if (error instanceof ZodError) {
       const errorMessages = error.issues.map((err) => `${err.path.join('.')}: ${err.message}`).join(', ');
       logger.warn({ issues: error.issues }, '[UpdateTaskHandler] < handler - validation error');
-      return badRequest(`Validation failed: ${errorMessages}`);
+      return badRequest(`Validation failed: ${errorMessages}`, defaultResponseHeaders);
     }
 
     // Handle other unexpected errors
     logger.error({ error }, '[UpdateTaskHandler] < handler - failed to update task');
-    return internalServerError('Failed to update task');
+    return internalServerError('Failed to update task', defaultResponseHeaders);
   }
 };

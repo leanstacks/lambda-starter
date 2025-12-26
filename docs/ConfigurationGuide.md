@@ -10,14 +10,15 @@ The application configuration is managed through environment variables. These va
 
 The following environment variables are available for configuring the application:
 
-| Variable            | Type    | Description                                      | Default     | Required |
-| ------------------- | ------- | ------------------------------------------------ | ----------- | -------- |
-| `TASKS_TABLE`       | string  | The name of the DynamoDB table for storing tasks | -           | Yes      |
-| `AWS_REGION`        | string  | The AWS region where resources are deployed      | `us-east-1` | No       |
-| `LOGGING_ENABLED`   | boolean | Enable or disable application logging            | `true`      | No       |
-| `LOGGING_LEVEL`     | enum    | Logging level: `debug`, `info`, `warn`, `error`  | `debug`     | No       |
-| `LOGGING_FORMAT`    | enum    | Logging format: `text`, `json`                   | `json`      | No       |
-| `CORS_ALLOW_ORIGIN` | string  | CORS allow origin header value                   | `*`         | No       |
+| Variable               | Type    | Description                                      | Default     | Required |
+| ---------------------- | ------- | ------------------------------------------------ | ----------- | -------- |
+| `TASKS_TABLE`          | string  | The name of the DynamoDB table for storing tasks | -           | Yes      |
+| `TASK_EVENT_TOPIC_ARN` | string  | The ARN of the SNS topic for task events         | -           | Yes      |
+| `AWS_REGION`           | string  | The AWS region where resources are deployed      | `us-east-1` | No       |
+| `LOGGING_ENABLED`      | boolean | Enable or disable application logging            | `true`      | No       |
+| `LOGGING_LEVEL`        | enum    | Logging level: `debug`, `info`, `warn`, `error`  | `debug`     | No       |
+| `LOGGING_FORMAT`       | enum    | Logging format: `text`, `json`                   | `json`      | No       |
+| `CORS_ALLOW_ORIGIN`    | string  | CORS allow origin header value                   | `*`         | No       |
 
 ### Usage
 
@@ -27,6 +28,7 @@ Application configuration is accessed through the `config` object exported from 
 import { config } from './utils/config';
 
 console.log(`Tasks table: ${config.TASKS_TABLE}`);
+console.log(`Task event topic ARN: ${config.TASK_EVENT_TOPIC_ARN}`);
 console.log(`Logging enabled: ${config.LOGGING_ENABLED}`);
 ```
 
@@ -155,6 +157,7 @@ Infrastructure configuration variables are passed to Lambda functions with modif
 | `CDK_APP_LOGGING_FORMAT`  | `LOGGING_FORMAT`            |
 | `CDK_CORS_ALLOW_ORIGIN`   | `CORS_ALLOW_ORIGIN`         |
 | (DynamoDB table name)     | `TASKS_TABLE`               |
+| (SNS topic ARN)           | `TASK_EVENT_TOPIC_ARN`      |
 | (AWS Region)              | `AWS_REGION`                |
 
 ---

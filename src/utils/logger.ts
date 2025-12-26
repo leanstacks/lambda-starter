@@ -1,23 +1,19 @@
-import pino from 'pino';
-import { CloudwatchLogFormatter, pinoLambdaDestination, StructuredLogFormatter } from 'pino-lambda';
+import { Logger } from '@leanstacks/lambda-utils';
 
 import { config } from './config';
 
 /**
- * Initialize Pino Lambda destination
- * @see https://www.npmjs.com/package/pino-lambda#best-practices
+ * Initializes and configures the logger instance with application settings.
  */
-const _lambdaDestination = pinoLambdaDestination({
-  formatter: config.LOGGING_FORMAT === 'json' ? new StructuredLogFormatter() : new CloudwatchLogFormatter(),
+const _logger = new Logger({
+  enabled: config.LOGGING_ENABLED,
+  level: config.LOGGING_LEVEL,
+  format: config.LOGGING_FORMAT,
 });
 
 /**
- * Pino logger instance
+ * Exports the configured logger instance for use throughout the application.
+ * This singleton pattern promotes consistent logging behavior and prevents
+ * the creation of multiple logger instances, which can lead to performance issues.
  */
-export const logger = pino(
-  {
-    enabled: config.LOGGING_ENABLED,
-    level: config.LOGGING_LEVEL,
-  },
-  _lambdaDestination,
-);
+export const logger = _logger.instance;

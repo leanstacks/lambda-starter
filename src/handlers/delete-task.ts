@@ -1,15 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult, Context } from 'aws-lambda';
-import { lambdaRequestTracker } from 'pino-lambda';
+import { internalServerError, noContent, notFound, withRequestTracking } from '@leanstacks/lambda-utils';
 
-import { deleteTask } from '@/services/task-service.js';
-import { internalServerError, noContent, notFound } from '@/utils/apigateway-response.js';
-import { logger } from '@/utils/logger.js';
-
-/**
- * Lambda request tracker middleware for logging.
- * @see https://www.npmjs.com/package/pino-lambda#best-practices
- */
-const withRequestTracking = lambdaRequestTracker();
+import { defaultResponseHeaders } from '@/utils/constants';
+import { deleteTask } from '@/services/task-service';
+import { logger } from '@/utils/logger';
 
 /**
  * Lambda handler for deleting a task by ID
@@ -28,7 +22,7 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
 
     if (!taskId) {
       logger.warn('[DeleteTaskHandler] < handler - missing taskId path parameter');
-      return notFound('Task not found');
+      return notFound('Task not found', defaultResponseHeaders);
     }
 
     // Delete the task
@@ -37,15 +31,15 @@ export const handler = async (event: APIGatewayProxyEvent, context: Context): Pr
     // Check if the task was found and deleted
     if (!deleted) {
       logger.info({ taskId }, '[DeleteTaskHandler] < handler - task not found');
-      return notFound('Task not found');
+      return notFound('Task not found', defaultResponseHeaders);
     }
 
     // Return no content response
     logger.info({ taskId }, '[DeleteTaskHandler] < handler - successfully deleted task');
-    return noContent();
+    return noContent(defaultResponseHeaders);
   } catch (error) {
     // Handle unexpected errors
     logger.error({ error }, '[DeleteTaskHandler] < handler - failed to delete task');
-    return internalServerError('Failed to delete task');
+    return internalServerError('Failed to delete task', defaultResponseHeaders);
   }
 };
