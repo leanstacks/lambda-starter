@@ -1,6 +1,6 @@
 {
   "name": "lambda-starter",
-  "version": "0.3.0",
+  "version": "0.4.0-beta.1",
   "description": "A starter project for Lambda functions using Node.js and TypeScript.",
   "keywords": [
     "aws",
@@ -36,29 +36,29 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@types/aws-lambda": "8.10.159",
+    "@types/aws-lambda": "8.10.160",
     "@types/jest": "30.0.0",
-    "@types/node": "25.0.3",
-    "@typescript-eslint/eslint-plugin": "8.50.1",
-    "@typescript-eslint/parser": "8.50.1",
+    "@types/node": "25.0.10",
+    "@typescript-eslint/eslint-plugin": "8.53.1",
+    "@typescript-eslint/parser": "8.53.1",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
-    "globals": "16.5.0",
+    "globals": "17.0.0",
     "husky": "9.1.7",
     "jest": "30.2.0",
-    "prettier": "3.7.4",
+    "prettier": "3.8.1",
     "rimraf": "6.1.2",
     "ts-jest": "29.4.6",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.50.1"
+    "typescript-eslint": "8.53.1"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "3.958.0",
-    "@aws-sdk/client-lambda": "3.958.0",
-    "@aws-sdk/client-sns": "3.958.0",
-    "@aws-sdk/lib-dynamodb": "3.958.0",
-    "@leanstacks/lambda-utils": "0.4.0",
-    "zod": "4.2.1"
+    "@aws-sdk/client-dynamodb": "3.972.0",
+    "@aws-sdk/client-lambda": "3.972.0",
+    "@aws-sdk/client-sns": "3.972.0",
+    "@aws-sdk/lib-dynamodb": "3.972.0",
+    "@leanstacks/lambda-utils": "0.5.0",
+    "zod": "4.3.5"
   }
 }
