@@ -25,4 +25,7 @@ export const snsClient: SNSClient = initializeSNSClient(snsClientConfig);
 
 logger.info({ snsClientConfig }, '[SNSClient] - Initialized AWS SNS client');
 
+/**
+ * Re-export utility functions from lambda-utils for convenience
+ */
 export { publishToTopic } from '@leanstacks/lambda-utils';
