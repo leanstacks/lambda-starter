@@ -266,3 +266,7 @@ Environment variables can be set in multiple places. The precedence order is:
 4. **Validate early** - Use Zod schemas to catch configuration errors at startup
 5. **Use environment-specific values** - Configure resources appropriately for each environment
 6. **Tag all resources** - Ensure proper tagging for cost allocation and management
+
+---
+
+For more information about this project, see the main [README](../README.md) or visit the [documentation](./README.md).

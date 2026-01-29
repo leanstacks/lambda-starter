@@ -207,3 +207,7 @@ Or use a supported Node.js version (22.x or 20.x).
 - [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/latest/guide/)
 - [Project Configuration Guide](./ConfigurationGuide.md)
 - [Project DevOps Guide](./DevOpsGuide.md)
+
+---
+
+For more information about this project, see the main [README](../README.md) or visit the [documentation](./README.md).

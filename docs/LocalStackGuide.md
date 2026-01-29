@@ -50,6 +50,8 @@ Before using LocalStack with this project, ensure you have the following install
 
 3. **LocalStack CLI** (optional but recommended)
 
+   See the [LocalStack Getting Started Guide](https://docs.localstack.cloud/aws/getting-started/) for free account setup, installation instructions, and how to obtain an auth token.
+
    ```bash
    localstack --version
    ```
@@ -104,10 +106,20 @@ npm install
 Copy the LocalStack environment configuration:
 
 ```bash
-cp .env.example.local .env
+cp .env.example .env
 ```
 
-The `.env.example.local` file is pre-configured for LocalStack. Review and adjust if needed.
+The `.env.example` file describes all available AWS CDK infrastructure configuration options. Review the `.env` file and ensure these LocalStack variables are configured.
+
+> **NOTE:** The hostname for the LocalStack endpoint must be the name of the LocalStack service in Docker Compose.
+
+```properties
+### LocalStack Configuration ###
+## Enable LocalStack for local development (default: false)
+CDK_USE_LOCALSTACK=true
+## LocalStack endpoint URL (default: http://localstack:4566)
+CDK_LOCALSTACK_ENDPOINT=http://localstack:4566
+```
 
 ### 4. Build the Infrastructure
 
@@ -215,7 +227,7 @@ The `docker-compose.yml` file in the project root configures the LocalStack cont
 ```yaml
 services:
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:4.12
     ports:
       - '4566:4566'
     environment:
@@ -643,7 +655,7 @@ Be aware of LocalStack limitations compared to real AWS:
 
 Always perform final validation in a real AWS environment before production deployment.
 
-## Additional Resources
+## Further Reading
 
 - [LocalStack Documentation](https://docs.localstack.cloud/)
 - [AWS CDK with LocalStack](https://docs.localstack.cloud/user-guide/integrations/aws-cdk/)
