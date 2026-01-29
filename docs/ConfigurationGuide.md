@@ -48,20 +48,20 @@ The infrastructure configuration is managed through environment variables prefix
 
 The following environment variables are available for configuring the infrastructure:
 
-| Variable                  | Type    | Description                                            | Default                 | Required |
-| ------------------------- | ------- | ------------------------------------------------------ | ----------------------- | -------- |
-| `CDK_APP_NAME`            | string  | The application name used in resource naming           | `lambda-starter`        | No       |
-| `CDK_ENV`                 | enum    | Environment: `local`, `dev`, `qat`, `prd`              | -                       | Yes      |
-| `CDK_ACCOUNT`             | string  | AWS account ID for deployment                          | -                       | No       |
-| `CDK_REGION`              | string  | AWS region for deployment                              | -                       | No       |
-| `CDK_USE_LOCALSTACK`      | boolean | Enable LocalStack mode for local development           | `false`                 | No       |
-| `CDK_LOCALSTACK_ENDPOINT` | string  | LocalStack endpoint URL                                | `http://localhost:4566` | No       |
-| `CDK_OU`                  | string  | Organizational Unit for resource tagging               | `leanstacks`            | No       |
-| `CDK_OWNER`               | string  | Owner tag for resource tracking                        | `unknown`               | No       |
-| `CDK_CORS_ALLOW_ORIGIN`   | string  | CORS allow origin for API Gateway and Lambda functions | `*`                     | No       |
-| `CDK_APP_LOGGING_ENABLED` | boolean | Enable logging in Lambda functions                     | `true`                  | No       |
-| `CDK_APP_LOGGING_LEVEL`   | enum    | Logging level: `debug`, `info`, `warn`, `error`        | `info`                  | No       |
-| `CDK_APP_LOGGING_FORMAT`  | enum    | Logging format: `text`, `json`                         | `json`                  | No       |
+| Variable                  | Type    | Description                                            | Default                  | Required |
+| ------------------------- | ------- | ------------------------------------------------------ | ------------------------ | -------- |
+| `CDK_APP_NAME`            | string  | The application name used in resource naming           | `lambda-starter`         | No       |
+| `CDK_ENV`                 | enum    | Environment: `local`, `dev`, `qat`, `prd`              | -                        | Yes      |
+| `CDK_ACCOUNT`             | string  | AWS account ID for deployment                          | -                        | No       |
+| `CDK_REGION`              | string  | AWS region for deployment                              | -                        | No       |
+| `CDK_USE_LOCALSTACK`      | boolean | Enable LocalStack mode for local development           | `false`                  | No       |
+| `CDK_LOCALSTACK_ENDPOINT` | string  | LocalStack endpoint URL                                | `http://localstack:4566` | No       |
+| `CDK_OU`                  | string  | Organizational Unit for resource tagging               | `leanstacks`             | No       |
+| `CDK_OWNER`               | string  | Owner tag for resource tracking                        | `unknown`                | No       |
+| `CDK_CORS_ALLOW_ORIGIN`   | string  | CORS allow origin for API Gateway and Lambda functions | `*`                      | No       |
+| `CDK_APP_LOGGING_ENABLED` | boolean | Enable logging in Lambda functions                     | `true`                   | No       |
+| `CDK_APP_LOGGING_LEVEL`   | enum    | Logging level: `debug`, `info`, `warn`, `error`        | `info`                   | No       |
+| `CDK_APP_LOGGING_FORMAT`  | enum    | Logging format: `text`, `json`                         | `json`                   | No       |
 
 ### Usage
 
@@ -84,7 +84,7 @@ Infrastructure configuration can be provided through:
 
 Example `.env` file for AWS deployment:
 
-```bash
+```properties
 ##################################################
 #### Infrastructure Environment Configuration ####
 ##################################################
@@ -108,7 +108,7 @@ CDK_APP_LOGGING_LEVEL=debug
 
 Example `.env` file for LocalStack local development:
 
-```bash
+```properties
 ##################################################
 #### LocalStack Environment Configuration #######
 ##################################################
