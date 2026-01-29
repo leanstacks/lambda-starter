@@ -34,6 +34,8 @@ describe('config', () => {
       process.env.CDK_APP_LOGGING_ENABLED = 'false';
       process.env.CDK_APP_LOGGING_LEVEL = 'warn';
       process.env.CDK_APP_LOGGING_FORMAT = 'text';
+      process.env.CDK_USE_LOCALSTACK = 'false';
+      process.env.CDK_LOCALSTACK_ENDPOINT = 'http://localhost:4566';
 
       const config = getConfig();
 
@@ -48,6 +50,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: false,
         CDK_APP_LOGGING_LEVEL: 'warn',
         CDK_APP_LOGGING_FORMAT: 'text',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       });
     });
 
@@ -95,6 +99,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const tags = getTags(config);
@@ -115,6 +121,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const tags = getTags(config);
@@ -135,6 +143,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const tags = getTags(config);
@@ -162,6 +172,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -185,6 +197,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -208,6 +222,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -231,6 +247,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -249,6 +267,8 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const envConfig = getEnvironmentConfig(config);
@@ -267,11 +287,101 @@ describe('config', () => {
         CDK_APP_LOGGING_ENABLED: true,
         CDK_APP_LOGGING_LEVEL: 'info',
         CDK_APP_LOGGING_FORMAT: 'json',
+        CDK_USE_LOCALSTACK: false,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localhost:4566',
       };
 
       const envConfig = getEnvironmentConfig(config);
 
       expect(envConfig).toBeUndefined();
+    });
+  });
+
+  describe('LocalStack configuration', () => {
+    it('should return LocalStack defaults when LocalStack is enabled', () => {
+      // Arrange
+      const config: Config = {
+        CDK_APP_NAME: 'lambda-starter',
+        CDK_ENV: 'local',
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
+        CDK_APP_LOGGING_LEVEL: 'debug',
+        CDK_APP_LOGGING_FORMAT: 'text',
+        CDK_USE_LOCALSTACK: true,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localstack:4566',
+      };
+
+      // Act
+      const envConfig = getEnvironmentConfig(config);
+
+      // Assert
+      expect(envConfig).toEqual({
+        account: '000000000000',
+        region: 'us-east-1',
+      });
+    });
+
+    it('should use custom region with LocalStack when CDK_REGION is set', () => {
+      // Arrange
+      const config: Config = {
+        CDK_APP_NAME: 'lambda-starter',
+        CDK_ENV: 'local',
+        CDK_REGION: 'eu-west-1',
+        CDK_CORS_ALLOW_ORIGIN: '*',
+        CDK_APP_LOGGING_ENABLED: true,
+        CDK_APP_LOGGING_LEVEL: 'debug',
+        CDK_APP_LOGGING_FORMAT: 'text',
+        CDK_USE_LOCALSTACK: true,
+        CDK_LOCALSTACK_ENDPOINT: 'http://localstack:4566',
+      };
+
+      // Act
+      const envConfig = getEnvironmentConfig(config);
+
+      // Assert
+      expect(envConfig).toEqual({
+        account: '000000000000',
+        region: 'eu-west-1',
+      });
+    });
+
+    it('should validate local environment enum value', () => {
+      // Arrange
+      process.env.CDK_ENV = 'local';
+      process.env.CDK_USE_LOCALSTACK = 'true';
+
+      // Act
+      const config = getConfig();
+
+      // Assert
+      expect(config.CDK_ENV).toBe('local');
+      expect(config.CDK_USE_LOCALSTACK).toBe(true);
+    });
+
+    it('should use default LocalStack endpoint when not specified', () => {
+      // Arrange
+      process.env.CDK_ENV = 'local';
+      process.env.CDK_USE_LOCALSTACK = 'true';
+      delete process.env.CDK_LOCALSTACK_ENDPOINT;
+
+      // Act
+      const config = getConfig();
+
+      // Assert
+      expect(config.CDK_LOCALSTACK_ENDPOINT).toBe('http://localstack:4566');
+    });
+
+    it('should use custom LocalStack endpoint when specified', () => {
+      // Arrange
+      process.env.CDK_ENV = 'local';
+      process.env.CDK_USE_LOCALSTACK = 'true';
+      process.env.CDK_LOCALSTACK_ENDPOINT = 'http://custom-localstack:4566';
+
+      // Act
+      const config = getConfig();
+
+      // Assert
+      expect(config.CDK_LOCALSTACK_ENDPOINT).toBe('http://custom-localstack:4566');
     });
   });
 });

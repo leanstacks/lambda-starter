@@ -10,6 +10,13 @@ import { logger } from './logger';
  */
 const dynamoDbClientConfig = {
   region: config.AWS_REGION,
+  ...(config.USE_LOCALSTACK && {
+    endpoint: config.LOCALSTACK_ENDPOINT,
+    credentials: {
+      accessKeyId: 'test',
+      secretAccessKey: 'test',
+    },
+  }),
 };
 
 /**

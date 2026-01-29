@@ -12,6 +12,13 @@ const envSchema = z.object({
   // Optional variables with defaults
   AWS_REGION: z.string().default('us-east-1'),
 
+  // LocalStack configuration (optional)
+  USE_LOCALSTACK: z
+    .enum(['true', 'false'] as const)
+    .default('false')
+    .transform((val) => val === 'true'),
+  LOCALSTACK_ENDPOINT: z.string().default('http://localstack:4566'),
+
   // Logging configuration
   LOGGING_ENABLED: z
     .enum(['true', 'false'] as const)

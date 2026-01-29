@@ -99,12 +99,12 @@ All Lambda functions receive the following environment variables from the CDK co
 
 All resources are tagged for cost allocation and management:
 
-| Tag     | Source         | Example Value       |
-| ------- | -------------- | ------------------- |
-| `App`   | `CDK_APP_NAME` | `lambda-starter`    |
-| `Env`   | `CDK_ENV`      | `dev`, `qat`, `prd` |
-| `OU`    | `CDK_OU`       | `leanstacks`        |
-| `Owner` | `CDK_OWNER`    | `platform-team`     |
+| Tag     | Source         | Example Value          |
+| ------- | -------------- | ---------------------- |
+| `App`   | `CDK_APP_NAME` | `lambda-starter`       |
+| `Env`   | `CDK_ENV`      | `dev`, `qat`, `prd`    |
+| `OU`    | `CDK_OU`       | `software-engineering` |
+| `Owner` | `CDK_OWNER`    | `platform-team`        |
 
 ---
 

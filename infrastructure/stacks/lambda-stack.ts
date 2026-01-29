@@ -18,7 +18,7 @@ export interface LambdaStackProps extends cdk.StackProps {
   appName: string;
 
   /**
-   * Environment name (dev, qat, prd).
+   * Environment name (dev, qat, prd, local).
    */
   envName: string;
 
@@ -51,6 +51,16 @@ export interface LambdaStackProps extends cdk.StackProps {
    * CORS allow origin value.
    */
   corsAllowOrigin: string;
+
+  /**
+   * Whether LocalStack is enabled.
+   */
+  useLocalStack: boolean;
+
+  /**
+   * LocalStack endpoint URL.
+   */
+  localStackEndpoint: string;
 }
 
 /**
@@ -90,20 +100,27 @@ export class LambdaStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id, props);
 
+    // Common environment variables for all Lambda functions
+    const commonEnvironment = {
+      TASKS_TABLE: props.taskTable.tableName,
+      TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
+      LOGGING_ENABLED: props.loggingEnabled.toString(),
+      LOGGING_LEVEL: props.loggingLevel,
+      LOGGING_FORMAT: props.loggingFormat,
+      CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
+      ...(props.useLocalStack && {
+        USE_LOCALSTACK: 'true',
+        LOCALSTACK_ENDPOINT: props.localStackEndpoint,
+      }),
+    };
+
     // Create the list tasks Lambda function
     this.listTasksFunction = new NodejsFunction(this, 'ListTasksFunction', {
       functionName: `${props.appName}-list-tasks-${props.envName}`,
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
       entry: path.join(__dirname, '../../src/handlers/list-tasks.ts'),
-      environment: {
-        TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
-        LOGGING_ENABLED: props.loggingEnabled.toString(),
-        LOGGING_LEVEL: props.loggingLevel,
-        LOGGING_FORMAT: props.loggingFormat,
-        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
-      },
+      environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
       bundling: {
@@ -129,14 +146,7 @@ export class LambdaStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
       entry: path.join(__dirname, '../../src/handlers/get-task.ts'),
-      environment: {
-        TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
-        LOGGING_ENABLED: props.loggingEnabled.toString(),
-        LOGGING_LEVEL: props.loggingLevel,
-        LOGGING_FORMAT: props.loggingFormat,
-        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
-      },
+      environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
       bundling: {
@@ -162,14 +172,7 @@ export class LambdaStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
       entry: path.join(__dirname, '../../src/handlers/create-task.ts'),
-      environment: {
-        TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
-        LOGGING_ENABLED: props.loggingEnabled.toString(),
-        LOGGING_LEVEL: props.loggingLevel,
-        LOGGING_FORMAT: props.loggingFormat,
-        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
-      },
+      environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
       bundling: {
@@ -198,14 +201,7 @@ export class LambdaStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
       entry: path.join(__dirname, '../../src/handlers/update-task.ts'),
-      environment: {
-        TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
-        LOGGING_ENABLED: props.loggingEnabled.toString(),
-        LOGGING_LEVEL: props.loggingLevel,
-        LOGGING_FORMAT: props.loggingFormat,
-        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
-      },
+      environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
       bundling: {
@@ -234,14 +230,7 @@ export class LambdaStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
       entry: path.join(__dirname, '../../src/handlers/delete-task.ts'),
-      environment: {
-        TASKS_TABLE: props.taskTable.tableName,
-        TASK_EVENT_TOPIC_ARN: props.taskEventTopic.topicArn,
-        LOGGING_ENABLED: props.loggingEnabled.toString(),
-        LOGGING_LEVEL: props.loggingLevel,
-        LOGGING_FORMAT: props.loggingFormat,
-        CORS_ALLOW_ORIGIN: props.corsAllowOrigin,
-      },
+      environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
       memorySize: 256,
       bundling: {

@@ -12,6 +12,7 @@ node_modules
 # dotenv environment variable files
 .env*
 !.env.example
+!.env.local
 
 # build output
 build
@@ -20,3 +21,6 @@ dist
 # AWS CDK
 cdk.out
 .cdk.staging
+
+# LocalStack
+localstack-data/
