@@ -84,7 +84,7 @@ Infrastructure configuration can be provided through:
 
 Example `.env` file for AWS deployment:
 
-```properties
+```env
 ##################################################
 #### Infrastructure Environment Configuration ####
 ##################################################
