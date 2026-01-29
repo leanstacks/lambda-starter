@@ -108,7 +108,7 @@ CDK_APP_LOGGING_LEVEL=debug
 
 Example `.env` file for LocalStack local development:
 
-```properties
+```env
 ##################################################
 #### LocalStack Environment Configuration #######
 ##################################################
