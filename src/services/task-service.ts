@@ -1,6 +1,5 @@
 import { randomUUID } from 'crypto';
 import { DeleteCommand, GetCommand, PutCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
-import { publishToTopic } from '@leanstacks/lambda-utils';
 
 import { CreateTaskDto } from '@/models/create-task-dto.js';
 import { UpdateTaskDto } from '@/models/update-task-dto.js';
@@ -8,6 +7,7 @@ import { Task, TaskItem, TaskKeys, toTask } from '@/models/task.js';
 import { config } from '@/utils/config.js';
 import { logger } from '@/utils/logger';
 import { dynamoDocClient } from '@/utils/dynamodb-client.js';
+import { publishToTopic } from '@/utils/sns-client.js';
 
 /**
  * Retrieves all tasks from the DynamoDB table

@@ -30,6 +30,7 @@ jest.mock('../utils/logger', () => ({
 
 jest.mock('@leanstacks/lambda-utils', () => ({
   publishToTopic: mockPublishToTopic,
+  initializeSNSClient: jest.fn(() => ({})),
 }));
 
 jest.mock('../utils/config', () => ({
@@ -37,6 +38,11 @@ jest.mock('../utils/config', () => ({
     TASKS_TABLE: 'test-tasks-table',
     TASK_EVENT_TOPIC_ARN: 'arn:aws:sns:us-east-1:123456789012:test-topic',
   },
+}));
+
+jest.mock('../utils/sns-client', () => ({
+  snsClient: {},
+  publishToTopic: mockPublishToTopic,
 }));
 
 describe('task-service', () => {

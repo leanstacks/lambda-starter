@@ -15,14 +15,23 @@
     "diff": "cdk diff",
     "destroy": "cdk destroy",
     "destroy:all": "cdk destroy --all",
+    "local:start": "docker-compose -f ../docker-compose.yml up -d",
+    "local:stop": "docker-compose -f ../docker-compose.yml down",
+    "local:logs": "docker-compose -f ../docker-compose.yml logs -f localstack",
+    "local:bootstrap": "cdklocal bootstrap",
+    "local:synth": "cdklocal synth",
+    "local:deploy": "cdklocal deploy --all --require-approval never",
+    "local:destroy": "cdklocal destroy --all --force",
+    "local:diff": "cdklocal diff",
     "test": "jest --coverage=false --silent --verbose",
     "test:coverage": "jest --coverage --silent --verbose",
     "test:watch": "jest --watch"
   },
   "devDependencies": {
     "@types/jest": "30.0.0",
-    "@types/node": "25.0.10",
-    "aws-cdk": "2.1101.0",
+    "@types/node": "25.1.0",
+    "aws-cdk": "2.1104.0",
+    "aws-cdk-local": "3.0.1",
     "esbuild": "0.27.2",
     "jest": "30.2.0",
     "rimraf": "6.1.2",
@@ -31,10 +40,10 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.235.1",
+    "aws-cdk-lib": "2.236.0",
     "constructs": "10.4.5",
     "dotenv": "17.2.3",
     "source-map-support": "0.5.21",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   }
 }

@@ -20,3 +20,6 @@ dist
 # AWS CDK
 cdk.out
 .cdk.staging
+
+# LocalStack
+localstack-data/

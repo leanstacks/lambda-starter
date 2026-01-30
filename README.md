@@ -117,6 +117,10 @@ npm run test:coverage
 npm run test:watch
 ```
 
+### LocalStack Support
+
+This project includes full support for [LocalStack](https://localstack.cloud/), allowing you to run and test the microservice locally without deploying to AWS. See the [LocalStack Guide](docs/LocalStackGuide.md) for details.
+
 ## Technology Stack
 
 - **Language:** TypeScript

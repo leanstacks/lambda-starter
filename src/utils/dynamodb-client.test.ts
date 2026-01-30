@@ -207,4 +207,97 @@ describe('dynamodb-client', () => {
       expect(docClient.constructor.name).toBe('DynamoDBDocumentClient');
     });
   });
+
+  describe('LocalStack configuration', () => {
+    it('should include endpoint and credentials when LocalStack is enabled', () => {
+      // Arrange
+      jest.doMock('./config', () => ({
+        config: {
+          AWS_REGION: 'us-east-1',
+          TASKS_TABLE: 'test-table',
+          LOGGING_ENABLED: true,
+          LOGGING_LEVEL: 'info',
+          CORS_ALLOW_ORIGIN: '*',
+          USE_LOCALSTACK: true,
+          LOCALSTACK_ENDPOINT: 'http://localstack:4566',
+        },
+      }));
+
+      // Act
+      require('./dynamodb-client');
+
+      // Assert
+      expect(mockInitializeDynamoDBClients).toHaveBeenCalledWith(
+        expect.objectContaining({
+          region: 'us-east-1',
+          endpoint: 'http://localstack:4566',
+          credentials: {
+            accessKeyId: 'test',
+            secretAccessKey: 'test',
+          },
+        }),
+        expect.any(Object),
+        expect.any(Object),
+      );
+    });
+
+    it('should not include endpoint when LocalStack is disabled', () => {
+      // Arrange
+      jest.doMock('./config', () => ({
+        config: {
+          AWS_REGION: 'us-east-1',
+          TASKS_TABLE: 'test-table',
+          LOGGING_ENABLED: true,
+          LOGGING_LEVEL: 'info',
+          CORS_ALLOW_ORIGIN: '*',
+          USE_LOCALSTACK: false,
+          LOCALSTACK_ENDPOINT: 'http://localhost:4566',
+        },
+      }));
+
+      // Act
+      require('./dynamodb-client');
+
+      // Assert
+      expect(mockInitializeDynamoDBClients).toHaveBeenCalledWith(
+        {
+          region: 'us-east-1',
+        },
+        expect.any(Object),
+        expect.any(Object),
+      );
+    });
+
+    it('should log LocalStack endpoint when enabled', () => {
+      // Arrange
+      jest.doMock('./config', () => ({
+        config: {
+          AWS_REGION: 'us-east-1',
+          TASKS_TABLE: 'test-table',
+          LOGGING_ENABLED: true,
+          LOGGING_LEVEL: 'info',
+          CORS_ALLOW_ORIGIN: '*',
+          USE_LOCALSTACK: true,
+          LOCALSTACK_ENDPOINT: 'http://localstack:4566',
+        },
+      }));
+
+      // Act
+      require('./dynamodb-client');
+
+      // Assert
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dynamoDbClientConfig: expect.objectContaining({
+            endpoint: 'http://localstack:4566',
+            credentials: {
+              accessKeyId: 'test',
+              secretAccessKey: 'test',
+            },
+          }),
+        }),
+        expect.stringContaining('DynamoDBClient'),
+      );
+    });
+  });
 });

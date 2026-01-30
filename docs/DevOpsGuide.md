@@ -95,3 +95,7 @@ See the [Configuration Guide](./ConfigurationGuide.md) for a comprehensive list 
 - [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/)
 - [Project Infrastructure Guide](./InfrastructureGuide.md)
 - [Project Configuration Guide](./ConfigurationGuide.md)
+
+---
+
+For more information about this project, see the main [README](../README.md) or visit the [documentation](./README.md).

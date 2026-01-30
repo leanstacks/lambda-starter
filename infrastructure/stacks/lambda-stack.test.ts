@@ -49,6 +49,8 @@ describe('LambdaStack', () => {
         loggingLevel: 'debug',
         loggingFormat: 'json',
         corsAllowOrigin: '*',
+        useLocalStack: false,
+        localStackEndpoint: 'http://localhost:4566',
       });
       template = Template.fromStack(stack);
     });
@@ -369,6 +371,8 @@ describe('LambdaStack', () => {
         loggingLevel: 'info',
         loggingFormat: 'json',
         corsAllowOrigin: '*',
+        useLocalStack: false,
+        localStackEndpoint: 'http://localhost:4566',
       });
       template = Template.fromStack(stack);
     });
@@ -429,6 +433,8 @@ describe('LambdaStack', () => {
         loggingLevel: 'debug',
         loggingFormat: 'json',
         corsAllowOrigin: '*',
+        useLocalStack: false,
+        localStackEndpoint: 'http://localhost:4566',
       });
       template = Template.fromStack(stack);
     });
@@ -452,6 +458,156 @@ describe('LambdaStack', () => {
             },
           ],
         },
+      });
+    });
+  });
+
+  describe('LocalStack configuration', () => {
+    describe('when LocalStack is enabled', () => {
+      let template: Template;
+
+      beforeAll(() => {
+        const testApp = new cdk.App();
+        const mockTestStack = new cdk.Stack(testApp, 'MockStack');
+        const testMockTable = new dynamodb.Table(mockTestStack, 'MockTaskTable', {
+          tableName: 'mock-task-table',
+          partitionKey: {
+            name: 'id',
+            type: dynamodb.AttributeType.STRING,
+          },
+        });
+        const testMockTopic = new sns.Topic(mockTestStack, 'MockTaskEventTopic', {
+          topicName: 'mock-task-event-local',
+        });
+
+        const stack = new LambdaStack(testApp, 'TestLambdaStack', {
+          appName: 'lambda-starter',
+          envName: 'local',
+          taskTable: testMockTable,
+          taskEventTopic: testMockTopic,
+          loggingEnabled: true,
+          loggingLevel: 'debug',
+          loggingFormat: 'json',
+          corsAllowOrigin: '*',
+          useLocalStack: true,
+          localStackEndpoint: 'http://localhost:4566',
+        });
+        template = Template.fromStack(stack);
+      });
+
+      it('should include USE_LOCALSTACK environment variable', () => {
+        template.hasResourceProperties('AWS::Lambda::Function', {
+          Environment: {
+            Variables: {
+              USE_LOCALSTACK: 'true',
+            },
+          },
+        });
+      });
+
+      it('should include LOCALSTACK_ENDPOINT environment variable', () => {
+        template.hasResourceProperties('AWS::Lambda::Function', {
+          Environment: {
+            Variables: {
+              LOCALSTACK_ENDPOINT: 'http://localhost:4566',
+            },
+          },
+        });
+      });
+
+      it('should include all standard environment variables with LocalStack config', () => {
+        template.hasResourceProperties('AWS::Lambda::Function', {
+          Environment: {
+            Variables: {
+              TASKS_TABLE: Match.anyValue(),
+              TASK_EVENT_TOPIC_ARN: Match.anyValue(),
+              LOGGING_ENABLED: 'true',
+              LOGGING_LEVEL: 'debug',
+              LOGGING_FORMAT: 'json',
+              CORS_ALLOW_ORIGIN: '*',
+              USE_LOCALSTACK: 'true',
+              LOCALSTACK_ENDPOINT: 'http://localhost:4566',
+            },
+          },
+        });
+      });
+
+      it('should create Lambda functions with local naming', () => {
+        template.hasResourceProperties('AWS::Lambda::Function', {
+          FunctionName: 'lambda-starter-list-tasks-local',
+        });
+      });
+
+      it('should create API Gateway with local naming', () => {
+        template.hasResourceProperties('AWS::ApiGateway::RestApi', {
+          Name: 'lambda-starter-api-local',
+        });
+      });
+    });
+
+    describe('when LocalStack is disabled', () => {
+      let template: Template;
+
+      beforeAll(() => {
+        const testApp = new cdk.App();
+        const mockTestStack = new cdk.Stack(testApp, 'MockStack');
+        const testMockTable = new dynamodb.Table(mockTestStack, 'MockTaskTable', {
+          tableName: 'mock-task-table',
+          partitionKey: {
+            name: 'id',
+            type: dynamodb.AttributeType.STRING,
+          },
+        });
+        const testMockTopic = new sns.Topic(mockTestStack, 'MockTaskEventTopic', {
+          topicName: 'mock-task-event-dev',
+        });
+
+        const stack = new LambdaStack(testApp, 'TestLambdaStack', {
+          appName: 'lambda-starter',
+          envName: 'dev',
+          taskTable: testMockTable,
+          taskEventTopic: testMockTopic,
+          loggingEnabled: true,
+          loggingLevel: 'debug',
+          loggingFormat: 'json',
+          corsAllowOrigin: '*',
+          useLocalStack: false,
+          localStackEndpoint: 'http://localhost:4566',
+        });
+        template = Template.fromStack(stack);
+      });
+
+      it('should not include USE_LOCALSTACK environment variable', () => {
+        // Verify that environment variables do NOT contain LocalStack config
+        const resources = template.findResources('AWS::Lambda::Function');
+        Object.values(resources).forEach((resource: any) => {
+          const vars = resource.Properties.Environment.Variables;
+          expect(vars.USE_LOCALSTACK).toBeUndefined();
+        });
+      });
+
+      it('should not include LOCALSTACK_ENDPOINT environment variable', () => {
+        // Verify that environment variables do NOT contain LocalStack config
+        const resources = template.findResources('AWS::Lambda::Function');
+        Object.values(resources).forEach((resource: any) => {
+          const vars = resource.Properties.Environment.Variables;
+          expect(vars.LOCALSTACK_ENDPOINT).toBeUndefined();
+        });
+      });
+
+      it('should include standard environment variables without LocalStack config', () => {
+        template.hasResourceProperties('AWS::Lambda::Function', {
+          Environment: {
+            Variables: Match.objectLike({
+              TASKS_TABLE: Match.anyValue(),
+              TASK_EVENT_TOPIC_ARN: Match.anyValue(),
+              LOGGING_ENABLED: 'true',
+              LOGGING_LEVEL: 'debug',
+              LOGGING_FORMAT: 'json',
+              CORS_ALLOW_ORIGIN: '*',
+            }),
+          },
+        });
       });
     });
   });

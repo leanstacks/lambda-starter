@@ -99,12 +99,12 @@ All Lambda functions receive the following environment variables from the CDK co
 
 All resources are tagged for cost allocation and management:
 
-| Tag     | Source         | Example Value       |
-| ------- | -------------- | ------------------- |
-| `App`   | `CDK_APP_NAME` | `lambda-starter`    |
-| `Env`   | `CDK_ENV`      | `dev`, `qat`, `prd` |
-| `OU`    | `CDK_OU`       | `leanstacks`        |
-| `Owner` | `CDK_OWNER`    | `platform-team`     |
+| Tag     | Source         | Example Value          |
+| ------- | -------------- | ---------------------- |
+| `App`   | `CDK_APP_NAME` | `lambda-starter`       |
+| `Env`   | `CDK_ENV`      | `dev`, `qat`, `prd`    |
+| `OU`    | `CDK_OU`       | `software-engineering` |
+| `Owner` | `CDK_OWNER`    | `platform-team`        |
 
 ---
 
@@ -207,3 +207,7 @@ Or use a supported Node.js version (22.x or 20.x).
 - [AWS CDK Documentation](https://docs.aws.amazon.com/cdk/latest/guide/)
 - [Project Configuration Guide](./ConfigurationGuide.md)
 - [Project DevOps Guide](./DevOpsGuide.md)
+
+---
+
+For more information about this project, see the main [README](../README.md) or visit the [documentation](./README.md).

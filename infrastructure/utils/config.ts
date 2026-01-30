@@ -6,7 +6,7 @@ import { z } from 'zod';
  */
 const configSchema = z.object({
   CDK_APP_NAME: z.string().default('lambda-starter'),
-  CDK_ENV: z.enum(['dev', 'qat', 'prd'], 'CDK_ENV must be one of: dev, qat, prd'),
+  CDK_ENV: z.enum(['dev', 'qat', 'prd', 'local'], 'CDK_ENV must be one of: dev, qat, prd, local'),
   CDK_ACCOUNT: z.string().optional(),
   CDK_REGION: z.string().optional(),
   CDK_OU: z.string().optional(),
@@ -18,6 +18,12 @@ const configSchema = z.object({
     .transform((val) => val === 'true'),
   CDK_APP_LOGGING_LEVEL: z.enum(['debug', 'info', 'warn', 'error'] as const).default('info'),
   CDK_APP_LOGGING_FORMAT: z.enum(['text', 'json'] as const).default('json'),
+  // LocalStack configuration
+  CDK_USE_LOCALSTACK: z
+    .enum(['true', 'false'] as const)
+    .default('false')
+    .transform((val) => val === 'true'),
+  CDK_LOCALSTACK_ENDPOINT: z.string().default('http://localstack:4566'),
 });
 
 /**
@@ -63,10 +69,21 @@ export function getTags(config: Config): Record<string, string> {
  * Uses CDK_ACCOUNT and CDK_REGION if provided, otherwise falls back to
  * CDK_DEFAULT_ACCOUNT and CDK_DEFAULT_REGION which are automatically
  * set by the CDK CLI based on the current AWS credentials and profile.
+ *
+ * For LocalStack, uses placeholder values that LocalStack expects.
+ *
  * @param config The validated configuration.
  * @returns Environment config object with account and region, or undefined if neither are set.
  */
 export function getEnvironmentConfig(config: Config): { account: string; region: string } | undefined {
+  // Use LocalStack defaults if LocalStack is enabled
+  if (config.CDK_USE_LOCALSTACK) {
+    return {
+      account: '000000000000',
+      region: config.CDK_REGION || 'us-east-1',
+    };
+  }
+
   const account = config.CDK_ACCOUNT || process.env.CDK_DEFAULT_ACCOUNT;
   const region = config.CDK_REGION || process.env.CDK_DEFAULT_REGION;
 
