@@ -44,7 +44,7 @@ export function getConfig(): Config {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const messages = error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', ');
-      throw new Error(`CDK configuration validation failed: ${messages}`);
+      throw new Error(`CDK configuration validation failed: ${messages}`, { cause: error });
     }
     throw error;
   }
