@@ -107,6 +107,8 @@ Environment-specific workflow that triggers the reusable teardown workflow for t
 
 ---
 
+## Getting Started with Workflows
+
 Workflows are defined in `.github/workflows/` as YAML files. Each workflow is triggered by specific events (push, pull_request, release, etc.).
 
 ### Example Workflow Structure
