@@ -1,12 +1,15 @@
 # Lambda Starter
 
-A Lambda starter kit for Node.js TypeScript serverless functions.
+[![CI](https://github.com/leanstacks/lambda-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/leanstacks/lambda-starter/actions/workflows/ci.yml)
+&nbsp;
+&nbsp;
+[![Code Quality](https://github.com/leanstacks/lambda-starter/actions/workflows/code-quality.yml/badge.svg)](https://github.com/leanstacks/lambda-starter/actions/workflows/code-quality.yml)
 
 ## Overview
 
 This project provides a solid foundation for implementing Serverless Microservice Patterns with AWS Lambda functions using Node.js and TypeScript. The project uses the AWS CDK for infrastructure as code, Jest for testing, and modern development tooling.
 
-There are many Serverless Microservice Patterns which may be implemented with AWS Lambda functions. This project illustrates the "Simple Web Service" pattern, which is one of the most frequently used.
+There are many Serverless Microservice Patterns which may be implemented with AWS Lambda functions. This project illustrates the "Simple Web Service" pattern, which is one of the most frequently used. If you need to implement a different design pattern, reference the **Serverless Microservice Patterns** section below.
 
 ## Features
 
@@ -243,14 +246,15 @@ Learn more about the Lambda Utils with these resources...
 
 ## Serverless Microservice Patterns
 
-This project implements the **Simple Web Service** serverless microservice pattern. The [Serverless Microservice Patterns repository](https://github.com/leanstacks/serverless-microservice-patterns) provides a comprehensive collection of additional patterns and examples, including:
+This project implements the **Simple Web Service** serverless microservice pattern. The [Serverless Microservice Patterns repository](https://github.com/leanstacks/serverless-microservice-patterns) provides a suite of additional patterns and examples such as:
 
-- **Simple Web Service**: A basic serverless web service pattern using API Gateway, Lambda, and DynamoDB.
 - **Gatekeeper**: Adds an Auth microservice to authenticate and authorize API requests.
 - **Internal API**: Facilitates synchronous, internal microservice-to-microservice integration without API Gateway exposure.
 - **Internal Handoff**: Enables asynchronous microservice-to-microservice communication.
 - **Publish Subscribe**: Demonstrates event-driven architecture using SNS topics and SQS queues for loose coupling.
 - **Queue-Based Load Leveling**: Uses a message queue as a buffer to decouple producers from consumers and smooth demand spikes.
+- **Fan Out**: Breaks a large workload into a collection of smaller tasks. This is particularly useful for batch processing.
+- **Fan Out / Fan In**: Breaks a large workload into a collection of smaller tasks with progress tracking and results aggregation. This is particularly useful for batch processing.
 
 Each pattern is implemented as a standalone project with practical examples and reference implementations for building scalable, event-driven microservices on AWS.
 
