@@ -36,13 +36,17 @@ The project utilizes the following workflows.
 
 ## Deployment Workflows
 
-The project includes environment-specific deployment workflows that use GitHub Actions to deploy the application and infrastructure to AWS. Deployments require proper AWS credentials and environment variables to be configured.
+The project includes deployment workflows that use GitHub Actions to deploy the application and infrastructure to AWS. These workflows use a reusable workflow pattern to maintain consistency across environments. Deployments require proper AWS credentials and environment variables to be configured.
 
-### Deploy to DEV
+### Deploy (Reusable)
 
-**Workflow:** `deploy-dev.yml`
+**Workflow:** `deploy-reusable.yml`
 
-Manually triggered workflow that deploys the application and infrastructure to the DEV environment.
+A reusable workflow that provides the foundational deployment logic. This workflow is called by environment-specific deployment workflows and accepts the following inputs:
+
+- `aws_role_arn` (required): AWS IAM role ARN for credential assumption
+- `aws_region` (optional): AWS region (defaults to `us-east-1`)
+- `cdk_env` (required): CDK environment variables containing stack configuration
 
 **Process:**
 
@@ -51,11 +55,29 @@ Manually triggered workflow that deploys the application and infrastructure to t
 3. Configures AWS credentials via OIDC role assumption
 4. Installs and builds application code
 5. Runs all application tests
-6. Installs and builds infrastructure code
-7. Bootstraps CDK (if needed)
-8. Synthesizes CDK stacks
-9. Deploys all CDK stacks
-10. Cleans up sensitive files
+6. Installs infrastructure dependencies
+7. Creates `.env` file with CDK configuration
+8. Builds infrastructure code
+9. Bootstraps CDK (if needed)
+10. Synthesizes CDK stacks
+11. Deploys all CDK stacks using `npm run deploy:all -- --require-approval never --progress events`
+12. Cleans up sensitive files (`.env`, `cdk.out`)
+
+### Deploy to DEV
+
+**Workflow:** `deploy-dev.yml`
+
+Environment-specific workflow that triggers the reusable deployment workflow for the DEV environment.
+
+**Process:**
+
+- Calls the reusable `deploy-reusable.yml` workflow
+- Passes DEV-specific configuration:
+  - `AWS_ROLE_ARN_DEV` as the AWS role ARN
+  - `AWS_REGION` as the AWS region
+  - `CDK_ENV_DEV` as the CDK environment variables
+
+**Concurrency:** Only one DEV deployment can run at a time; subsequent requests will cancel the in-progress workflow.
 
 **Trigger:** Manual (`workflow_dispatch`)
 
