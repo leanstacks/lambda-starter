@@ -594,15 +594,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: Start LocalStack
         run: docker-compose up -d
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version-file: .nvmrc
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
