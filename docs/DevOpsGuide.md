@@ -29,11 +29,85 @@ The project utilizes the following workflows.
 | ---------------------- | ----------------------------- | -------------------------------------- |
 | Continuous Integration | Lint, build, test             | pull_request, manual                   |
 | Deploy to DEV          | Deploy to DEV environment     | manual                                 |
+| Teardown DEV           | Destroy infrastructure in DEV | manual                                 |
 | Code Quality           | Generate code quality reports | push to main branch, scheduled, manual |
 
 ---
 
-## Workflow Configuration
+## Deployment Workflows
+
+The project includes environment-specific deployment workflows that use GitHub Actions to deploy the application and infrastructure to AWS. Deployments require proper AWS credentials and environment variables to be configured.
+
+### Deploy to DEV
+
+**Workflow:** `deploy-dev.yml`
+
+Manually triggered workflow that deploys the application and infrastructure to the DEV environment.
+
+**Process:**
+
+1. Checks out the repository
+2. Sets up Node.js environment
+3. Configures AWS credentials via OIDC role assumption
+4. Installs and builds application code
+5. Runs all application tests
+6. Installs and builds infrastructure code
+7. Bootstraps CDK (if needed)
+8. Synthesizes CDK stacks
+9. Deploys all CDK stacks
+10. Cleans up sensitive files
+
+**Trigger:** Manual (`workflow_dispatch`)
+
+---
+
+## Teardown Workflows
+
+The project includes teardown (destroy) workflows for removing provisioned infrastructure from specific environments. These workflows use a reusable workflow pattern to maintain consistency across environments.
+
+### Teardown (Reusable)
+
+**Workflow:** `teardown-reusable.yml`
+
+A reusable workflow that provides the foundational teardown logic. This workflow is called by environment-specific teardown workflows and accepts the following inputs:
+
+- `aws_role_arn` (required): AWS IAM role ARN for credential assumption
+- `aws_region` (optional): AWS region (defaults to `us-east-1`)
+- `cdk_env` (required): CDK environment variables containing stack configuration
+
+**Process:**
+
+1. Checks out the repository
+2. Sets up Node.js environment
+3. Configures AWS credentials via OIDC role assumption
+4. Installs infrastructure dependencies
+5. Creates `.env` file with CDK configuration
+6. Destroys all CDK stacks using `npm run destroy:all -- --force --progress events`
+7. Cleans up sensitive files (`.env`, `cdk.out`)
+
+### Teardown DEV
+
+**Workflow:** `teardown-dev.yml`
+
+Environment-specific workflow that triggers the reusable teardown workflow for the DEV environment.
+
+**Process:**
+
+- Calls the reusable `teardown-reusable.yml` workflow
+- Passes DEV-specific configuration:
+  - `AWS_ROLE_ARN_DEV` as the AWS role ARN
+  - `AWS_REGION` as the AWS region
+  - `CDK_ENV_DEV` as the CDK environment variables
+
+**Concurrency:** Only one DEV teardown can run at a time; subsequent requests will cancel the in-progress workflow.
+
+**Trigger:** Manual (`workflow_dispatch`)
+
+**⚠️ Warning:** Teardown workflows permanently destroy provisioned AWS infrastructure. Use with caution and ensure you have backups of any critical data.
+
+---
+
+## Getting Started with Workflows
 
 Workflows are defined in `.github/workflows/` as YAML files. Each workflow is triggered by specific events (push, pull_request, release, etc.).
 
