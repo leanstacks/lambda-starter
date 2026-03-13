@@ -8,6 +8,74 @@ This project provides a solid foundation for implementing Serverless Microservic
 
 There are many Serverless Microservice Patterns which may be implemented with AWS Lambda functions. This project illustrates the "Simple Web Service" pattern, which is one of the most frequently used.
 
+## Features
+
+### Core Features
+
+- **Complete REST API** - A fully functional RESTful API for task management with handlers for create, read, update, and delete operations
+- **AWS Lambda Integration** - Native AWS Lambda handlers with full API Gateway integration for HTTP request/response processing
+- **Request Validation** - Type-safe request validation using Zod schemas to ensure data integrity and type safety
+- **Error Handling** - Comprehensive error handling with meaningful error responses and logging at all layers
+- **CORS Support** - Built-in Cross-Origin Resource Sharing (CORS) configuration for cross-domain requests
+- **Request Tracking** - Automatic request ID tracking through the entire request lifecycle for debugging and monitoring
+
+### Configuration Management
+
+- **Environment-Based Configuration** - Flexible environment variable management supporting dev, qat, and prd environments
+- **Zod Schema Validation** - Configuration validation at runtime using Zod schemas to catch configuration errors early
+- **Flexible Endpoint Configuration** - Support for both AWS and LocalStack endpoints with automatic switching based on configuration
+- **Logging Configuration** - Configurable logging levels, formats (text/JSON), and runtime toggles for flexible operational control
+
+### Persistence
+
+- **DynamoDB Integration** - AWS DynamoDB client for scalable, serverless NoSQL data storage
+- **Document Model Support** - High-level document client for simplified working with complex data structures
+- **Composite Primary Keys** - Efficient data organization using partition keys and sort keys for flexible querying
+- **Item Versioning** - Automatic timestamp tracking (createdAt, updatedAt) for audit trails and data synchronization
+- **Type-Safe Models** - TypeScript interfaces and Zod schemas for data models ensuring compile-time and runtime type safety
+
+### Logging
+
+- **Pino Logger** - Log4j-style logging with Pino for high-performance, low-overhead structured logging
+- **Lambda-Aware Logging** - Pino Lambda plugin integration for optimized CloudWatch log formatting in Lambda environments
+- **Configurable Log Levels** - Support for debug, info, warn, and error logging levels with runtime control
+- **JSON and Text Formats** - Structured JSON logging for production analysis or human-readable text format for development
+- **Request Context Tracking** - Automatic inclusion of request IDs and context in all log entries for request tracing
+
+### Pub/Sub
+
+- **Event-Driven Architecture** - SNS topic integration for event publishing when tasks are created, updated, or deleted
+- **Asynchronous Communication** - Decoupled microservice communication through SNS topics without direct service dependencies
+- **AWS SNS Client** - Fully configured SNS client with support for message publishing and topic management
+- **CloudWatch Integration** - SNS events automatically captured in CloudWatch for monitoring and debugging
+
+### Code Quality & Testing
+
+- **Jest Unit Testing** - Comprehensive unit test coverage with Jest across handlers, services, models, and utilities
+- **Test File Organization** - Co-located test files using `.test.ts` suffix for maintainability and ease of navigation
+- **100% Test Coverage** - Code coverage analysis and reporting to ensure comprehensive testing
+- **Mocked Dependencies** - All external dependencies (AWS SDK, services) are mocked in tests for isolation
+- **ESLint Configuration** - Consistent code style enforcement with ESLint for maintaintainability and best practices
+- **Prettier Formatting** - Automatic code formatting with Prettier for consistent code style across the project
+- **Watch Mode Testing** - Jest watch mode support for continuous testing during development
+
+### DevOps + Infrastructure
+
+- **Infrastructure as Code (IaC)** - AWS CDK stack definitions for reproducible, version-controlled infrastructure deployment
+- **Automated Testing in CI/CD** - GitHub Actions workflows that run unit tests, linting, and code formatting checks on every push
+- **LocalStack Development Environment** - Local AWS service emulation for development and testing without consuming AWS resources or incurring costs
+- **LocalStack Docker Compose** - Pre-configured Docker Compose setup for easily spinning up a complete local development environment with DynamoDB, SNS, and other AWS services
+- **Infrastructure Documentation** - Detailed guides explaining CDK stacks, resource configuration, and deployment processes
+- **DevOps Best Practices** - Complete DevOps guides covering CI/CD pipeline setup, deployment procedures, and operational consideratio
+
+### Documentation
+
+- **Comprehensive README** - Clear project overview, setup instructions, and feature documentation
+- **Inline Code Comments** - JSDoc comments on functions and modules for code clarity and IDE support
+- **Configuration Guide** - Detailed documentation on configuring the application for different environments
+- **DevOps Guide** - CI/CD pipeline setup and deployment procedures using GitHub Actions
+- **Project Structure Documentation** - Detailed explanation of directory organization and architectural patterns
+
 ## Getting started
 
 ### Prerequisites
