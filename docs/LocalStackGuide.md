@@ -48,21 +48,30 @@ Before using LocalStack with this project, ensure you have the following install
    docker-compose --version
    ```
 
-3. **LocalStack CLI** (optional but recommended)
+3. **LocalStack Auth Token** (required)
 
-   See the [LocalStack Getting Started Guide](https://docs.localstack.cloud/aws/getting-started/) for free account setup, installation instructions, and how to obtain an auth token.
+   Starting with LocalStack 2026.03, an Auth Token is required to activate LocalStack for AWS. You can get a free Auth Token by:
+   - Signing up for a free account at [LocalStack Web Application](https://app.localstack.cloud/sign-up)
+   - Obtaining your Auth Token from the [Auth Tokens page](https://app.localstack.cloud/workspace/auth-tokens)
+   - Setting the `LOCALSTACK_AUTH_TOKEN` environment variable in your shell or `.env` file
+
+   For more information, see the [LocalStack Auth Token Documentation](https://docs.localstack.cloud/aws/getting-started/auth-token/).
+
+4. **LocalStack CLI** (optional but recommended)
+
+   See the [LocalStack Getting Started Guide](https://docs.localstack.cloud/aws/getting-started/) for installation instructions.
 
    ```bash
    localstack --version
    ```
 
-4. **AWS CLI** (optional, for manual testing)
+5. **AWS CLI** (optional, for manual testing)
 
    ```bash
    aws --version
    ```
 
-5. **Node.js 24+** and **npm**
+6. **Node.js 24+** and **npm**
    ```bash
    node --version
    npm --version
@@ -72,7 +81,24 @@ Before using LocalStack with this project, ensure you have the following install
 
 Follow these steps to get the Task microservice running locally with LocalStack:
 
-### 1. Start LocalStack
+### 1. Set the LocalStack Auth Token
+
+Before starting LocalStack, set your Auth Token in your environment:
+
+```bash
+export LOCALSTACK_AUTH_TOKEN=your-auth-token-here
+```
+
+Replace `your-auth-token-here` with your actual Auth Token from the [LocalStack Web Application](https://app.localstack.cloud/workspace/auth-tokens).
+
+Alternatively, you can add this to your shell profile (`.bashrc`, `.zshrc`, etc.) or create a `.env.local` file in the project root:
+
+```bash
+echo "export LOCALSTACK_AUTH_TOKEN=your-auth-token-here" >> ~/.bashrc
+source ~/.bashrc
+```
+
+### 2. Start LocalStack
 
 From the project root directory:
 
@@ -92,7 +118,7 @@ View LocalStack logs:
 docker-compose logs -f localstack
 ```
 
-### 2. Install Dependencies
+### 3. Install Dependencies
 
 Install CDK infrastructure dependencies:
 
@@ -101,7 +127,7 @@ cd infrastructure
 npm install
 ```
 
-### 3. Configure Environment
+### 4. Configure Environment
 
 Copy the LocalStack environment configuration:
 
@@ -121,7 +147,7 @@ CDK_USE_LOCALSTACK=true
 CDK_LOCALSTACK_ENDPOINT=http://localstack:4566
 ```
 
-### 4. Build the Infrastructure
+### 5. Build the Infrastructure
 
 Compile the CDK TypeScript code:
 
@@ -129,7 +155,7 @@ Compile the CDK TypeScript code:
 npm run build
 ```
 
-### 5. Bootstrap CDK (First Time Only)
+### 6. Bootstrap CDK (First Time Only)
 
 Bootstrap the CDK environment in LocalStack:
 
@@ -139,7 +165,7 @@ npm run local:bootstrap
 
 This creates the necessary S3 buckets and resources for CDK deployments.
 
-### 6. Deploy to LocalStack
+### 7. Deploy to LocalStack
 
 Deploy all stacks to LocalStack:
 
@@ -155,7 +181,7 @@ This deploys:
 
 The deployment typically takes 2-5 minutes.
 
-### 7. Get the API Endpoint
+### 8. Get the API Endpoint
 
 After deployment, the CloudFormation outputs will show the API Gateway endpoint:
 
@@ -173,7 +199,7 @@ aws --endpoint-url=http://localhost:4566 cloudformation describe-stacks \
   --output text
 ```
 
-### 8. Test the API
+### 9. Test the API
 
 Test the API using curl or your favorite HTTP client:
 
@@ -227,23 +253,36 @@ The `docker-compose.yml` file in the project root configures the LocalStack cont
 ```yaml
 services:
   localstack:
-    image: localstack/localstack:4.12
+    container_name: '${LOCALSTACK_DOCKER_NAME:-localstack-main}'
+    image: localstack/localstack:2026.03
     ports:
       - '4566:4566'
     environment:
+      # LocalStack configuration
       - SERVICES=s3,dynamodb,sns,lambda,apigateway,logs,iam,sts,cloudformation,ssm
-      - LAMBDA_EXECUTOR=docker
+      # LocalStack Auth Token (required as of 2026.03)
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN:?}
+      # Enable debug mode (optional - set to 1 to enable)
+      - DEBUG=${DEBUG:-0}
+      # Enable persistence (optional - comment out to disable)
+      - PERSISTENCE=${PERSISTENCE:-0}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./localstack-data:/var/lib/localstack
 ```
 
-You can customize this configuration by editing the file. For example, to enable data persistence:
+Key points:
 
-```yaml
-environment:
-  - PERSISTENCE=1
-volumes:
-  - ./localstack-data:/var/lib/localstack
+- **LOCALSTACK_AUTH_TOKEN** - Required environment variable. Must be set before starting the container.
+- **SERVICES** - Specifies which AWS services to emulate. Adjust as needed for your project.
+- **DEBUG** - Optional flag for debug mode (set to 1 to enable verbose logging).
+- **PERSISTENCE** - Optional flag to persist data between container restarts.
+
+You can customize the `PERSISTENCE` setting by uncommenting or adding it to enable data persistence:
+
+```bash
+export PERSISTENCE=1
+docker-compose up -d
 ```
 
 ## Usage
@@ -462,6 +501,31 @@ Check available disk space and memory. LocalStack requires at least:
 - 2 GB RAM
 - 5 GB disk space
 
+**Missing Auth Token error:**
+
+If you see an error like "License activation failed", ensure your `LOCALSTACK_AUTH_TOKEN` environment variable is set:
+
+```bash
+export LOCALSTACK_AUTH_TOKEN=your-auth-token
+docker-compose up -d
+```
+
+Verify the token is correctly set:
+
+```bash
+echo $LOCALSTACK_AUTH_TOKEN
+```
+
+**Invalid Auth Token error:**
+
+If you receive an "invalid credentials" error:
+
+1. Verify your Auth Token is correct - check it on the [Auth Tokens page](https://app.localstack.cloud/workspace/auth-tokens)
+2. Ensure you have an active license assigned to your account
+3. Rotate your Auth Token if you suspect it may have been compromised
+
+For more troubleshooting steps, see the [LocalStack Auth Token Troubleshooting Guide](https://docs.localstack.cloud/aws/getting-started/auth-token/#troubleshooting)
+
 ### Deployment Issues
 
 **CDK bootstrap fails:**
@@ -597,6 +661,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Start LocalStack
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
         run: docker-compose up -d
 
       - name: Setup Node.js
@@ -624,6 +690,8 @@ jobs:
         run: docker-compose down
 ```
 
+**Important:** Store your `LOCALSTACK_AUTH_TOKEN` as a GitHub repository secret (`secrets.LOCALSTACK_AUTH_TOKEN`). Never commit your Auth Token to version control.
+
 ### Cost Savings
 
 Using LocalStack for development and testing can significantly reduce AWS costs:
@@ -635,10 +703,21 @@ Using LocalStack for development and testing can significantly reduce AWS costs:
 
 ### Security Considerations
 
-1. **Never commit** the `.env` file with real AWS credentials
-2. **Use dummy credentials** for LocalStack (already configured)
-3. **Don't expose** LocalStack port (4566) to the internet
-4. **Keep LocalStack updated** for security patches:
+1. **Protect your Auth Token** - It provides access to your LocalStack workspace and license
+   - Never commit the `LOCALSTACK_AUTH_TOKEN` to source control
+   - Use environment variables or a `.env.local` file (not committed to version control)
+   - If accidentally exposed, immediately rotate it on the [Auth Tokens page](https://app.localstack.cloud/workspace/auth-tokens)
+
+2. **Secure the `.env` file**
+   - Add `.env.local` to `.gitignore` to prevent accidental commits
+   - Never commit files containing real AWS credentials or Auth Tokens
+
+3. **Network Security**
+   - Don't expose LocalStack port (4566) to the internet
+   - Use it only for local development
+
+4. **Keep LocalStack Updated**
+   - Regularly update to the latest version for security patches:
    ```bash
    docker-compose pull
    docker-compose up -d
