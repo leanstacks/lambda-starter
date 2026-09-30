@@ -127,8 +127,8 @@ All resources are tagged for cost allocation and management:
 
 ### Development
 
-1. **Test before deploying**: Always run `npm test` before deployment
-2. **Review diffs**: Use `npm run diff` to review changes before applying
+1. **Test before deploying**: Always run `npm test` (from the repository root) before deployment
+2. **Review diffs**: Use `npm run diff -w packages/infra` to review changes before applying
 3. **Use descriptive names**: Follow naming conventions for resources
 4. **Document changes**: Update README when adding new stacks or resources
 5. **Type safety**: Leverage TypeScript for compile-time error detection
@@ -151,7 +151,7 @@ All resources are tagged for cost allocation and management:
 
 **Solutions:**
 
-1. Verify `.env` file exists in the infrastructure directory
+1. Verify `.env` file exists in the `packages/infra` directory
 2. Check that `CDK_ENV` is set to a valid value (`dev`, `qat`, `prd`)
 3. Ensure all required variables are set
 

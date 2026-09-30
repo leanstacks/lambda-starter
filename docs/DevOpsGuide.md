@@ -53,15 +53,14 @@ A reusable workflow that provides the foundational deployment logic. This workfl
 1. Checks out the repository
 2. Sets up Node.js environment
 3. Configures AWS credentials via OIDC role assumption
-4. Installs and builds application code
-5. Runs all application tests
-6. Installs infrastructure dependencies
-7. Creates `.env` file with CDK configuration
-8. Builds infrastructure code
-9. Bootstraps CDK (if needed)
-10. Synthesizes CDK stacks
-11. Deploys all CDK stacks using `npm run deploy:all -- --require-approval never --progress events`
-12. Cleans up sensitive files (`.env`, `cdk.out`)
+4. Installs all workspace dependencies with a single `npm ci` at the repository root
+5. Type-checks all packages (`npm run build`)
+6. Runs all tests (`npm run test`)
+7. Creates `.env` file with CDK configuration in `packages/infra`
+8. Bootstraps CDK (if needed)
+9. Synthesizes CDK stacks
+10. Deploys all CDK stacks using `npm run deploy:all -- --require-approval never --progress events` (working directory `./packages/infra`)
+11. Cleans up sensitive files (`.env`, `cdk.out`)
 
 ### Deploy to DEV
 
@@ -102,9 +101,9 @@ A reusable workflow that provides the foundational teardown logic. This workflow
 1. Checks out the repository
 2. Sets up Node.js environment
 3. Configures AWS credentials via OIDC role assumption
-4. Installs infrastructure dependencies
-5. Creates `.env` file with CDK configuration
-6. Destroys all CDK stacks using `npm run destroy:all -- --force --progress events`
+4. Installs workspace dependencies with `npm ci` at the repository root
+5. Creates `.env` file with CDK configuration in `packages/infra`
+6. Destroys all CDK stacks using `npm run destroy:all -- --force --progress events` (working directory `./packages/infra`)
 7. Cleans up sensitive files (`.env`, `cdk.out`)
 
 ### Teardown DEV
@@ -131,7 +130,7 @@ Environment-specific workflow that triggers the reusable teardown workflow for t
 
 ## Getting Started with Workflows
 
-Workflows are defined in `.github/workflows/` as YAML files. Each workflow is triggered by specific events (push, pull_request, release, etc.).
+This repository is an npm workspaces monorepo, so workflows run a single `npm ci` at the repository root and run CDK commands with `working-directory: ./packages/infra`. Workflows are defined in `.github/workflows/` as YAML files. Each workflow is triggered by specific events (push, pull_request, release, etc.).
 
 ### Example Workflow Structure
 
@@ -153,8 +152,9 @@ jobs:
           node-version: '24'
       - run: npm ci
       - run: npm run lint
+      - run: npm run format:check
       - run: npm run build
-      - run: npm test
+      - run: npm run test:coverage
 ```
 
 ---

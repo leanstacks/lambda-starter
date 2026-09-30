@@ -32,11 +32,10 @@ export default defineConfig(
       ],
     },
   },
-  // Test override: allow require and any in test files
+  // Test override: allow any in test files
   {
     files: ['**/*.test.ts', '**/*.spec.ts'],
     rules: {
-      '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },

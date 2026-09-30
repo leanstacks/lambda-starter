@@ -120,11 +120,16 @@ docker-compose logs -f localstack
 
 ### 3. Install Dependencies
 
-Install CDK infrastructure dependencies:
+Install dependencies for all workspaces from the repository root (this project is an npm workspaces monorepo with a single lockfile):
 
 ```bash
-cd infrastructure
 npm install
+```
+
+The remaining CDK steps run from the `packages/infra` directory:
+
+```bash
+cd packages/infra
 ```
 
 ### 4. Configure Environment
@@ -149,7 +154,7 @@ CDK_LOCALSTACK_ENDPOINT=http://localstack:4566
 
 ### 5. Build the Infrastructure
 
-Compile the CDK TypeScript code:
+Type-check the CDK TypeScript code (the CDK app runs directly via `tsx`, and Lambda functions are bundled as ESM by esbuild during synth/deploy):
 
 ```bash
 npm run build
@@ -222,7 +227,7 @@ Replace `{api-id}` and `{task-id}` with actual values from your deployment.
 
 ### Environment Variables
 
-The LocalStack configuration is managed through environment variables in the `infrastructure/.env` file.
+The LocalStack configuration is managed through environment variables in the `packages/infra/.env` file.
 
 #### CDK Configuration Variables
 
@@ -295,7 +300,7 @@ docker-compose up -d
 # From project root
 docker-compose up -d
 
-# Or from infrastructure directory
+# Or from the packages/infra directory
 npm run local:start
 ```
 
@@ -305,7 +310,7 @@ npm run local:start
 # From project root
 docker-compose down
 
-# Or from infrastructure directory
+# Or from the packages/infra directory
 npm run local:stop
 ```
 
@@ -315,7 +320,7 @@ npm run local:stop
 # From project root
 docker-compose logs -f localstack
 
-# Or from infrastructure directory
+# Or from the packages/infra directory
 npm run local:logs
 ```
 
@@ -327,7 +332,7 @@ docker-compose restart
 
 ### Infrastructure Operations
 
-All infrastructure operations from the `infrastructure/` directory:
+All infrastructure operations from the `packages/infra/` directory (or from the root with `-w packages/infra`):
 
 **Deploy all stacks:**
 
@@ -418,17 +423,17 @@ docker-compose up -d
 sleep 10  # Wait for LocalStack to be ready
 
 # Deploy infrastructure
-cd infrastructure
+cd packages/infra
 npm run build
 npm run local:bootstrap
 npm run local:deploy
 
-# Run tests
-cd ..
+# Run tests (Vitest)
+cd ../..
 npm test
 
 # Cleanup
-cd infrastructure
+cd packages/infra
 npm run local:destroy
 docker-compose down
 ```
@@ -672,15 +677,14 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
-        working-directory: ./infrastructure
+        run: npm ci
 
       - name: Deploy to LocalStack
         run: |
           npm run build
           npm run local:bootstrap
           npm run local:deploy
-        working-directory: ./infrastructure
+        working-directory: ./packages/infra
 
       - name: Run tests
         run: npm test

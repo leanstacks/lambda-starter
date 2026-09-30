@@ -1,1 +1,5 @@
 .github/CODEOWNERS
+**/dist
+**/coverage
+**/cdk.out
+package-lock.json

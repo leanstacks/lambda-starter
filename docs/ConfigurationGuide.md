@@ -24,10 +24,10 @@ The following environment variables are available for configuring the applicatio
 
 ### Usage
 
-Application configuration is accessed through the `config` object exported from `src/utils/config.ts`:
+Application configuration is accessed through the `config` object exported from `packages/api/src/utils/config.ts`:
 
 ```typescript
-import { config } from './utils/config';
+import { config } from './utils/config.js';
 
 console.log(`Tasks table: ${config.TASKS_TABLE}`);
 console.log(`Task event topic ARN: ${config.TASK_EVENT_TOPIC_ARN}`);
@@ -65,10 +65,10 @@ The following environment variables are available for configuring the infrastruc
 
 ### Usage
 
-Infrastructure configuration is managed through the `getConfig()` function in `infrastructure/utils/config.ts`:
+Infrastructure configuration is managed through the `getConfig()` function in `packages/infra/utils/config.ts`:
 
 ```typescript
-import { getConfig } from './utils/config';
+import { getConfig } from './utils/config.js';
 
 const config = getConfig();
 console.log(`Environment: ${config.CDK_ENV}`);
@@ -80,7 +80,7 @@ console.log(`App name: ${config.CDK_APP_NAME}`);
 Infrastructure configuration can be provided through:
 
 1. **Environment variables** - Set directly in your shell or CI/CD pipeline
-2. **.env file** - Create a `.env` file in the `infrastructure/` directory for local development
+2. **.env file** - Create a `.env` file in the `packages/infra/` directory for local development
 
 Example `.env` file for AWS deployment:
 
