@@ -114,11 +114,14 @@ export class LambdaStack extends cdk.Stack {
       }),
     };
 
+    const projectRoot = path.join(__dirname, '../../');
+
     // Create the list tasks Lambda function
     this.listTasksFunction = new NodejsFunction(this, 'ListTasksFunction', {
       functionName: `${props.appName}-list-tasks-${props.envName}`,
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
+      projectRoot: projectRoot,
       entry: path.join(__dirname, '../../src/handlers/list-tasks.ts'),
       environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
@@ -145,6 +148,7 @@ export class LambdaStack extends cdk.Stack {
       functionName: `${props.appName}-get-task-${props.envName}`,
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
+      projectRoot: projectRoot,
       entry: path.join(__dirname, '../../src/handlers/get-task.ts'),
       environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
@@ -171,6 +175,7 @@ export class LambdaStack extends cdk.Stack {
       functionName: `${props.appName}-create-task-${props.envName}`,
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
+      projectRoot: projectRoot,
       entry: path.join(__dirname, '../../src/handlers/create-task.ts'),
       environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
@@ -200,6 +205,7 @@ export class LambdaStack extends cdk.Stack {
       functionName: `${props.appName}-update-task-${props.envName}`,
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
+      projectRoot: projectRoot,
       entry: path.join(__dirname, '../../src/handlers/update-task.ts'),
       environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
@@ -229,6 +235,7 @@ export class LambdaStack extends cdk.Stack {
       functionName: `${props.appName}-delete-task-${props.envName}`,
       runtime: lambda.Runtime.NODEJS_24_X,
       handler: 'handler',
+      projectRoot: projectRoot,
       entry: path.join(__dirname, '../../src/handlers/delete-task.ts'),
       environment: commonEnvironment,
       timeout: cdk.Duration.seconds(10),
