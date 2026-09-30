@@ -114,6 +114,7 @@ export class LambdaStack extends cdk.Stack {
       }),
     };
 
+    // Determine the project root directory for the Lambda functions
     const projectRoot = path.join(__dirname, '../../');
 
     // Create the list tasks Lambda function
