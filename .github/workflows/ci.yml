@@ -38,27 +38,15 @@ jobs:
       - name: Check code formatting
         run: npm run format:check
 
-      - name: Build application
+      - name: Build all workspaces
         run: npm run build
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage (all workspaces)
         run: npm run test:coverage
 
       # --- Infrastructure CDK Checks ---
-      - name: Install infrastructure dependencies
-        working-directory: ./infrastructure
-        run: npm ci
-
-      - name: Build infrastructure
-        working-directory: ./infrastructure
-        run: npm run build
-
-      - name: Run infrastructure tests with coverage
-        working-directory: ./infrastructure
-        run: npm run test:coverage
-
       - name: Create infrastructure .env file
-        working-directory: ./infrastructure
+        working-directory: ./packages/infra
         run: |
           echo "${{ vars.CDK_ENV_DEV }}" > .env
 
@@ -70,13 +58,13 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Synthesize CDK stacks
-        working-directory: ./infrastructure
+        working-directory: ./packages/infra
         run: npm run synth
 
       # Final Step: Clean up sensitive infrastructure files
       - name: Clean up sensitive files
         if: always()
-        working-directory: ./infrastructure
+        working-directory: ./packages/infra
         run: |
           echo "🧹 Cleaning up sensitive files..."
           rm -f .env

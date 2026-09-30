@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist",
+    "noEmit": true,
+    "noImplicitReturns": true,
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "cdk.out", "coverage", "dist", "**/*.test.ts", "vitest.config.ts"]
+}
