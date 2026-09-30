@@ -7,7 +7,7 @@
 
 ## Overview
 
-This project provides a solid foundation for implementing Serverless Microservice Patterns with AWS Lambda functions using Node.js and TypeScript. The project uses the AWS CDK for infrastructure as code, Jest for testing, and modern development tooling.
+This project provides a solid foundation for implementing Serverless Microservice Patterns with AWS Lambda functions using Node.js and TypeScript. The project uses the AWS CDK for infrastructure as code, Vitest for testing, and modern development tooling.
 
 There are many Serverless Microservice Patterns which may be implemented with AWS Lambda functions. This project illustrates the "Simple Web Service" pattern, which is one of the most frequently used. If you need to implement a different design pattern, reference the **Serverless Microservice Patterns** section below.
 
@@ -54,13 +54,13 @@ There are many Serverless Microservice Patterns which may be implemented with AW
 
 ### Code Quality & Testing
 
-- **Jest Unit Testing** - Comprehensive unit test coverage with Jest across handlers, services, models, and utilities
+- **Vitest Unit Testing** - Comprehensive unit test coverage with Vitest across handlers, services, models, and utilities
 - **Test File Organization** - Co-located test files using `.test.ts` suffix for maintainability and ease of navigation
 - **100% Test Coverage** - Code coverage analysis and reporting to ensure comprehensive testing
 - **Mocked Dependencies** - All external dependencies (AWS SDK, services) are mocked in tests for isolation
 - **ESLint Configuration** - Consistent code style enforcement with ESLint for maintaintainability and best practices
 - **Prettier Formatting** - Automatic code formatting with Prettier for consistent code style across the project
-- **Watch Mode Testing** - Jest watch mode support for continuous testing during development
+- **Watch Mode Testing** - Vitest watch mode support for continuous testing during development
 
 ### DevOps + Infrastructure
 
@@ -109,50 +109,67 @@ node --version  # Should output same version as in .nvmrc
 #### Installing Dependencies
 
 ```bash
-# Install project dependencies
+# Install dependencies for all workspaces (run once from the repository root)
 npm install
 ```
 
 ## Project structure
 
-This is a high-level overview of the project structure. This structure separates the infrastructure as code from the Lambda application code. Within the Lambda microservice component, directories provide structure to implement DRY (Don't Repeat Yourself) code which follows the SRP (Single Responsibility Principle).
+This project is an [npm workspaces](https://docs.npmjs.com/cli/using-npm/workspaces) monorepo with two packages: `packages/api` (the Lambda application) and `packages/infra` (the AWS CDK infrastructure as code). Dependencies are installed once at the repository root and a single `package-lock.json` is maintained. Within the Lambda microservice component, directories provide structure to implement DRY (Don't Repeat Yourself) code which follows the SRP (Single Responsibility Principle).
 
 ```
 /docs                           # Project documentation
 
-/infrastructure                 # AWS CDK infrastructure code
-  /stacks                       # CDK stack definitions
-  /utils                        # CDK utilities and helpers
-  app.ts                        # CDK app entry point
-  cdk.json                      # CDK configuration
-  jest.config.ts                # Infrastructure Jest configuration
-  package.json                  # Infrastructure dependencies and scripts
-  tsconfig.json                 # Infrastructure TypeScript configuration
-  .env.example                  # Infrastructure example .env
+/packages
+  /api                          # Lambda application (@leanstacks/lambda-starter-api)
+    /src
+      /handlers                 # Lambda function handlers
+      /models                   # Data models and types
+      /services                 # Business logic services
+      /utils                    # Utility functions and helpers
+    package.json                # API dependencies and scripts
+    tsconfig.json               # API TypeScript configuration
+    vitest.config.ts            # API Vitest configuration
 
-/src                            # Application source code
-  /handlers                     # Lambda function handlers
-  /models                       # Data models and types
-  /services                     # Business logic services
-  /utils                        # Utility functions and helpers
+  /infra                        # AWS CDK infrastructure code (@leanstacks/lambda-starter-infra)
+    /stacks                     # CDK stack definitions
+    /utils                      # CDK utilities and helpers
+    app.ts                      # CDK app entry point
+    cdk.json                    # CDK configuration
+    package.json                # Infrastructure dependencies and scripts
+    tsconfig.json               # Infrastructure TypeScript configuration
+    vitest.config.ts            # Infrastructure Vitest configuration
+    .env.example                # Infrastructure example .env
 
 eslint.config.mjs               # ESLint configuration
-jest.config.ts                  # Jest testing configuration
-package.json                    # Project dependencies and scripts
-tsconfig.json                   # TypeScript configuration
+package.json                    # Workspace root: shared dev dependencies and scripts
+package-lock.json               # Single lockfile for all workspaces
+tsconfig.base.json              # Base TypeScript configuration extended by each package
+vitest.config.ts                # Base Vitest configuration merged by each package
 .nvmrc                          # Node.js version specification
 .prettierrc                     # Prettier formatting configuration
 .editorconfig                   # Editor configuration
 ```
 
+### ESM conventions
+
+All packages are ECMAScript modules (`"type": "module"`) compiled with TypeScript `module: nodenext`. Follow these conventions:
+
+- Relative and alias imports **must include the `.js` extension**, even though the source files are `.ts`, e.g. `import { logger } from '@/utils/logger.js';`
+- The `@/` path alias resolves to `packages/api/src` in the API package and to the `packages/infra` directory in the infrastructure package. It is configured in each package's `tsconfig.json` and Vitest configuration.
+- Lambda functions are bundled as ESM (`index.mjs`) by esbuild, via the CDK `NodejsFunction` construct, and run on the Node.js 24 runtime.
+- The CDK app is executed with [tsx](https://tsx.is/) rather than ts-node.
+
 ## How to use
 
 ### Commands and scripts
 
+Run these commands from the repository root. Root scripts run in every workspace that defines the script (`--workspaces --if-present`). To target one package, use `-w`, e.g. `npm run test -w packages/api`.
+
 #### Development Commands
 
 ```bash
-# Build TypeScript to JavaScript
+# Type-check all packages (Lambdas are bundled by esbuild during CDK synth/deploy)
 npm run build
 
 # Clean generated files and directories
@@ -177,6 +194,8 @@ npm run lint:fix
 
 #### Testing Commands
 
+Tests are written with [Vitest](https://vitest.dev/). Mock modules with `vi.mock`, declare variables used inside mock factories with `vi.hoisted`, and use `vi.resetModules()` with `await import()` to re-evaluate a module. Coverage reports are produced by `@vitest/coverage-v8` and written to each package's `coverage` directory.
+
 ```bash
 # Run tests without coverage
 npm test
@@ -186,6 +205,21 @@ npm run test:coverage
 
 # Run tests in watch mode (reruns on file changes)
 npm run test:watch
+
+# Run tests for a single package
+npm run test -w packages/api
+```
+
+#### Infrastructure Commands
+
+CDK scripts are defined in `packages/infra`. Run them with `-w packages/infra` from the root, or from within the `packages/infra` directory. See the [infrastructure README](packages/infra/README.md) for details.
+
+```bash
+# Synthesize CloudFormation templates
+npm run synth -w packages/infra
+
+# Deploy all stacks
+npm run deploy:all -w packages/infra
 ```
 
 ### LocalStack Support
@@ -194,12 +228,12 @@ This project includes full support for [LocalStack](https://localstack.cloud/), 
 
 ## Technology Stack
 
-- **Language:** TypeScript
+- **Language:** TypeScript (ESM)
 - **Platform:** AWS Lambda
 - **Runtime:** Node.js 24+ (see .nvmrc)
-- **Package Manager:** npm
+- **Package Manager:** npm (workspaces monorepo)
 - **AWS SDK:** v3
-- **Testing:** Jest
+- **Testing:** Vitest
 - **Linting/Formatting:** ESLint + Prettier
 - **Validation:** Zod
 - **Logging:** Pino + Pino Lambda
@@ -219,7 +253,7 @@ This project includes full support for [LocalStack](https://localstack.cloud/), 
 ### Development Dependencies
 
 - **[@types/aws-lambda](https://www.npmjs.com/package/@types/aws-lambda)** - TypeScript definitions for AWS Lambda
-- **[jest](https://www.npmjs.com/package/jest)** - Testing framework
+- **[vitest](https://www.npmjs.com/package/vitest)** - Testing framework
 - **[eslint](https://www.npmjs.com/package/eslint)** - Linting utility
 - **[prettier](https://www.npmjs.com/package/prettier)** - Code formatter
 
